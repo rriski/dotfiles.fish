@@ -1,0 +1,5 @@
+# This directory contains work computer related configuration e.g.
+# custom binaries, work gitconfig and gitmessage, yarnrc, etc.
+#
+*
+!.gitignore

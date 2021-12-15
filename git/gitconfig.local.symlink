@@ -1,0 +1,68 @@
+[user]
+	name = Timo Riski
+	email = 25483483+rriski@users.noreply.github.com
+	username = rriski
+
+[url "git@github.com:"]
+	insteadOf = http://github.com/
+	insteadOf = https://github.com/
+
+[push]
+	default = current
+
+[pull]
+	ff = only
+
+[remote]
+	pushDefault = origin
+
+[commit]
+	template = "~/.gitmessage"
+
+[apply]
+	whitespace = nowarn
+
+[help]
+	autocorrect = 1
+
+[color]
+	ui = auto
+
+[submodule]
+	fetchJobs = 4
+
+[core]
+	editor = nvim
+	excludesfile = "~/.gitignore"
+	pager = delta
+	autocrlf = input
+
+[interactive]
+	diffFilter = delta --color-only
+
+[delta]
+	side-by-side = true
+	line-numbers-left-format = ""
+	line-numbers-right-format = "│ "
+	syntax-theme = Dracula
+	line-numbers = true
+	decorations = true
+
+[init]
+	defaultBranch = main
+
+[dotfiles]
+	managed = true
+
+[credential]
+	helper = osxkeychain
+
+[merge]
+	tool = vscode
+
+[mergetool "vscode"]
+	cmd = "code --wait "
+
+[include]
+	path = "~/.gitconfig.work"
+	path = "~/.gitalias.local"

@@ -1,0 +1,82 @@
+#!/usr/bin/env sh
+#
+# See https://github.com/koekeishiya/yabai/wiki/Installing-yabai-(from-HEAD)
+# to understand why the following two lines are needed on Big Sur.
+
+sudo yabai --load-sa
+yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
+
+# global settings
+yabai -m config mouse_follows_focus             on
+yabai -m config focus_follows_mouse             off
+yabai -m config window_placement                second_child
+yabai -m config window_topmost                  on
+yabai -m config window_shadow                   off
+yabai -m config window_border                   on
+yabai -m config window_border_width             4
+yabai -m config active_window_border_color      0xff5cafb0
+yabai -m config normal_window_border_color      0xff505050
+yabai -m config window_opacity                  off
+yabai -m config split_ratio                     0.50
+yabai -m config auto_balance                    on
+yabai -m config mouse_modifier                  fn
+yabai -m config mouse_action1                   move
+yabai -m config mouse_action2                   resize
+
+# spacebar config
+SPACEBAR_HEIGHT=$(spacebar -m config height)
+yabai -m config external_bar all:$SPACEBAR_HEIGHT:0
+
+# general space settings
+yabai -m config layout                          bsp
+yabai -m config top_padding                     $SPACEBAR_HEIGHT + 2
+yabai -m config bottom_padding                  2
+yabai -m config left_padding                    2
+yabai -m config right_padding                   2
+yabai -m config window_gap                      2
+
+yabai -m config window_topmost                  on
+yabai -m config window_shadow                   float
+
+# Space labels
+yabai -m space 1 --label "Primary"
+yabai -m space 2 --label "Comms"
+yabai -m space 3 --label "Tools"
+yabai -m space 4 --label "Media"
+yabai -m space 5 --label "Social"
+yabai -m space 6 --label "Float"
+yabai -m space 7 --label "Secondary"
+
+# Space config
+yabai -m config --space 6 layout float
+
+# Unmanaged
+yabai -m rule --add app="^System Preferences$"  manage=off border=off
+yabai -m rule --add app="Finder"                manage=off border=off
+yabai -m rule --add app="Harvest"               manage=off border=off
+yabai -m rule --add app="Telegram"              manage=off border=off
+yabai -m rule --add title="^Opening*"           manage=off border=off
+yabai -m rule --add title="^Archive*"           manage=off border=off
+
+# Primary
+yabai -m rule --add app="Alacritty"             space=1
+yabai -m rule --add app="Preview"               space=1
+
+# Communication
+yabai -m rule --add app="Slack"                 space=2
+yabai -m rule --add app="Thunderbird"           space=2
+
+# Tools
+yabai -m rule --add app="Postman"               space=3
+yabai -m rule --add app="Activity Monitor"      space=3
+yabai -m rule --add app="App Store"             space=3
+yabai -m rule --add app="Terminal"              space=3
+
+# Media
+yabai -m rule --add app="Music"                 space=4
+yabai -m rule --add app="QuickTime Player"      space=4
+yabai -m rule --add app="VLC"                   space=4
+yabai -m rule --add app="Spotify"               space=4
+
+# Social
+yabai -m rule --add app="Discord"               space=5

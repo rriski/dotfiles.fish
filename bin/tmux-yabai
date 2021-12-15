@@ -1,0 +1,25 @@
+#!/usr/bin/env fish
+
+YABAI_DIRECTION $1
+
+switch $1
+	case "west"
+		PANE_DIRECTION "left"
+		DIRECTION_FLAG "-L"
+	case "south"
+		PANE_DIRECTION "bottom"
+		DIRECTION_FLAG "-D"
+	case "north"
+		PANE_DIRECTION "top"
+		DIRECTION_FLAG "-U"
+	case "east"
+		PANE_DIRECTION "right"
+		DIRECTION_FLAG "-R"
+	esac
+end
+
+if test -z (tmux display-message -p "#{pane_at_$PANE_DIRECTION}") is "0" then
+  tmux select-pane $DIRECTION_FLAG
+else;
+  yabai -m window --focus $YABAI_DIRECTION || true
+end
