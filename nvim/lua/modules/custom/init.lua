@@ -31,11 +31,11 @@ local modules = {}
 -- UI -----------------------------------------------------------
 -- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
--- local ui_config = require("modules.custom.configs.ui")
+local ui_config = require("modules.custom.configs.ui")
 
--- modules["name_of_your/module"] = {
---     config = ui_config.name_of_your_function
--- }
+modules['aserowy/tmux.nvim'] = {
+    config = ui_config.nvim_tmux,
+}
 
 -- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 -- Editor -------------------------------------------------------
