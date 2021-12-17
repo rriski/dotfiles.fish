@@ -84,6 +84,7 @@ configs["commands_global"] = function()
 end
 
 configs["keymaps_global"] = function()
+    funcs.keymaps("i", {noremap = false, silent = true}, keymaps.insert)
     funcs.keymaps("n", {noremap = false, silent = true}, keymaps.normal)
     funcs.keymaps("x", {noremap = false, silent = true}, keymaps.visual)
 end

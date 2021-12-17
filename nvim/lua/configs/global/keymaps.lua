@@ -1,5 +1,11 @@
 local keymaps = {}
 
+keymaps["insert"] = {
+    {"jk", "<Esc>"},
+    {"jj", "<Esc>"},
+    {"kj", "<Esc>"}
+}
+
 keymaps["normal"] = {
     {"<F1>", ":TTOne<CR>"}, -- Toggleterm one open
     {"<F2>", ":TTTwo<CR>"}, -- Toggleterm two open
