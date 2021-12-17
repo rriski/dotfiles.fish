@@ -231,7 +231,7 @@ function config.which_key()
             s = {"<Cmd>GitSignsStageHunk<CR>", "Stage hunk"},
             u = {"<Cmd>GitSignsUndoStageHunk<CR>", "Undo stage hunk"},
             R = {"<Cmd>GitSignsResetBuffer<CR>", "Reset buffer"},
-            S = {"<Cmd>Gstatus<CR>", "Status"},
+            S = {"<Cmd>Git<CR>", "Status"},
             N = {"<Cmd>Neogit<CR>", "Neogit"}
         },
         m = {
