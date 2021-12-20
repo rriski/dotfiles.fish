@@ -1,8 +1,12 @@
 if status is-login
-	pyenv init --path | source
+	if command -qs pyenv
+		pyenv init --path | source
+	end
 end
 
 if status is-interactive
-	pyenv init - | source
-    pyenv virtualenv-init - | source
+	if command -qs pyenv
+		pyenv init - | source
+		pyenv virtualenv-init - | source
+	end
 end
