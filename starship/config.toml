@@ -1,5 +1,5 @@
 [aws]
-disabled = true
+disabled = false
 
 [cmake]
 disabled = true
@@ -79,7 +79,7 @@ disabled = true
 disabled = true
 
 [nodejs]
-disabled = true
+disabled = false
 
 [ocaml]
 disabled = true
@@ -100,7 +100,7 @@ disabled = true
 disabled = true
 
 [python]
-disabled = true
+disabled = false
 
 [ruby]
 disabled = true
