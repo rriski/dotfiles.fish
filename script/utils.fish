@@ -26,9 +26,9 @@ function on_exit -p %self
 end
 
 function setup_gitconfig
-	set managed (git config --global --get dotfiles.managed)
+	set managed (git config --get dotfiles.managed)
 	# if there is no user.email, we'll assume it's a new machine/setup and ask it
-	if test -z (git config --global --get user.email)
+	if test -z (git config --get user.email)
 		user 'What is your git author name?'
 		read user_name
 		user 'What is your git author email?'
@@ -46,8 +46,8 @@ function setup_gitconfig
 		# if user.email exists, let's check for dotfiles.managed config. If it is
 		# not true, we'll backup the gitconfig file and set previous user.email and
 		# user.name in the new one
-		set user_name (git config --global --get user.name)
-			and set user_email (git config --global --get user.email)
+		set user_name (git config --get user.name)
+			and set user_email (git config --get user.email)
 			and mv ~/.gitconfig ~/.gitconfig.backup
 			and git config --global user.name $user_name
 			and git config --global user.email $user_email

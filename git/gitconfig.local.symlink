@@ -51,9 +51,6 @@
 [init]
 	defaultBranch = main
 
-[dotfiles]
-	managed = true
-
 [credential]
 	helper = osxkeychain
 
@@ -63,6 +60,8 @@
 [mergetool "vscode"]
 	cmd = "code --wait "
 
+[includeIf "gitdir:~/work/"]
+    path = ~/.gitconfig.work
+
 [include]
-	path = "~/.gitconfig.work"
 	path = "~/.gitalias.local"

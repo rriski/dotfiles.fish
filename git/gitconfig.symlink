@@ -1,0 +1,4 @@
+[include]
+	path = /Users/riskti/.gitconfig.local
+[dotfiles]
+	managed = true
