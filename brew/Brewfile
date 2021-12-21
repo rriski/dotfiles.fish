@@ -104,7 +104,8 @@ brew 'pyenv'
 brew 'reattach-to-user-namespace' # copying in tmux vi-mode. See tmux.conf
 brew 'tree'
 brew 'grc'
-brew 'asdf'
+brew 'zoxide'
+brew 'gnupg'
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Fonts
