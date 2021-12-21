@@ -58,8 +58,7 @@ function Packer:load_packer()
         {
             compile_path = packer_compiled,
             git = {
-				clone_timeout = 300,
-				default_url_format = 'https://hub.fastgit.org/%s'
+				clone_timeout = 300
 			},
             display = {
                 open_fn = function()
