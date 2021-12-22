@@ -1,5 +1,9 @@
 local modules = {}
 
+local nocode = function()
+	return vim.fn.exists('g:vscode') == 0
+end
+
 -- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 -- SYSTEM -------------------------------------------------------
 -- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -425,7 +429,8 @@ local completion_config = require("modules.global.configs.completion")
 modules["hrsh7th/nvim-cmp"] = {
     requires = {
         {
-            "hrsh7th/cmp-nvim-lsp"
+            "hrsh7th/cmp-nvim-lsp",
+			cond = { nocode }
         },
         {
             "hrsh7th/cmp-vsnip",
