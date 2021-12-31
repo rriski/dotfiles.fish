@@ -1,6 +1,4 @@
 [alias]
-  fixup = "!sh -c '(git diff-files --quiet || (echo Unstaged changes, please commit or stash with --keep-index; exit 1)) && COMMIT=$(git rev-parse $1) && git commit --fixup=$COMMIT && git rebase -i --autosquash $COMMIT~1' -"
-
 # Human Aliases
 	unstage = reset -q HEAD --
 	discard = checkout --
@@ -13,7 +11,7 @@
 	ca = commit --amend --reset-author
 
 # Commit staged changes into specific commit w/o opening editor
-	fixit = "!f() { git commit --fixup=$1; GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash $1~1; }; f"
+	fixit = "!sh -c '(git diff-files --quiet || (echo Unstaged changes, please commit or stash with --keep-index; exit 1)) && COMMIT=$(git rev-parse $1) && git commit --fixup=$COMMIT && git rebase -i --autosquash $COMMIT~1' -"
 
 # remove changes
 	scraplastcommit = reset --hard HEAD^
@@ -56,7 +54,7 @@
 	dlc = diff --cached HEAD^
 
 # Diff uncommited changes
-  diffunc = diff --cached
+	diffunc = diff --cached
 
 # Show content (full diff) of a commit given a revision:
 	dr  = "!f() { git diff "$1"^.."$1"; }; f"
@@ -71,10 +69,10 @@
 	gr = grep -Ii
 
 # Grep from root folder
-	gra = "!f() { A=$(pwd) && TOPLEVEL=$(git rev-parse --show-toplevel) && cd $TOPLEVEL && git grep --full-name -In $1 | xargs -I{} echo $TOPLEVEL/{} && cd $A; }; f"
+	gre = "!f() { A=$(pwd) && TOPLEVEL=$(git rev-parse --show-toplevel) && cd $TOPLEVEL && git grep --full-name -In $1 | xargs -I{} echo $TOPLEVEL/{} && cd $A; }; f"
 
 # List all Aliases, and these comments  //  la = "!git config -l | grep alias | cut -c 7-"
-	la = "!cat ~/.gitaliases | sed -n -e '/# Human Aliases/,$p' | grep '^\t\\|\\#'"
+	la = "!cat ~/.gitalias.local | sed -n -e '/# Human Aliases/,$p' | grep '^\t\\|\\#'"
 
 # show last tag
 	lasttag = describe --tags --abbrev=0
@@ -92,7 +90,7 @@
 # fuzzy restore staged using fzf
 	fzrs = "!git diff --name-only --staged | fzf --print0 -m --preview 'git diff {}' --preview-window=top:10:wrap | xargs -0 -t -o git restore --staged"
 
-# fuzzy switch branch...  /fish/functions/fco.fish seems better
+# fuzzy switch branch
 	fco = "!git short-recent | fzf --print0 | xargs -0 -t git checkout"
 
 # fuzzy fix staged changes into existing commit
