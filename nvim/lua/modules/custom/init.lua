@@ -33,7 +33,7 @@ local modules = {}
 
 local ui_config = require("modules.custom.configs.ui")
 
-modules['aserowy/tmux.nvim'] = {
+modules["aserowy/tmux.nvim"] = {
     config = ui_config.nvim_tmux,
 }
 
