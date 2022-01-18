@@ -4,4 +4,5 @@ oh-my-fish/plugin-grc
 dracula/fish
 jorgebucaran/replay.fish
 jhillyerd/plugin-git
+sentriz/fish-pipenv
 jorgebucaran/fisher
