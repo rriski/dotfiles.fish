@@ -7,7 +7,7 @@ set -Ux TERM xterm-256color
 set -Ux DOTFILES ~/.dotfiles.fish
 set -Ux PROJECTS ~/work
 
-set -Ua fish_user_paths $DOTFILES/bin $HOME/.bin
+set -Ua fish_user_paths $DOTFILES/bin $HOME/.bin $HOME/.local/bin
 
 for f in $DOTFILES/*/functions
 	set -Up fish_function_path $f
