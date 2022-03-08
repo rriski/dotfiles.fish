@@ -91,6 +91,4 @@ function install_dotfiles
 	end
 	link_file $DOTFILES_ROOT/fisher/plugins $__fish_config_dir/fish_plugins backup
 		or abort plugins
-	#link_file $DOTFILES_ROOT/htop/htoprc $HOME/.config/htop/htoprc backup
-	#	or abort htoprc
 end
