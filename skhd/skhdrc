@@ -135,23 +135,23 @@ ctrl - h [
     * : yabai -m window --focus west
     "Alacritty" ~
     "Kitty" ~
-    "Visual Studio Code" ~
+    "Code" ~
 ]
 ctrl - j [
     * : yabai -m window --focus south
     "Alacritty" ~
     "Kitty" ~
-    "Visual Studio Code" ~
+    "Code" ~
 ]
 ctrl - k [
     * : yabai -m window --focus north
     "Alacritty" ~
     "Kitty" ~
-    "Visual studio Code" ~
+    "Code" ~
 ]
 ctrl - l [
     * : yabai -m window --focus east
     "Alacritty" ~
     "Kitty" ~
-    "Visual Studio Code" ~
+    "Code" ~
 ]
