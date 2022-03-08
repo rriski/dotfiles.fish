@@ -1,6 +1,9 @@
 env:
   TERM: xterm-256color
 
+import:
+  - ~/.config/alacritty/dracula.yml
+
 shell:
   program: fish
 
@@ -53,8 +56,15 @@ font:
 
 window:
   padding:
-    x: 2
-    y: 2
+    x: 10
+    y: 10
+  dynamic_padding: true
+  opacity: 1
+  decorations: buttonless
+  dynamic_title: true
+  dimensions:
+   columns: 120
+   lines: 40
 
 scrolling:
   # Maximum number of lines in the scrollback buffer.
