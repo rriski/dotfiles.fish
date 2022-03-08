@@ -101,11 +101,13 @@ brew 'imagemagick'
 brew 'trash'
 brew 'direnv'
 brew 'pyenv'
+brew 'pyenv-virtualenv'
 brew 'reattach-to-user-namespace' # copying in tmux vi-mode. See tmux.conf
 brew 'tree'
 brew 'grc'
 brew 'zoxide'
 brew 'gnupg'
+brew 'htop'
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Fonts
