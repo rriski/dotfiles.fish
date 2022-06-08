@@ -2,7 +2,7 @@
 set -Ux EDITOR vim
 set -Ux VISUAL $EDITOR
 set -Ux WEDITOR code
-set -Ux TERM xterm-256color
+set -Ux TERM xterm-kitty
 
 set -Ux DOTFILES ~/.dotfiles.fish
 set -Ux PROJECTS ~/work
