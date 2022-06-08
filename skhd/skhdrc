@@ -2,11 +2,11 @@
 # General
 ##############################################
 
-# Open Alacritty
+# Open Kitty
 cmd - return : /Applications/Kitty.app/Contents/MacOS/kitty
 
 # Restart yabai launch agent
-ctrl + alt + cmd - r : launchctl kickstart -k "gui/${UID}/homebrew.mxcl.yabai"
+ctrl + alt + cmd - r : launchctl kickstart -k "gui/$(id -u)/homebrew.mxcl.yabai"
 
 ##############################################
 # Navigation (focusing)
