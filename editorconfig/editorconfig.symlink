@@ -10,8 +10,15 @@ max_line_length = 80
 trim_trailing_whitespace = True
 insert_final_newline = True
 
+[*.{js,ts}]
+indent_size = 2
+
 [Makefile]
 indent_style = tab
+
+[Dockerfile]
+indent_size = 2
+indext_style = tab
 
 [*.{yml,yaml,yml.tmpl,toml,json,md}]
 indent_style = space
