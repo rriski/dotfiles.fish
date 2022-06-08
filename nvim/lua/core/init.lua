@@ -11,7 +11,7 @@ else
             global.cache_path .. "session",
             global.cache_path .. "swap",
             global.cache_path .. "tags",
-            global.cache_path .. "undo"
+            global.cache_path .. "undo",
         }
         if vim.fn.isdirectory(global.cache_dir) == 0 then
             os.execute("mkdir -p " .. global.cache_path)
@@ -24,8 +24,8 @@ else
     end
     local leader_map = function()
         vim.g.mapleader = " "
-        vim.api.nvim_set_keymap("n", " ", "", {noremap = true})
-        vim.api.nvim_set_keymap("x", " ", "", {noremap = true})
+        vim.api.nvim_set_keymap("n", " ", "", { noremap = true })
+        vim.api.nvim_set_keymap("x", " ", "", { noremap = true })
     end
     global["diagnostics"] = {}
     global["diagnostics"]["path"] = vim.fn.getcwd()
