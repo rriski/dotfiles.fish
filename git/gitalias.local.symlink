@@ -11,7 +11,7 @@
 	ca = commit --amend --reset-author
 
 # Commit staged changes into specific commit w/o opening editor
-	fixit = "!sh -c '(git diff-files --quiet || (echo Unstaged changes, please commit or stash with --keep-index; exit 1)) && COMMIT=$(git rev-parse $1) && git commit --fixup=$COMMIT && git rebase -i --autosquash $COMMIT~1' -"
+	fixit = "!sh -c '(git diff-files --quiet || (echo Unstaged changes, please commit or stash with --keep-index; exit 1)) && COMMIT=$(git rev-parse $1) && git commit --no-verify --fixup=$COMMIT && git rebase -i --autosquash $COMMIT~1' -"
 
 # remove changes
 	scraplastcommit = reset --hard HEAD^
@@ -114,3 +114,5 @@
 # fuzzy reset back to prior commit
 	freset = !HASH=`git log --pretty=oneline | head -n 50 | fzf` && git reset --soft `echo ${HASH} | awk '{ print $1 }'`^
 
+# clean local branches
+    cleanbr = ! git branch -d `git branch --merged | grep -v '^*\\|main\\|master\\|staging\\|devel'`
