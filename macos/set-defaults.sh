@@ -98,6 +98,9 @@ echo "  › Removing duplicates in the 'Open With' menu"
 /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister \
 	-kill -r -domain local -domain system -domain user
 
+echo "  › Move Dock to the righ side of the screen"
+defaults write com.apple.dock orientation right
+
 #############################
 
 echo ""
@@ -132,6 +135,9 @@ defaults write com.apple.finder _FXShowPosixPathInTitle -bool true
 
 echo "  › Disable the warning when changing a file extension"
 defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
+
+echo "  › Show hidden files in Finder"
+defaults write com.apple.finder AppleShowAllFiles -bool true
 
 #############################
 
