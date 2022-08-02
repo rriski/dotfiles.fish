@@ -17,7 +17,7 @@
 	pushDefault = origin
 
 [commit]
-	template = "~/.gitmessage"
+	template = ~/.gitmessage
 
 [apply]
 	whitespace = nowarn
@@ -50,6 +50,7 @@
 
 [init]
 	defaultBranch = main
+	templateDir = ~/.git-templates
 
 [credential]
 	helper = osxkeychain
