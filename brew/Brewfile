@@ -93,6 +93,7 @@ brew 'tfsec'
 
 # misc
 brew 'openssl'
+brew 'howdoi'
 brew 'fx'
 brew 'jq'
 brew 'rclone'
