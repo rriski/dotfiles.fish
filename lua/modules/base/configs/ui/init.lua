@@ -1,7 +1,16 @@
 local config = {}
 
 function config.lvim_colorscheme()
-    vim.g.lvim_sidebars = { "qf", "Outline", "terminal", "packer", "calendar", "spectre_panel", "Trouble", "ctrlspace" }
+    vim.g.lvim_sidebars = {
+        "qf",
+        "Outline",
+        "terminal",
+        "packer",
+        "calendar",
+        "spectre_panel",
+        "ctrlspace",
+        "neo-tree",
+    }
     vim.cmd("colorscheme lvim")
 end
 
@@ -85,62 +94,101 @@ function config.alpha_nvim()
     })
 end
 
-function config.nvim_tree_lua()
-    require("nvim-tree").setup({
-        update_cwd = true,
-        update_focused_file = {
-            enable = true,
+function config.nvim_window_picker()
+    local window_picker = require("window-picker")
+    local filters = window_picker.filter_windows
+    local function special_autoselect(windows)
+        windows = filters(windows)
+        if windows == nil then
+            windows = {}
+        end
+        if #windows > 1 then
+            return windows
+        end
+        local curr_win = vim.api.nvim_get_current_win()
+        for index, window in ipairs(windows) do
+            if window == curr_win then
+                table.remove(windows, index)
+            end
+        end
+        return windows
+    end
+
+    local function focus_window()
+        local window = require("window-picker").pick_window()
+        if type(window) == "number" then
+            vim.api.nvim_set_current_win(window)
+        end
+    end
+
+    require("window-picker").setup({
+        autoselect_one = false,
+        include_current_win = true,
+        filter_func = special_autoselect,
+        filter_rules = {
+            bo = {
+                filetype = {},
+                buftype = {},
+            },
         },
-        renderer = {
-            add_trailing = false,
-            group_empty = false,
-            highlight_git = false,
-            highlight_opened_files = "none",
-            root_folder_modifier = ":~",
-            indent_markers = {
-                enable = false,
-                icons = {
-                    corner = "└ ",
-                    edge = "│ ",
-                    none = "  ",
-                },
+        fg_color = "#20262A",
+        current_win_hl_color = "#20262A",
+        other_win_hl_color = "#95b365",
+    })
+    vim.api.nvim_create_user_command("WindowPicker", focus_window, {})
+end
+
+function config.neo_tree_nvim()
+    require("neo-tree").setup({
+        use_popups_for_input = false,
+        popup_border_style = { " ", " ", " ", " ", " ", " ", " ", " " },
+        enable_diagnostics = false,
+        sources = {
+            "filesystem",
+            "buffers",
+            "git_status",
+            "diagnostics",
+        },
+        default_component_configs = {
+            container = {
+                enable_character_fade = true,
             },
-            icons = {
-                webdev_colors = true,
-                git_placement = "before",
-                padding = " ",
-                symlink_arrow = " ➛ ",
-                show = {
-                    file = true,
-                    folder = true,
-                    folder_arrow = true,
-                    git = true,
-                },
-                glyphs = {
-                    default = "",
-                    symlink = "",
-                    folder = {
-                        arrow_closed = "",
-                        arrow_open = "",
-                        default = "",
-                        open = "",
-                        empty = "",
-                        empty_open = "",
-                        symlink = "",
-                        symlink_open = "",
-                    },
-                    git = {
-                        unstaged = "",
-                        staged = "",
-                        unmerged = "",
-                        renamed = "➜",
-                        untracked = "",
-                        deleted = "",
-                        ignored = "◌",
-                    },
-                },
+            indent = {
+                with_markers = false,
+                with_expanders = true,
             },
-            special_files = { "Cargo.toml", "Makefile", "README.md", "readme.md" },
+            icon = {
+                folder_closed = "",
+                folder_open = "",
+                folder_empty = "",
+                highlight = "NeoTreeFileIcon",
+            },
+            modified = {
+                symbol = "",
+            },
+            git_status = {
+                symbols = {
+                    added = "",
+                    deleted = "",
+                    modified = "",
+                    renamed = "",
+                    untracked = "",
+                    ignored = "",
+                    unstaged = "",
+                    staged = "",
+                    conflict = "",
+                },
+                align = "right",
+            },
+        },
+        window = {
+            mappings = {
+                ["Z"] = "expand_all_nodes",
+            },
+        },
+        filesystem = {
+            follow_current_file = true,
+            use_libuv_file_watcher = true,
         },
     })
 end
@@ -222,7 +270,6 @@ function config.which_key_nvim()
     }
     local nmappings = {
         a = { ":e $HOME/.config/nvim/README.org<CR>", "Open README file" },
-        e = { "<Cmd>NvimTreeToggle<CR>", "NvimTree toggle" },
         b = {
             name = "Buffers",
             n = { "<Cmd>BufSurfForward<CR>", "Next buffer" },
@@ -235,6 +282,13 @@ function config.which_key_nvim()
             f = { "<Cmd>DBUIFindBuffer<CR>", "DB find buffer" },
             r = { "<Cmd>DBUIRenameBuffer<CR>", "DB rename buffer" },
             l = { "<Cmd>DBUILastQueryInfo<CR>", "DB last query" },
+        },
+        e = {
+            name = "NeoTree",
+            l = { "<Cmd>Neotree left<CR>", "Neotree left" },
+            f = { "<Cmd>Neotree float<CR>", "Neotree float" },
+            b = { "<Cmd>Neotree buffers float<CR>", "Neotree buffers" },
+            g = { "<Cmd>Neotree git_status float<CR>", "Neotree git_status" },
         },
         p = {
             name = "Packer",
@@ -251,15 +305,15 @@ function config.which_key_nvim()
         },
         l = {
             name = "LSP",
-            n = { "<Cmd>LspGoToNext<CR>", "Go to next" },
-            p = { "<Cmd>LspGoToPrev<CR>", "Go to prev" },
             r = { "<Cmd>LspRename<CR>", "Rename" },
-            h = { "<Cmd>LspHover<CR>", "Hover" },
+            f = { "<Cmd>LspFormatting<CR>", "Format" },
+            h = { "<Cmd>Hover<CR>", "Hover" },
+            a = { "<Cmd>LspCodeAction<CR>", "Code action" },
             d = { "<Cmd>LspDefinition<CR>", "Definition" },
             t = { "<Cmd>LspTypeDefinition<CR>", "Type definition" },
             R = { "<Cmd>LspReferences<CR>", "References" },
-            a = { "<Cmd>LspCodeAction<CR>", "Code action" },
-            f = { "<Cmd>LspFormatting<CR>", "Format" },
+            i = { "<Cmd>LspImplementation<CR>", "Implementation" },
+            s = { "<Cmd>LspSignatureHelp<CR>", "Signature help" },
             S = {
                 name = "Symbol",
                 d = { "<Cmd>LspDocumentSymbol<CR>", "Document symbol" },
@@ -268,11 +322,6 @@ function config.which_key_nvim()
             w = {
                 "<Cmd>LspAddToWorkspaceFolder<CR>",
                 "Add to workspace folder",
-            },
-            v = {
-                name = "Virtualtext",
-                s = { "<Cmd>LspVirtualTextShow<CR>", "Virtual text show" },
-                h = { "<Cmd>LspVirtualTextHide<CR>", "Virtual text hide" },
             },
         },
         g = {
@@ -373,9 +422,9 @@ function config.heirline_nvim()
     local conditions = require("heirline.conditions")
     local utils = require("heirline.utils")
     local colors = LVIM_COLORS()
-    local Align = { provider = "%=" }
-    local Space = { provider = " " }
-    local ViMode = {
+    local align = { provider = "%=" }
+    local space = { provider = " " }
+    local vi_mode = {
         init = function(self)
             self.mode = vim.fn.mode(1)
         end,
@@ -440,12 +489,12 @@ function config.heirline_nvim()
             return { fg = self.mode_colors[mode], bold = true }
         end,
     }
-    local FileNameBlock = {
+    local file_name_block = {
         init = function(self)
             self.filename = vim.api.nvim_buf_get_name(0)
         end,
     }
-    local WorkDir = {
+    local work_dir = {
         provider = function(self)
             self.icon = "    "
             local cwd = vim.fn.getcwd(0)
@@ -467,7 +516,7 @@ function config.heirline_nvim()
             provider = "",
         }),
     }
-    local FileIcon = {
+    local file_icon = {
         init = function(self)
             local filename = self.filename
             local extension = vim.fn.fnamemodify(filename, ":e")
@@ -483,7 +532,7 @@ function config.heirline_nvim()
             return { fg = colors.color_05 }
         end,
     }
-    local FileName = {
+    local file_name = {
         provider = function(self)
             local filename = vim.fn.fnamemodify(self.filename, ":.")
             if filename == "" then
@@ -496,7 +545,7 @@ function config.heirline_nvim()
         end,
         hl = { fg = colors.color_05, bold = true },
     }
-    local FileFlags = {
+    local file_flags = {
         {
             provider = function()
                 if vim.bo.modified then
@@ -514,14 +563,14 @@ function config.heirline_nvim()
             hl = { fg = colors.color_02 },
         },
     }
-    local FileNameModifer = {
+    local file_name_modifer = {
         hl = function()
             if vim.bo.modified then
                 return { fg = colors.color_05, bold = true, force = true }
             end
         end,
     }
-    local FileSize = {
+    local file_size = {
         provider = function()
             local fsize = vim.fn.getfsize(vim.api.nvim_buf_get_name(0))
             fsize = (fsize < 0 and 0) or fsize
@@ -533,17 +582,17 @@ function config.heirline_nvim()
         end,
         hl = { fg = colors.color_03 },
     }
-    FileNameBlock = utils.insert(
-        FileNameBlock,
-        Space,
-        Space,
-        FileIcon,
-        utils.insert(FileNameModifer, FileName),
-        FileSize,
-        unpack(FileFlags),
+    file_name_block = utils.insert(
+        file_name_block,
+        space,
+        space,
+        file_icon,
+        utils.insert(file_name_modifer, file_name),
+        file_size,
+        unpack(file_flags),
         { provider = "%<" }
     )
-    local Git = {
+    local git = {
         condition = conditions.is_git_repo,
         init = function(self)
             self.status_dict = vim.b.gitsigns_status_dict
@@ -583,7 +632,7 @@ function config.heirline_nvim()
             hl = { fg = colors.color_03 },
         },
     }
-    local Diagnostics = {
+    local diagnostics = {
         condition = conditions.has_diagnostics,
         static = {
             error_icon = " ",
@@ -623,7 +672,7 @@ function config.heirline_nvim()
             hl = { fg = colors.color_05 },
         },
     }
-    local LSPActive = {
+    local lsp_active = {
         condition = conditions.lsp_attached,
         update = { "LspAttach", "LspDetach" },
         provider = function()
@@ -635,7 +684,7 @@ function config.heirline_nvim()
         end,
         hl = { fg = colors.color_05, bold = true },
     }
-    local _LSPActive = {
+    local is_lsp_active = {
         condition = conditions.lsp_attached,
         update = { "LspAttach", "LspDetach" },
         provider = function()
@@ -643,7 +692,7 @@ function config.heirline_nvim()
         end,
         hl = { fg = colors.color_03, bold = true },
     }
-    local FileType = {
+    local file_type = {
         provider = function()
             local filetype = vim.bo.filetype
             if filetype ~= "" then
@@ -652,7 +701,7 @@ function config.heirline_nvim()
         end,
         hl = { fg = colors.color_03, bold = true },
     }
-    local FileEncoding = {
+    local file_encoding = {
         provider = function()
             local enc = vim.opt.fileencoding:get()
             if enc ~= "" then
@@ -661,7 +710,7 @@ function config.heirline_nvim()
         end,
         hl = { fg = colors.color_04, bold = true },
     }
-    local FileFormat = {
+    local file_format = {
         provider = function()
             local format = vim.bo.fileformat
             if format ~= "" then
@@ -675,14 +724,14 @@ function config.heirline_nvim()
         end,
         hl = { fg = colors.color_04, bold = true },
     }
-    local Spell = {
+    local spell = {
         condition = function()
             return vim.wo.spell
         end,
         provider = "  SPELL",
         hl = { bold = true, fg = colors.color_03 },
     }
-    local ScrollBar = {
+    local scroll_bar = {
         provider = function()
             local current_line = vim.fn.line(".")
             local total_lines = vim.fn.line("$")
@@ -693,7 +742,7 @@ function config.heirline_nvim()
         end,
         hl = { fg = colors.color_02 },
     }
-    local FileIconName = {
+    local file_icon_name = {
         provider = function()
             local function isempty(s)
                 return s == nil or s == ""
@@ -704,18 +753,18 @@ function config.heirline_nvim()
             local filename = vim.fn.expand("%:t")
             local extension = vim.fn.expand("%:e")
             if not isempty(filename) then
-                local file_icon, file_icon_color =
+                local f_icon, f_icon_color =
                 require("nvim-web-devicons").get_icon_color(filename, extension, { default = true })
                 local hl_group_2 = "FileIconColor" .. extension
-                vim.api.nvim_set_hl(0, hl_group_2, { fg = file_icon_color, bg = colors.status_line_bg })
-                if isempty(file_icon) then
-                    file_icon = ""
-                    file_icon_color = ""
+                vim.api.nvim_set_hl(0, hl_group_2, { fg = f_icon_color, bg = colors.status_line_bg })
+                if isempty(f_icon) then
+                    f_icon = ""
+                    f_icon_color = ""
                 end
                 return "%#"
                     .. hl_group_2
                     .. "# "
-                    .. file_icon
+                    .. f_icon
                     .. "%*"
                     .. " "
                     .. "%#"
@@ -728,18 +777,18 @@ function config.heirline_nvim()
         end,
         hl = { fg = colors.color_02 },
     }
-    local Navic = {
+    local navic = {
         condition = require("nvim-navic").is_available,
         provider = require("nvim-navic").get_location,
     }
-    local TerminalName = {
+    local terminal_name = {
         provider = function()
             local tname, _ = vim.api.nvim_buf_get_name(0):gsub(".*:", "")
             return " " .. tname
         end,
         hl = { fg = colors.color_02, bold = true },
     }
-    local StatusLines = {
+    local status_lines = {
         hl = function()
             if conditions.is_active() then
                 return {
@@ -761,23 +810,23 @@ function config.heirline_nvim()
         },
         init = utils.pick_child_on_condition,
         {
-            ViMode,
-            WorkDir,
-            FileNameBlock,
-            Git,
-            Align,
-            Diagnostics,
-            LSPActive,
-            _LSPActive,
-            FileType,
-            FileEncoding,
-            FileFormat,
-            Spell,
-            ScrollBar,
+            vi_mode,
+            work_dir,
+            file_name_block,
+            git,
+            align,
+            diagnostics,
+            lsp_active,
+            is_lsp_active,
+            file_type,
+            file_encoding,
+            file_format,
+            spell,
+            scroll_bar,
         },
     }
 
-    local WinBars = {
+    local win_bars = {
         init = utils.pick_child_on_condition,
         {
             condition = function()
@@ -798,7 +847,6 @@ function config.heirline_nvim()
                         "NvimTree",
                         "LvimHelper",
                         "floaterm",
-                        "Trouble",
                         "dashboard",
                         "vista",
                         "spectre_panel",
@@ -823,9 +871,9 @@ function config.heirline_nvim()
                 return conditions.buffer_matches({ buftype = { "terminal" } })
             end,
             {
-                FileType,
-                Space,
-                TerminalName,
+                file_type,
+                space,
+                terminal_name,
             },
         },
         {
@@ -833,18 +881,18 @@ function config.heirline_nvim()
                 return not conditions.is_active()
             end,
             {
-                FileIconName,
+                file_icon_name,
             },
         },
         {
-            FileIconName,
-            Navic,
+            file_icon_name,
+            navic,
         },
     }
     if vim.fn.has("nvim-0.8") == 1 then
-        require("heirline").setup(StatusLines, WinBars)
+        require("heirline").setup(status_lines, win_bars)
     else
-        require("heirline").setup(StatusLines)
+        require("heirline").setup(status_lines)
     end
 end
 
@@ -1077,7 +1125,7 @@ function config.nvim_notify()
         stages = "fade",
         on_open = function(win)
             if vim.api.nvim_win_is_valid(win) then
-                vim.api.nvim_win_set_config(win, { border = "single", zindex = 200 })
+                vim.api.nvim_win_set_config(win, { border = { " ", " ", " ", " ", " ", " ", " ", " " }, zindex = 200 })
             end
         end,
     })
@@ -1104,7 +1152,10 @@ function config.nvim_notify()
 end
 
 function config.lvim_focus()
-    require("lvim-focus").setup()
+    require("lvim-focus").setup({
+        colorcolumn = true,
+        colorcolumn_value = "120",
+    })
 end
 
 function config.lvim_helper()

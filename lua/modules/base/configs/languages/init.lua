@@ -2,7 +2,6 @@ local config = {}
 
 function config.mason_nvim()
     -- LSP buf
-    vim.api.nvim_create_user_command("DapToggleBreakpoint", 'lua require("dap").toggle_breakpoint()', {})
     vim.api.nvim_create_user_command("LspAddToWorkspaceFolder", "lua vim.lsp.buf.add_workspace_folder()", {})
     vim.api.nvim_create_user_command("LspListWorkspaceFolders", "lua vim.lsp.buf.list_workspace_folders()", {})
     vim.api.nvim_create_user_command("LspRemoveWorkspaceFolder", "lua vim.lsp.buf.remove_workspace_folder()", {})
@@ -26,13 +25,9 @@ function config.mason_nvim()
     else
         vim.api.nvim_create_user_command("LspFormatting", "lua vim.lsp.buf.formatting()", {})
     end
-    vim.api.nvim_create_user_command("LspHover", "lua vim.lsp.buf.hover()", {})
     vim.api.nvim_create_user_command("LspRename", "lua vim.lsp.buf.rename()", {})
     vim.api.nvim_create_user_command("LspSignatureHelp", "lua vim.lsp.buf.signature_help()", {})
     -- LSP diagnostic
-    vim.api.nvim_create_user_command("LspLine", "lua require('languages.base.utils.diagnostics').line()", {})
-    vim.api.nvim_create_user_command("LspGoToNext", "lua require('languages.base.utils.diagnostics').goto_next()", {})
-    vim.api.nvim_create_user_command("LspGoToPrev", "lua require('languages.base.utils.diagnostics').goto_prev()", {})
     require("mason").setup({
         ui = {
             icons = {
@@ -43,6 +38,51 @@ function config.mason_nvim()
         },
     })
     require("languages.base.utils").setup_diagnostic()
+end
+
+function config.goto_preview()
+    require("goto-preview").setup({
+        border = { " ", " ", " ", " ", " ", " ", " ", " " }, -- Border characters of the floating window
+    })
+    vim.api.nvim_create_user_command("LspDefinition", "lua require('goto-preview').goto_preview_definition()", {})
+    vim.api.nvim_create_user_command(
+        "LspTypeDefinition",
+        "lua require('goto-preview').goto_preview_type_definition()",
+        {}
+    )
+    vim.api.nvim_create_user_command("LspReferences", "lua require('goto-preview').goto_preview_references()", {})
+    vim.api.nvim_create_user_command(
+        "LspImplementation",
+        "lua require('goto-preview').goto_preview_implementation()",
+        {}
+    )
+end
+
+function config.hover_nvim()
+    require("hover").setup({
+        init = function()
+            require("hover.providers.lsp")
+        end,
+        preview_opts = {
+            border = nil,
+        },
+        title = false,
+    })
+    vim.api.nvim_create_user_command("Hover", "lua require('hover').hover()", {})
+end
+
+function config.fidget_nvim()
+    require("fidget").setup({
+        text = {
+            spinner = "bouncing_bar", -- animation shown when tasks are ongoing
+        },
+        window = {
+            relative = "editor", -- where to anchor, either "win" or "editor"
+            blend = 0,
+
+            border = { " ", " ", " ", " ", " ", " ", " ", " " },
+        },
+    })
 end
 
 function config.go_nvim()
@@ -56,6 +96,12 @@ end
 function config.trld_nvim()
     require("trld").setup({
         position = "bottom",
+        highlights = {
+            error = "DiagnosticError",
+            warn = "DiagnosticWarn",
+            info = "DiagnosticInfo",
+            hint = "DiagnosticHint",
+        },
     })
 end
 
@@ -75,6 +121,10 @@ function config.nvim_lightbulb()
         },
     })
     vim.fn.sign_define("LightBulbSign", { text = "", texthl = "LightBulb", linehl = "", numhl = "" })
+end
+
+function config.rest_nvim()
+    require("rest-nvim").setup()
 end
 
 function config.sniprun()
@@ -158,7 +208,7 @@ function config.lsp_inlayhints_nvim()
     require("lsp-inlayhints").setup({
         inlay_hints = {
             highlight = "Comment",
-        }
+        },
     })
 end
 
@@ -174,21 +224,6 @@ end
 function config.any_jump_nvim()
     vim.g.any_jump_disable_default_keybindings = 1
     vim.g.any_jump_list_numbers = 1
-end
-
-function config.trouble_nvim()
-    require("trouble").setup({
-        height = 12,
-        mode = "workspace_diagnostics",
-        use_diagnostic_signs = true,
-        signs = {
-            error = "",
-            warning = "",
-            hint = "",
-            information = "",
-            other = "",
-        },
-    })
 end
 
 function config.symbols_outline_nvim()
@@ -251,13 +286,13 @@ function config.nvim_dap_ui()
         },
     })
     dap.listeners.after.event_initialized["dapui_config"] = function()
-        dapui.open()
+        dapui.open({})
     end
     dap.listeners.before.event_terminated["dapui_config"] = function()
-        dapui.close()
+        dapui.close({})
     end
     dap.listeners.before.event_exited["dapui_config"] = function()
-        dapui.close()
+        dapui.close({})
     end
     vim.fn.sign_define("DapBreakpoint", {
         text = "",
@@ -357,7 +392,7 @@ function config.crates_nvim()
 end
 
 function config.pubspec_assist_nvim()
-    require("pubspec-assist").setup()
+    require("pubspec-assist").setup({})
 end
 
 function config.vimtex()

@@ -4,7 +4,9 @@
 
   LVIM IDE is a modular Neovim configuration written in LUA with full customization
 
-  Current version - 2.0.30 (2022-07-24)
+  Current version - 2.0.60 (2022-08-30)
+
+  Startup time: 092.314 (104 plugins)
 
 **  SCREENSHOTS
 
@@ -14,6 +16,33 @@
 
   [[./media/lvim-ide-screenshot_03.png]]
 
+  [[./media/lvim-ide-screenshot_04.png]]
+
+  [[./media/lvim-ide-screenshot_05.png]]
+
+  [[./media/lvim-ide-screenshot_06.png]]
+
+  [[./media/lvim-ide-screenshot_07.png]]
+
+  [[./media/lvim-ide-screenshot_08.png]]
+
+  [[./media/lvim-ide-screenshot_09.png]]
+
+  [[./media/lvim-ide-screenshot_10.png]]
+
+  [[./media/lvim-ide-screenshot_11.png]]
+
+  [[./media/lvim-ide-screenshot_12.png]]
+
+  [[./media/lvim-ide-screenshot_13.png]]
+
+  [[./media/lvim-ide-screenshot_14.png]]
+
+  [[./media/lvim-ide-screenshot_15.png]]
+
+  [[./media/lvim-ide-screenshot_16.png]]
+
+  [[./media/lvim-ide-screenshot_17.png]]
 **  INTRODUCTION
 
     * Neovim 0.7.0+
@@ -33,7 +62,7 @@
     * [[https://github.com/mhinz/neovim-remote][neovim-remote]]
     * [[https://nodejs.org/en/][nodejs]]
     * [[https://github.com/BurntSushi/ripgrep][ripgrep]]
-    * [[][sed]]
+    * sed
     * [[https://github.com/junegunn/fzf][fzf]]
     * [[https://github.com/WayneD/rsync][rsync]]
     * [[https://github.com/jesseduffield/lazygit][lazygit]]
@@ -41,7 +70,7 @@
     * [[https://github.com/htacg/tidy-html5][tidy-html5]]
     * [[https://git-scm.com/][git]]
     * [[https://curl.se/][curl]] or [[https://www.gnu.org/software/wget/][wget]]
-    * [[][unzip]], [[][tar]], [[][gzip]]
+    * unzip, tar, gzip
 
 **  INSTALL
 
@@ -145,6 +174,16 @@
 
     #+end_src
 
+******   [[https://github.com/lewis6991/impatient.nvim][impatient.nvim]]
+
+        + INIT
+
+    #+begin_src lua
+
+    modules["lewis6991/impatient.nvim"] = {}
+
+    #+end_src
+
 *****  UI
 
 ******   [[https://github.com/lvim-tech/lvim-colorscheme][lvim-colorscheme]]
@@ -164,7 +203,7 @@
     #+begin_src lua
 
     function config.lvim_colorscheme()
-        vim.g.lvim_sidebars = { "qf", "Outline", "terminal", "packer", "calendar", "spectre_panel", "Trouble", "ctrlspace" }
+        vim.g.lvim_sidebars = { "qf", "Outline", "terminal", "packer", "calendar", "spectre_panel", "ctrlspace" }
         vim.cmd("colorscheme lvim")
     end
 
@@ -297,7 +336,7 @@
 
     #+end_src
 
-******   [[https://github.com/kyazdani42/nvim-tree.lua][nvim-tree.lua]]
+******   [[https://github.com/s1n7ax/nvim-window-picker][nvim-window-picker]]
 
         + REQUIRES:
           *  [[https://github.com/kyazdani42/nvim-web-devicons][nvim-web-devicons]]
@@ -306,12 +345,8 @@
 
     #+begin_src lua
 
-    modules["kyazdani42/nvim-tree.lua"] = {
-        requires = {
-            "kyazdani42/nvim-web-devicons",
-        },
-        cmd = "NvimTreeToggle",
-        config = ui_config.nvim_tree_lua,
+    modules["s1n7ax/nvim-window-picker"] = {
+        config = ui_config.nvim_window_picker,
     }
 
     #+end_src
@@ -320,62 +355,129 @@
 
     #+begin_src lua
 
-    function config.nvim_tree_lua()
-        require("nvim-tree").setup({
-            update_cwd = true,
-            update_focused_file = {
-                enable = true,
+    function config.nvim_window_picker()
+        local window_picker = require("window-picker")
+        local filters = window_picker.filter_windows
+        local function special_autoselect(windows)
+            windows = filters(windows)
+            if #windows > 1 then
+                return windows
+            end
+            local curr_win = vim.api.nvim_get_current_win()
+            for index, window in ipairs(windows) do
+                if window == curr_win then
+                    table.remove(windows, index)
+                end
+            end
+            return windows
+        end
+
+        local function focus_window()
+            local window = require("window-picker").pick_window()
+            if type(window) == "number" then
+                vim.api.nvim_set_current_win(window)
+            end
+        end
+
+        require("window-picker").setup({
+            autoselect_one = false,
+            include_current_win = true,
+            filter_func = special_autoselect,
+            filter_rules = {
+                bo = {
+                    filetype = {},
+                    buftype = {},
+                },
             },
-            renderer = {
-                add_trailing = false,
-                group_empty = false,
-                highlight_git = false,
-                highlight_opened_files = "none",
-                root_folder_modifier = ":~",
-                indent_markers = {
-                    enable = false,
-                    icons = {
-                        corner = "└ ",
-                        edge = "│ ",
-                        none = "  ",
-                    },
+            fg_color = "#20262A",
+            current_win_hl_color = "#20262A",
+            other_win_hl_color = "#95b365",
+        })
+        vim.api.nvim_create_user_command("WindowPicker", focus_window, {})
+    end
+
+    #+end_src
+
+******   [[https://github.com/nvim-neo-tree/neo-tree.nvim][neo-tree.nvim]]
+
+        + REQUIRES:
+          *  [[https://github.com/nvim-lua/plenary.nvim][plenary.nvim]]
+          *  [[https://github.com/kyazdani42/nvim-web-devicons][nvim-web-devicons]]
+          *  [[https://github.com/MunifTanjim/nui.nvim][nui.nvim]]
+
+        + INIT
+
+    #+begin_src lua
+
+    modules["nvim-neo-tree/neo-tree.nvim"] = {
+        branch = "v2.x",
+        requires = {
+            "nvim-lua/plenary.nvim",
+            "kyazdani42/nvim-web-devicons",
+            "MunifTanjim/nui.nvim",
+            {
+                "mrbjarksen/neo-tree-diagnostics.nvim",
+                module = "neo-tree.sources.diagnostics",
+            },
+        },
+        config = ui_config.neo_tree_nvim,
+    }
+
+    #+end_src
+
+        + CONFIG
+
+    #+begin_src lua
+
+    function config.neo_tree_nvim()
+        require("neo-tree").setup({
+            use_popups_for_input = false,
+            enable_diagnostics = false,
+            sources = {
+                "filesystem",
+                "buffers",
+                "git_status",
+                "diagnostics",
+            },
+            default_component_configs = {
+                container = {
+                    enable_character_fade = true,
                 },
-                icons = {
-                    webdev_colors = true,
-                    git_placement = "before",
-                    padding = " ",
-                    symlink_arrow = " ➛ ",
-                    show = {
-                        file = true,
-                        folder = true,
-                        folder_arrow = true,
-                        git = true,
-                    },
-                    glyphs = {
-                        default = "",
-                        symlink = "",
-                        folder = {
-                            arrow_closed = "",
-                            arrow_open = "",
-                            default = "",
-                            open = "",
-                            empty = "",
-                            empty_open = "",
-                            symlink = "",
-                            symlink_open = "",
-                        },
-                        git = {
-                            unstaged = "",
-                            staged = "",
-                            unmerged = "",
-                            renamed = "➜",
-                            untracked = "",
-                            deleted = "",
-                            ignored = "◌",
-                        },
-                    },
+                indent = {
+                    with_markers = false,
+                    with_expanders = true,
                 },
-                special_files = { "Cargo.toml", "Makefile", "README.md", "readme.md" },
+                icon = {
+                    folder_closed = "",
+                    folder_open = "",
+                    folder_empty = "",
+                    highlight = "NeoTreeFileIcon",
+                },
+                modified = {
+                    symbol = "",
+                },
+                git_status = {
+                    symbols = {
+                        added = "",
+                        deleted = "",
+                        modified = "",
+                        renamed = "",
+                        untracked = "",
+                        ignored = "",
+                        unstaged = "",
+                        staged = "",
+                        conflict = "",
+                    },
+                    align = "right",
+                },
+            },
+            window = {
+                mappings = {
+                    ["Z"] = "expand_all_nodes",
+                },
+            },
+            filesystem = {
+                follow_current_file = true,
             },
         })
     end
@@ -405,244 +507,240 @@
 
     #+end_src
 
-*******   [[https://github.com/folke/which-key.nvim][which-key.nvim]]
- 
-         + INIT
- 
-     #+begin_src lua
- 
-     modules["folke/which-key.nvim"] = {
-         event = "BufWinEnter",
-         config = ui_config.which_key_nvim,
-     }
- 
-     #+end_src
- 
-         + CONFIG
- 
-     #+begin_src lua
- 
-     function config.which_key_nvim()
-         local options = {
-             plugins = {
-                 marks = true,
-                 registers = true,
-                 presets = {
-                     operators = false,
-                     motions = false,
-                     text_objects = false,
-                     windows = false,
-                     nav = false,
-                     z = false,
-                     g = false,
-                 },
-                 spelling = {
-                     enabled = true,
-                     suggestions = 20,
-                 },
-             },
-             icons = {
-                 breadcrumb = "»",
-                 separator = "➜",
-                 group = "+",
-             },
-             window = {
-                 border = "single",
-                 position = "bottom",
-                 margin = {
-                     0,
-                     0,
-                     0,
-                     0,
-                 },
-                 padding = {
-                     2,
-                     2,
-                     2,
-                     2,
-                 },
-             },
-             layout = {
-                 height = {
-                     min = 4,
-                     max = 25,
-                 },
-                 width = {
-                     min = 20,
-                     max = 50,
-                 },
-                 spacing = 10,
-             },
-             hidden = { "<silent>", "<cmd>", "<Cmd>", "<CR>", "call", "lua", "^:", "^ " },
-             show_help = true,
-         }
-         local nopts = {
-             mode = "n",
-             prefix = "<leader>",
-             buffer = nil,
-             silent = true,
-             noremap = true,
-             nowait = true,
-         }
-         local vopts = {
-             mode = "v",
-             prefix = "<leader>",
-             buffer = nil,
-             silent = true,
-             noremap = true,
-             nowait = true,
-         }
-         local nmappings = {
-             a = { ":e $HOME/.config/nvim/README.org<CR>", "Open README file" },
-             e = { "<Cmd>NvimTreeToggle<CR>", "NvimTree toggle" },
-             b = {
-                 name = "Buffers",
-                 n = { "<Cmd>BufSurfForward<CR>", "Next buffer" },
-                 p = { "<Cmd>BufSurfBack<CR>", "Prev buffer" },
-                 l = { "<Cmd>Telescope buffers<CR>", "List buffers" },
-             },
-             d = {
-                 name = "Database",
-                 u = { "<Cmd>DBUIToggle<CR>", "DB UI toggle" },
-                 f = { "<Cmd>DBUIFindBuffer<CR>", "DB find buffer" },
-                 r = { "<Cmd>DBUIRenameBuffer<CR>", "DB rename buffer" },
-                 l = { "<Cmd>DBUILastQueryInfo<CR>", "DB last query" },
-             },
-             p = {
-                 name = "Packer",
-                 c = { "<cmd>PackerCompile<CR>", "Compile" },
-                 i = { "<cmd>PackerInstall<CR>", "Install" },
-                 s = { "<cmd>PackerSync<CR>", "Sync" },
-                 S = { "<cmd>PackerStatus<CR>", "Status" },
-                 u = { "<cmd>PackerUpdate<CR>", "Update" },
-             },
-             P = {
-                 name = "Path",
-                 g = { "<Cmd>SetGlobalPath<CR>", "Set global path" },
-                 w = { "<Cmd>SetWindowPath<CR>", "Set window path" },
-             },
-             l = {
-                 name = "LSP",
-                 n = { "<Cmd>LspGoToNext<CR>", "Go to next" },
-                 p = { "<Cmd>LspGoToPrev<CR>", "Go to prev" },
-                 r = { "<Cmd>LspRename<CR>", "Rename" },
-                 h = { "<Cmd>LspHover<CR>", "Hover" },
-                 d = { "<Cmd>LspDefinition<CR>", "Definition" },
-                 t = { "<Cmd>LspTypeDefinition<CR>", "Type definition" },
-                 R = { "<Cmd>LspReferences<CR>", "References" },
-                 a = { "<Cmd>LspCodeAction<CR>", "Code action" },
-                 f = { "<Cmd>LspFormatting<CR>", "Format" },
-                 S = {
-                     name = "Symbol",
-                     d = { "<Cmd>LspDocumentSymbol<CR>", "Document symbol" },
-                     w = { "<Cmd>LspWorkspaceSymbol<CR>", "Workspace symbol" },
-                 },
-                 w = {
-                     "<Cmd>LspAddToWorkspaceFolder<CR>",
-                     "Add to workspace folder",
-                 },
-                 v = {
-                     name = "Virtualtext",
-                     s = { "<Cmd>LspVirtualTextShow<CR>", "Virtual text show" },
-                     h = { "<Cmd>LspVirtualTextHide<CR>", "Virtual text hide" },
-                 },
-             },
-             g = {
-                 name = "GIT",
-                 b = { "<Cmd>GitSignsBlameLine<CR>", "Blame" },
-                 ["]"] = { "<Cmd>GitSignsNextHunk<CR>", "Next hunk" },
-                 ["["] = { "<Cmd>GitSignsPrevHunk<CR>", "Prev hunk" },
-                 P = { "<Cmd>GitSignsPreviewHunk<CR>", "Preview hunk" },
-                 r = { "<Cmd>GitSignsResetHunk<CR>", "Reset stage hunk" },
-                 s = { "<Cmd>GitSignsStageHunk<CR>", "Stage hunk" },
-                 u = { "<Cmd>GitSignsUndoStageHunk<CR>", "Undo stage hunk" },
-                 R = { "<Cmd>GitSignsResetBuffer<CR>", "Reset buffer" },
-                 n = { "<Cmd>Neogit<CR>", "Neogit" },
-                 l = { "<Cmd>Lazygit<CR>", "Lazygit" },
-             },
-             f = {
-                 name = "Find & Fold",
-                 f = { "<Cmd>HopWord<CR>", "Hop Word" },
-                 ["]"] = { "<Cmd>HopChar1<CR>", "Hop Char1" },
-                 ["["] = { "<Cmd>HopChar2<CR>", "Hop Char2" },
-                 l = { "<Cmd>HopLine<CR>", "Hop Line" },
-                 s = { "<Cmd>HopLineStart<CR>", "Hop Line Start" },
-                 m = { "<Cmd>:set foldmethod=manual<CR>", "Manual (default)" },
-                 i = { "<Cmd>:set foldmethod=indent<CR>", "Indent" },
-                 e = { "<Cmd>:set foldmethod=expr<CR>", "Expr" },
-                 d = { "<Cmd>:set foldmethod=diff<CR>", "Diff" },
-                 M = { "<Cmd>:set foldmethod=marker<CR>", "Marker" },
-             },
-             s = {
-                 name = "Spectre",
-                 d = {
-                     '<Cmd>lua require("spectre").delete()<CR>',
-                     "Toggle current item",
-                 },
-                 g = {
-                     '<Cmd>lua require("spectre.actions").select_entry()<CR>',
-                     "Goto current file",
-                 },
-                 q = {
-                     '<Cmd>lua require("spectre.actions").send_to_qf()<CR>',
-                     "Send all item to quickfix",
-                 },
-                 m = {
-                     '<Cmd>lua require("spectre.actions").replace_cmd()<CR>',
-                     "Input replace vim command",
-                 },
-                 o = {
-                     '<Cmd>lua require("spectre").show_options()<CR>',
-                     "show option",
-                 },
-                 R = {
-                     '<Cmd>lua require("spectre.actions").run_replace()<CR>',
-                     "Replace all",
-                 },
-                 v = {
-                     '<Cmd>lua require("spectre").change_view()<CR>',
-                     "Change result view mode",
-                 },
-                 c = {
-                     '<Cmd>lua require("spectre").change_options("ignore-case")<CR>',
-                     "Toggle ignore case",
-                 },
-                 h = {
-                     '<Cmd>lua require("spectre").change_options("hidden")<CR>',
-                     "Toggle search hidden",
-                 },
-             },
-             t = {
-                 name = "Telescope",
-                 b = { "<Cmd>Telescope file_browser<CR>", "File browser" },
-                 f = { "<Cmd>Telescope find_files<CR>", "Find files" },
-                 w = { "<Cmd>Telescope live_grep<CR>", "Live grep" },
-                 u = { "<Cmd>Telescope buffers<CR>", "Buffers" },
-                 m = { "<Cmd>Telescope marks<CR>", "Marks" },
-                 o = { "<Cmd>Telescope commands<CR>", "Commands" },
-                 y = { "<Cmd>Telescope symbols<CR>", "Symbols" },
-                 n = { "<Cmd>Telescope quickfix<CR>", "Quickfix" },
-                 c = { "<Cmd>Telescope git_commits<CR>", "Git commits" },
-                 B = { "<Cmd>Telescope git_bcommits<CR>", "Git bcommits" },
-                 r = { "<Cmd>Telescope git_branches<CR>", "Git branches" },
-                 s = { "<Cmd>Telescope git_status<CR>", "Git status" },
-                 S = { "<Cmd>Telescope git_stash<CR>", "Git stash" },
-                 i = { "<Cmd>Telescope git_files<CR>", "Git files" },
-                 M = { "<Cmd>Telescope media_files<CR>", "Media files" },
-             },
-         }
-         local vmappings = {
-             ["/"] = { ":CommentToggle<CR>", "Comment" },
-             f = { "<Cmd>LspRangeFormatting<CR>", "Range formatting" },
-         }
-         local which_key = require("which-key")
-         which_key.setup(options)
-         which_key.register(nmappings, nopts)
-         which_key.register(vmappings, vopts)
-     end
- 
-     #+end_src
- 
+*********   [[https://github.com/folke/which-key.nvim][which-key.nvim]]
+
+           + INIT
+
+    #+begin_src lua
+
+    modules["folke/which-key.nvim"] = {
+        event = "BufWinEnter",
+        config = ui_config.which_key_nvim,
+    }
+
+    #+end_src
+
+           + CONFIG
+
+    #+begin_src lua
+
+    function config.which_key_nvim()
+        local options = {
+            plugins = {
+                marks = true,
+                registers = true,
+                presets = {
+                    operators = false,
+                    motions = false,
+                    text_objects = false,
+                    windows = false,
+                    nav = false,
+                    z = false,
+                    g = false,
+                },
+                spelling = {
+                    enabled = true,
+                    suggestions = 20,
+                },
+            },
+            icons = {
+                breadcrumb = "»",
+                separator = "➜",
+                group = "+",
+            },
+            window = {
+                border = "single",
+                position = "bottom",
+                margin = {
+                    0,
+                    0,
+                    0,
+                    0,
+                },
+                padding = {
+                    2,
+                    2,
+                    2,
+                    2,
+                },
+            },
+            layout = {
+                height = {
+                    min = 4,
+                    max = 25,
+                },
+                width = {
+                    min = 20,
+                    max = 50,
+                },
+                spacing = 10,
+            },
+            hidden = { "<silent>", "<cmd>", "<Cmd>", "<CR>", "call", "lua", "^:", "^ " },
+            show_help = true,
+            buftype = "",
+        }
+        local nopts = {
+            mode = "n",
+            prefix = "<leader>",
+            buffer = nil,
+            silent = true,
+            noremap = true,
+            nowait = true,
+        }
+        local vopts = {
+            mode = "v",
+            prefix = "<leader>",
+            buffer = nil,
+            silent = true,
+            noremap = true,
+            nowait = true,
+        }
+        local nmappings = {
+            a = { ":e $HOME/.config/nvim/README.org<CR>", "Open README file" },
+            e = { "<Cmd>NvimTreeToggle<CR>", "NvimTree toggle" },
+            b = {
+                name = "Buffers",
+                n = { "<Cmd>BufSurfForward<CR>", "Next buffer" },
+                p = { "<Cmd>BufSurfBack<CR>", "Prev buffer" },
+                l = { "<Cmd>Telescope buffers<CR>", "List buffers" },
+            },
+            d = {
+                name = "Database",
+                u = { "<Cmd>DBUIToggle<CR>", "DB UI toggle" },
+                f = { "<Cmd>DBUIFindBuffer<CR>", "DB find buffer" },
+                r = { "<Cmd>DBUIRenameBuffer<CR>", "DB rename buffer" },
+                l = { "<Cmd>DBUILastQueryInfo<CR>", "DB last query" },
+            },
+            p = {
+                name = "Packer",
+                c = { "<cmd>PackerCompile<CR>", "Compile" },
+                i = { "<cmd>PackerInstall<CR>", "Install" },
+                s = { "<cmd>PackerSync<CR>", "Sync" },
+                S = { "<cmd>PackerStatus<CR>", "Status" },
+                u = { "<cmd>PackerUpdate<CR>", "Update" },
+            },
+            P = {
+                name = "Path",
+                g = { "<Cmd>SetGlobalPath<CR>", "Set global path" },
+                w = { "<Cmd>SetWindowPath<CR>", "Set window path" },
+            },
+            l = {
+                name = "LSP",
+                r = { "<Cmd>LspRename<CR>", "Rename" },
+                f = { "<Cmd>LspFormatting<CR>", "Format" },
+                h = { "<Cmd>Hover<CR>", "Hover" },
+                a = { "<Cmd>LspCodeAction<CR>", "Code action" },
+                d = { "<Cmd>LspDefinition<CR>", "Definition" },
+                t = { "<Cmd>LspTypeDefinition<CR>", "Type definition" },
+                R = { "<Cmd>LspReferences<CR>", "References" },
+                i = { "<Cmd>LspImplementation<CR>", "Implementation" },
+                s = { "<Cmd>LspSignatureHelp<CR>", "Signature help" },
+                S = {
+                    name = "Symbol",
+                    d = { "<Cmd>LspDocumentSymbol<CR>", "Document symbol" },
+                    w = { "<Cmd>LspWorkspaceSymbol<CR>", "Workspace symbol" },
+                },
+                w = {
+                    "<Cmd>LspAddToWorkspaceFolder<CR>",
+                    "Add to workspace folder",
+                },
+            },
+            g = {
+                name = "GIT",
+                b = { "<Cmd>GitSignsBlameLine<CR>", "Blame" },
+                ["]"] = { "<Cmd>GitSignsNextHunk<CR>", "Next hunk" },
+                ["["] = { "<Cmd>GitSignsPrevHunk<CR>", "Prev hunk" },
+                P = { "<Cmd>GitSignsPreviewHunk<CR>", "Preview hunk" },
+                r = { "<Cmd>GitSignsResetHunk<CR>", "Reset stage hunk" },
+                s = { "<Cmd>GitSignsStageHunk<CR>", "Stage hunk" },
+                u = { "<Cmd>GitSignsUndoStageHunk<CR>", "Undo stage hunk" },
+                R = { "<Cmd>GitSignsResetBuffer<CR>", "Reset buffer" },
+                n = { "<Cmd>Neogit<CR>", "Neogit" },
+                l = { "<Cmd>Lazygit<CR>", "Lazygit" },
+            },
+            f = {
+                name = "Find & Fold",
+                f = { "<Cmd>HopWord<CR>", "Hop Word" },
+                ["]"] = { "<Cmd>HopChar1<CR>", "Hop Char1" },
+                ["["] = { "<Cmd>HopChar2<CR>", "Hop Char2" },
+                l = { "<Cmd>HopLine<CR>", "Hop Line" },
+                s = { "<Cmd>HopLineStart<CR>", "Hop Line Start" },
+                m = { "<Cmd>:set foldmethod=manual<CR>", "Manual (default)" },
+                i = { "<Cmd>:set foldmethod=indent<CR>", "Indent" },
+                e = { "<Cmd>:set foldmethod=expr<CR>", "Expr" },
+                d = { "<Cmd>:set foldmethod=diff<CR>", "Diff" },
+                M = { "<Cmd>:set foldmethod=marker<CR>", "Marker" },
+            },
+            s = {
+                name = "Spectre",
+                d = {
+                    '<Cmd>lua require("spectre").delete()<CR>',
+                    "Toggle current item",
+                },
+                g = {
+                    '<Cmd>lua require("spectre.actions").select_entry()<CR>',
+                    "Goto current file",
+                },
+                q = {
+                    '<Cmd>lua require("spectre.actions").send_to_qf()<CR>',
+                    "Send all item to quickfix",
+                },
+                m = {
+                    '<Cmd>lua require("spectre.actions").replace_cmd()<CR>',
+                    "Input replace vim command",
+                },
+                o = {
+                    '<Cmd>lua require("spectre").show_options()<CR>',
+                    "show option",
+                },
+                R = {
+                    '<Cmd>lua require("spectre.actions").run_replace()<CR>',
+                    "Replace all",
+                },
+                v = {
+                    '<Cmd>lua require("spectre").change_view()<CR>',
+                    "Change result view mode",
+                },
+                c = {
+                    '<Cmd>lua require("spectre").change_options("ignore-case")<CR>',
+                    "Toggle ignore case",
+                },
+                h = {
+                    '<Cmd>lua require("spectre").change_options("hidden")<CR>',
+                    "Toggle search hidden",
+                },
+            },
+            t = {
+                name = "Telescope",
+                b = { "<Cmd>Telescope file_browser<CR>", "File browser" },
+                f = { "<Cmd>Telescope find_files<CR>", "Find files" },
+                w = { "<Cmd>Telescope live_grep<CR>", "Live grep" },
+                u = { "<Cmd>Telescope buffers<CR>", "Buffers" },
+                m = { "<Cmd>Telescope marks<CR>", "Marks" },
+                o = { "<Cmd>Telescope commands<CR>", "Commands" },
+                y = { "<Cmd>Telescope symbols<CR>", "Symbols" },
+                n = { "<Cmd>Telescope quickfix<CR>", "Quickfix" },
+                c = { "<Cmd>Telescope git_commits<CR>", "Git commits" },
+                B = { "<Cmd>Telescope git_bcommits<CR>", "Git bcommits" },
+                r = { "<Cmd>Telescope git_branches<CR>", "Git branches" },
+                s = { "<Cmd>Telescope git_status<CR>", "Git status" },
+                S = { "<Cmd>Telescope git_stash<CR>", "Git stash" },
+                i = { "<Cmd>Telescope git_files<CR>", "Git files" },
+                M = { "<Cmd>Telescope media_files<CR>", "Media files" },
+            },
+        }
+        local vmappings = {
+            ["/"] = { ":CommentToggle<CR>", "Comment" },
+            f = { "<Cmd>LspRangeFormatting<CR>", "Range formatting" },
+        }
+        local which_key = require("which-key")
+        which_key.setup(options)
+        which_key.register(nmappings, nopts)
+        which_key.register(vmappings, vopts)
+    end
+
+    #+end_src
+
 ******   [[https://github.com/rebelot/heirline.nvim][heirline.nvim]]
 
         + INIT
@@ -664,9 +762,9 @@
         local conditions = require("heirline.conditions")
         local utils = require("heirline.utils")
         local colors = LVIM_COLORS()
-        local Align = { provider = "%=" }
-        local Space = { provider = " " }
-        local ViMode = {
+        local align = { provider = "%=" }
+        local space = { provider = " " }
+        local vi_mode = {
             init = function(self)
                 self.mode = vim.fn.mode(1)
             end,
@@ -731,12 +829,12 @@
                 return { fg = self.mode_colors[mode], bold = true }
             end,
         }
-        local FileNameBlock = {
+        local file_name_block = {
             init = function(self)
                 self.filename = vim.api.nvim_buf_get_name(0)
             end,
         }
-        local WorkDir = {
+        local work_dir = {
             provider = function(self)
                 self.icon = "    "
                 local cwd = vim.fn.getcwd(0)
@@ -758,7 +856,7 @@
                 provider = "",
             }),
         }
-        local FileIcon = {
+        local file_icon = {
             init = function(self)
                 local filename = self.filename
                 local extension = vim.fn.fnamemodify(filename, ":e")
@@ -774,7 +872,7 @@
                 return { fg = colors.color_05 }
             end,
         }
-        local FileName = {
+        local file_name = {
             provider = function(self)
                 local filename = vim.fn.fnamemodify(self.filename, ":.")
                 if filename == "" then
@@ -787,7 +885,7 @@
             end,
             hl = { fg = colors.color_05, bold = true },
         }
-        local FileFlags = {
+        local file_flags = {
             {
                 provider = function()
                     if vim.bo.modified then
@@ -805,14 +903,14 @@
                 hl = { fg = colors.color_02 },
             },
         }
-        local FileNameModifer = {
+        local file_name_modifer = {
             hl = function()
                 if vim.bo.modified then
                     return { fg = colors.color_05, bold = true, force = true }
                 end
             end,
         }
-        local FileSize = {
+        local file_size = {
             provider = function()
                 local fsize = vim.fn.getfsize(vim.api.nvim_buf_get_name(0))
                 fsize = (fsize < 0 and 0) or fsize
@@ -824,17 +922,17 @@
             end,
             hl = { fg = colors.color_03 },
         }
-        FileNameBlock = utils.insert(
-            FileNameBlock,
-            Space,
-            Space,
-            FileIcon,
-            utils.insert(FileNameModifer, FileName),
-            FileSize,
-            unpack(FileFlags),
+        file_name_block = utils.insert(
+            file_name_block,
+            space,
+            space,
+            file_icon,
+            utils.insert(file_name_modifer, file_name),
+            file_size,
+            unpack(file_flags),
             { provider = "%<" }
         )
-        local Git = {
+        local git = {
             condition = conditions.is_git_repo,
             init = function(self)
                 self.status_dict = vim.b.gitsigns_status_dict
@@ -874,7 +972,7 @@
                 hl = { fg = colors.color_03 },
             },
         }
-        local Diagnostics = {
+        local diagnostics = {
             condition = conditions.has_diagnostics,
             static = {
                 error_icon = " ",
@@ -914,7 +1012,7 @@
                 hl = { fg = colors.color_05 },
             },
         }
-        local LSPActive = {
+        local lsp_active = {
             condition = conditions.lsp_attached,
             update = { "LspAttach", "LspDetach" },
             provider = function()
@@ -926,7 +1024,7 @@
             end,
             hl = { fg = colors.color_05, bold = true },
         }
-        local _LSPActive = {
+        local is_lsp_active = {
             condition = conditions.lsp_attached,
             update = { "LspAttach", "LspDetach" },
             provider = function()
@@ -934,7 +1032,7 @@
             end,
             hl = { fg = colors.color_03, bold = true },
         }
-        local FileType = {
+        local file_type = {
             provider = function()
                 local filetype = vim.bo.filetype
                 if filetype ~= "" then
@@ -943,7 +1041,7 @@
             end,
             hl = { fg = colors.color_03, bold = true },
         }
-        local FileEncoding = {
+        local file_encoding = {
             provider = function()
                 local enc = vim.opt.fileencoding:get()
                 if enc ~= "" then
@@ -952,7 +1050,7 @@
             end,
             hl = { fg = colors.color_04, bold = true },
         }
-        local FileFormat = {
+        local file_format = {
             provider = function()
                 local format = vim.bo.fileformat
                 if format ~= "" then
@@ -966,14 +1064,14 @@
             end,
             hl = { fg = colors.color_04, bold = true },
         }
-        local Spell = {
+        local spell = {
             condition = function()
                 return vim.wo.spell
             end,
             provider = "  SPELL",
             hl = { bold = true, fg = colors.color_03 },
         }
-        local ScrollBar = {
+        local scroll_bar = {
             provider = function()
                 local current_line = vim.fn.line(".")
                 local total_lines = vim.fn.line("$")
@@ -984,7 +1082,7 @@
             end,
             hl = { fg = colors.color_02 },
         }
-        local FileIconName = {
+        local file_icon_name = {
             provider = function()
                 local function isempty(s)
                     return s == nil or s == ""
@@ -996,7 +1094,7 @@
                 local extension = vim.fn.expand("%:e")
                 if not isempty(filename) then
                     local file_icon, file_icon_color =
-                    require("nvim-web-devicons").get_icon_color(filename, extension, { default = true })
+                        require("nvim-web-devicons").get_icon_color(filename, extension, { default = true })
                     local hl_group_2 = "FileIconColor" .. extension
                     vim.api.nvim_set_hl(0, hl_group_2, { fg = file_icon_color, bg = colors.status_line_bg })
                     if isempty(file_icon) then
@@ -1019,18 +1117,18 @@
             end,
             hl = { fg = colors.color_02 },
         }
-        local Navic = {
+        local navic = {
             condition = require("nvim-navic").is_available,
             provider = require("nvim-navic").get_location,
         }
-        local TerminalName = {
+        local terminal_name = {
             provider = function()
                 local tname, _ = vim.api.nvim_buf_get_name(0):gsub(".*:", "")
                 return " " .. tname
             end,
             hl = { fg = colors.color_02, bold = true },
         }
-        local StatusLines = {
+        local status_lines = {
             hl = function()
                 if conditions.is_active() then
                     return {
@@ -1052,27 +1150,33 @@
             },
             init = utils.pick_child_on_condition,
             {
-                ViMode,
-                WorkDir,
-                FileNameBlock,
-                Git,
-                Align,
-                Diagnostics,
-                LSPActive,
-                _LSPActive,
-                FileType,
-                FileEncoding,
-                FileFormat,
-                Spell,
-                ScrollBar,
+                vi_mode,
+                work_dir,
+                file_name_block,
+                git,
+                align,
+                diagnostics,
+                lsp_active,
+                is_lsp_active,
+                file_type,
+                file_encoding,
+                file_format,
+                spell,
+                scroll_bar,
             },
         }
 
-        local WinBars = {
+        local win_bars = {
             init = utils.pick_child_on_condition,
             {
                 condition = function()
                     return conditions.buffer_matches({
+                        buftype = {
+                            "nofile",
+                            "prompt",
+                            "help",
+                            "quickfix",
+                        },
                         filetype = {
                             "ctrlspace",
                             "ctrlspace_help",
@@ -1083,7 +1187,6 @@
                             "NvimTree",
                             "LvimHelper",
                             "floaterm",
-                            "Trouble",
                             "dashboard",
                             "vista",
                             "spectre_panel",
@@ -1108,9 +1211,9 @@
                     return conditions.buffer_matches({ buftype = { "terminal" } })
                 end,
                 {
-                    FileType,
-                    Space,
-                    TerminalName,
+                    file_type,
+                    space,
+                    terminal_name,
                 },
             },
             {
@@ -1118,18 +1221,18 @@
                     return not conditions.is_active()
                 end,
                 {
-                    FileIconName,
+                    file_icon_name,
                 },
             },
             {
-                FileIconName,
-                Navic,
+                file_icon_name,
+                navic,
             },
         }
         if vim.fn.has("nvim-0.8") == 1 then
-            require("heirline").setup(StatusLines, WinBars)
+            require("heirline").setup(status_lines, win_bars)
         else
-            require("heirline").setup(StatusLines)
+            require("heirline").setup(status_lines)
         end
     end
 
@@ -1762,6 +1865,14 @@
 
     modules["kevinhwang91/nvim-bqf"] = {
         ft = "qf",
+        requires = {
+            {
+                "junegunn/fzf",
+                run = function()
+                    vim.fn["fzf#install"]()
+                end,
+            },
+        },
         config = editor_config.nvim_bqf,
     }
 
@@ -1781,6 +1892,27 @@
 
     #+end_src
 
+******   [[https://gitlab.com/yorickpeterse/nvim-pqf][nvim-pqf]]
+
+        + INIT
+
+    #+begin_src lua
+
+    modules["https://gitlab.com/yorickpeterse/nvim-pqf"] = {
+        config = editor_config.nvim_pqf,
+    }
+
+    #+end_src
+
+        + CONFIG
+
+    #+begin_src lua
+
+    function config.nvim_pqf()
+        require("pqf").setup()
+    end
+
+    #+end_src
 
 ******   [[https://github.com/nanozuki/tabby.nvim][tabby.nvim]]
 
@@ -2324,6 +2456,33 @@ end
 
     #+end_src
 
+******   [[https://github.com/xiyaowong/virtcolumn.nvim][virtcolumn.nvim]]
+
+        + INIT
+
+    #+begin_src lua
+
+    modules["xiyaowong/virtcolumn.nvim"] = {
+        event = {
+            "BufRead",
+        },
+        config = editor_config.virtcolumn_nvim,
+    }
+
+    #+end_src
+
+        + CONFIG
+
+    #+begin_src lua
+
+    function config.virtcolumn_nvim()
+        vim.api.nvim_set_option("colorcolumn", "120")
+        vim.g.virtcolumn_char = "▕"
+        vim.g.virtcolumn_priority = 10
+    end
+
+    #+end_src
+
 ******   [[https://github.com/declancm/cinnamon.nvim][cinnamon.nvim]]
 
         + INIT
@@ -2693,7 +2852,6 @@ end
         vim.g.gitblame_ignored_filetypes = {
             "help",
             "NvimTree",
-            "Trouble",
             "Outline",
             "git",
             "dapui_scopes",
@@ -2722,6 +2880,34 @@ end
             "DiffviewRefresh",
         },
     }
+
+    #+end_src
+
+******   [[https://github.com/pwntester/octo.nvim][pwntester/octo.nvim]]
+
+        + INIT
+
+    #+begin_src lua
+
+    modules["pwntester/octo.nvim"] = {
+        after = "lvim-colorscheme",
+        requires = {
+            "nvim-lua/plenary.nvim",
+            "nvim-telescope/telescope.nvim",
+            "kyazdani42/nvim-web-devicons",
+        },
+        config = version_control_config.octo_nvim,
+    }
+
+    #+end_src
+
+        + CONFIG
+
+    #+begin_src lua
+
+    function config.octo_nvim()
+        require("octo").setup()
+    end
 
     #+end_src
 
@@ -2755,7 +2941,6 @@ end
         requires = {
             "neovim/nvim-lspconfig",
         },
-        branch = "main",
         config = languages_config.mason,
     }
 
@@ -2765,51 +2950,166 @@ end
 
     #+begin_src lua
 
-function config.mason()
-    -- LSP buf
-    vim.api.nvim_create_user_command("DapToggleBreakpoint", 'lua require("dap").toggle_breakpoint()', {})
-    vim.api.nvim_create_user_command("LspAddToWorkspaceFolder", "lua vim.lsp.buf.add_workspace_folder()", {})
-    vim.api.nvim_create_user_command("LspListWorkspaceFolders", "lua vim.lsp.buf.list_workspace_folders()", {})
-    vim.api.nvim_create_user_command("LspRemoveWorkspaceFolder", "lua vim.lsp.buf.remove_workspace_folder()", {})
-    vim.api.nvim_create_user_command("LspWorkspaceSymbol", "lua vim.lsp.buf.workspace_symbol()", {})
-    vim.api.nvim_create_user_command("LspDocumentSymbol", "lua vim.lsp.buf.document_symbol()", {})
-    vim.api.nvim_create_user_command("LspReferences", "lua vim.lsp.buf.references()", {})
-    vim.api.nvim_create_user_command("LspClearReferences", "lua vim.lsp.buf.clear_references()", {})
-    vim.api.nvim_create_user_command("LspCodeAction", "lua vim.lsp.buf.code_action()", {})
-    vim.api.nvim_create_user_command("LspRangeCodeAction", "lua vim.api.nvim_create_user_command()", {})
-    vim.api.nvim_create_user_command("LspCodeLensRefresh", "lua vim.lsp.codelens.refresh()", {})
-    vim.api.nvim_create_user_command("LspCodeLensRun", "lua vim.lsp.codelens.run()", {})
-    vim.api.nvim_create_user_command("LspDeclaration", "lua vim.lsp.buf.declaration()", {})
-    vim.api.nvim_create_user_command("LspDefinition", "lua vim.lsp.buf.definition()", {})
-    vim.api.nvim_create_user_command("LspTypeDefinition", "lua vim.lsp.buf.type_definition()", {})
-    vim.api.nvim_create_user_command("LspDocumentHighlight", "lua vim.lsp.buf.document_highlight()", {})
-    vim.api.nvim_create_user_command("LspImplementation", "lua vim.lsp.buf.implementation()", {})
-    vim.api.nvim_create_user_command("LspIncomingCalls", "lua vim.lsp.buf.incoming_calls()", {})
-    vim.api.nvim_create_user_command("LspOutgoingCalls", "lua vim.lsp.buf.outgoing_calls()", {})
-    if vim.fn.has("nvim-0.8") == 1 then
-        vim.api.nvim_create_user_command("LspFormatting", "lua vim.lsp.buf.format {async = true}", {})
-    else
-        vim.api.nvim_create_user_command("LspFormatting", "lua vim.lsp.buf.formatting()", {})
-    end
-    vim.api.nvim_create_user_command("LspFormattingSync", "lua vim.lsp.buf.formatting_sync()", {})
-    vim.api.nvim_create_user_command("LspHover", "lua vim.lsp.buf.hover()", {})
-    vim.api.nvim_create_user_command("LspRename", "lua vim.lsp.buf.rename()", {})
-    vim.api.nvim_create_user_command("LspSignatureHelp", "lua vim.lsp.buf.signature_help()", {})
-    -- LSP diagnostic
-    vim.api.nvim_create_user_command("LspLine", "lua require('languages.base.utils.diagnostics').line()", {})
-    vim.api.nvim_create_user_command("LspGoToNext", "lua require('languages.base.utils.diagnostics').goto_next()", {})
-    vim.api.nvim_create_user_command("LspGoToPrev", "lua require('languages.base.utils.diagnostics').goto_prev()", {})
-    require("mason").setup({
-        ui = {
-            icons = {
-                package_installed = " ",
-                package_pending = " ",
-                package_uninstalled = " ",
+    function config.mason()
+        -- LSP buf
+        vim.api.nvim_create_user_command("LspAddToWorkspaceFolder", "lua vim.lsp.buf.add_workspace_folder()", {})
+        vim.api.nvim_create_user_command("LspListWorkspaceFolders", "lua vim.lsp.buf.list_workspace_folders()", {})
+        vim.api.nvim_create_user_command("LspRemoveWorkspaceFolder", "lua vim.lsp.buf.remove_workspace_folder()", {})
+        vim.api.nvim_create_user_command("LspWorkspaceSymbol", "lua vim.lsp.buf.workspace_symbol()", {})
+        vim.api.nvim_create_user_command("LspDocumentSymbol", "lua vim.lsp.buf.document_symbol()", {})
+        vim.api.nvim_create_user_command("LspReferences", "lua vim.lsp.buf.references()", {})
+        vim.api.nvim_create_user_command("LspClearReferences", "lua vim.lsp.buf.clear_references()", {})
+        vim.api.nvim_create_user_command("LspCodeAction", "lua vim.lsp.buf.code_action()", {})
+        vim.api.nvim_create_user_command("LspRangeCodeAction", "lua vim.api.nvim_create_user_command()", {})
+        vim.api.nvim_create_user_command("LspCodeLensRefresh", "lua vim.lsp.codelens.refresh()", {})
+        vim.api.nvim_create_user_command("LspCodeLensRun", "lua vim.lsp.codelens.run()", {})
+        vim.api.nvim_create_user_command("LspDeclaration", "lua vim.lsp.buf.declaration()", {})
+        vim.api.nvim_create_user_command("LspDefinition", "lua vim.lsp.buf.definition()", {})
+        vim.api.nvim_create_user_command("LspTypeDefinition", "lua vim.lsp.buf.type_definition()", {})
+        vim.api.nvim_create_user_command("LspDocumentHighlight", "lua vim.lsp.buf.document_highlight()", {})
+        vim.api.nvim_create_user_command("LspImplementation", "lua vim.lsp.buf.implementation()", {})
+        vim.api.nvim_create_user_command("LspIncomingCalls", "lua vim.lsp.buf.incoming_calls()", {})
+        vim.api.nvim_create_user_command("LspOutgoingCalls", "lua vim.lsp.buf.outgoing_calls()", {})
+        if vim.fn.has("nvim-0.8") == 1 then
+            vim.api.nvim_create_user_command("LspFormatting", "lua vim.lsp.buf.format {async = true}", {})
+        else
+            vim.api.nvim_create_user_command("LspFormatting", "lua vim.lsp.buf.formatting()", {})
+        end
+        vim.api.nvim_create_user_command("LspRename", "lua vim.lsp.buf.rename()", {})
+        vim.api.nvim_create_user_command("LspSignatureHelp", "lua vim.lsp.buf.signature_help()", {})
+        -- LSP diagnostic
+        require("mason").setup({
+            ui = {
+                icons = {
+                    package_installed = " ",
+                    package_pending = " ",
+                    package_uninstalled = " ",
+                },
             },
+        })
+        require("languages.base.utils").setup_diagnostic()
+    end
+
+    #+end_src
+
+******   [[https://github.com/rmagatti/goto-preview][goto-preview]]
+
+        + INIT
+
+    #+begin_src lua
+
+    modules["rmagatti/goto-preview"] = {
+        event = {
+            "BufRead",
         },
-    })
-    require("languages.base.utils").setup_diagnostic()
-end
+        config = languages_config.goto_preview,
+    }
+
+    #+end_src
+
+        + CONFIG
+
+    #+begin_src lua
+
+    function config.goto_preview()
+        require("goto-preview").setup({
+            border = { " ", " ", " ", " ", " ", " ", " ", " " }, -- Border characters of the floating window
+        })
+        vim.api.nvim_create_user_command("LspDefinition", "lua require('goto-preview').goto_preview_definition()", {})
+        vim.api.nvim_create_user_command(
+            "LspTypeDefinition",
+            "lua require('goto-preview').goto_preview_type_definition()",
+            {}
+        )
+        vim.api.nvim_create_user_command("LspReferences", "lua require('goto-preview').goto_preview_references()", {})
+        vim.api.nvim_create_user_command(
+            "LspImplementation",
+            "lua require('goto-preview').goto_preview_implementation()",
+            {}
+        )
+    end
+
+    #+end_src
+
+******   [[https://github.com/lewis6991/hover.nvim][hover.nvim]]
+
+        + INIT
+
+    #+begin_src lua
+
+    modules["lewis6991/hover.nvim"] = {
+        event = {
+            "BufRead",
+        },
+        config = languages_config.hover_nvim,
+    }
+
+    #+end_src
+
+        + CONFIG
+
+    #+begin_src lua
+
+    function config.hover_nvim()
+        require("hover").setup({
+            init = function()
+                require("hover.providers.lsp")
+            end,
+            preview_opts = {
+                border = nil,
+            },
+            title = false,
+        })
+        vim.api.nvim_create_user_command("Hover", "lua require('hover').hover()", {})
+    end
+
+    #+end_src
+
+******   [[https://github.com/lvim-tech/fidget.nvim][fidget.nvim]]
+
+        + INIT
+
+    #+begin_src lua
+
+    modules["lvim-tech/fidget.nvim"] = {
+        event = {
+            "BufRead",
+        },
+        config = fidget_nvim,
+    }
+
+    #+end_src
+
+        + CONFIG
+
+    #+begin_src lua
+
+    function config.fidget_nvim()
+        require("fidget").setup({
+            text = {
+                spinner = "bouncing_bar", -- animation shown when tasks are ongoing
+            },
+            window = {
+                relative = "editor", -- where to anchor, either "win" or "editor"
+                blend = 0,
+
+                border = { " ", " ", " ", " ", " ", " ", " ", " " },
+            },
+        })
+    end
+
+    #+end_src
+
+
+******   [[https://github.com/folke/lua-dev.nvim][lua-dev.nvim]]
+
+        + INIT
+
+    #+begin_src lua
+
+    modules["folke/lua-dev.nvim"] = {
+        ft = "lua",
+    }
 
     #+end_src
 
@@ -2941,6 +3241,12 @@ end
     function config.trld_nvim()
         require("trld").setup({
             position = "bottom",
+            highlights = {
+                error = "DiagnosticError",
+                warn = "DiagnosticWarn",
+                info = "DiagnosticInfo",
+                hint = "DiagnosticHint",
+            },
         })
     end
 
@@ -2981,6 +3287,29 @@ end
             },
         })
         vim.fn.sign_define("LightBulbSign", { text = "", texthl = "LightBulb", linehl = "", numhl = "" })
+    end
+
+    #+end_src
+
+******   [[https://github.com/NTBBloodbath/rest.nvim][rest.nvim]]
+
+        + INIT
+
+    #+begin_src lua
+
+    modules["NTBBloodbath/rest.nvim"] = {
+        ft = "http",
+        config = languages_config.rest_nvim,
+    }
+
+    #+end_src
+
+        + CONFIG
+
+    #+begin_src lua
+
+    function config.rest_nvim()
+        require("rest-nvim").setup()
     end
 
     #+end_src
@@ -3165,7 +3494,7 @@ end
         require("lsp-inlayhints").setup({
             inlay_hints = {
                 highlight = "Comment",
-            }
+            },
         })
     end
 
@@ -4059,4 +4388,3 @@ end
       + yaml
       + zig
       + zir
-

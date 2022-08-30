@@ -1,5 +1,4 @@
 local uv, api = vim.loop, vim.api
-local lvim_path = vim.fn.stdpath("config")
 local data_dir = string.format("%s/site/", vim.fn.stdpath("data"))
 local packer_compiled = data_dir .. "lua/packer_compiled.lua"
 local funcs = require("core.funcs")
@@ -81,19 +80,6 @@ end
 function plugins.compile_notify()
     plugins.compile()
     vim.notify("Compile Done!", "info", { title = "Packer" })
-end
-
-function plugins.auto_compile()
-    local file = vim.fn.expand("%:p")
-    if not file:match(lvim_path) then
-        return
-    end
-
-    if file:match("plugins.lua") then
-        plugins.clean()
-    end
-    plugins.compile_notify()
-    require("packer_compiled")
 end
 
 function plugins.load_compile()
