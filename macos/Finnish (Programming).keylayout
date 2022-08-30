@@ -1,7 +1,7 @@
 <?xml version="1.1" encoding="UTF-8"?>
 <!DOCTYPE keyboard SYSTEM "file://localhost/System/Library/DTDs/KeyboardLayout.dtd">
 <!--Created by Ukelele version 355 on 2022-07-18 at 10:58 (EEST)-->
-<!--Last edited by Ukelele version 355 on 2022-07-18 at 12:06 (EEST)-->
+<!--Last edited by Ukelele version 359 on 2022-08-18 at 09:37 (EEST)-->
 <keyboard group="126" id="-6705" name="Finnish (Programming)" maxout="1">
     <layouts>
         <layout first="0" last="17" mapSet="ANSI" modifiers="Modifiers"/>
@@ -276,10 +276,10 @@
             <key code="21" output="$"/>
             <key code="22" output=""/>
             <key code="23" output=""/>
-            <key code="24" output=""/>
+            <key code="24" output="`"/>
             <key code="25" output=""/>
             <key code="26" output="|"/>
-            <key code="27" output=""/>
+            <key code="27" output="="/>
             <key code="28" output=""/>
             <key code="29" output=""/>
             <key code="30" output="~"/>
@@ -291,7 +291,7 @@
             <key code="36" output="&#x000D;"/>
             <key code="37" output=""/>
             <key code="38" output=""/>
-            <key code="39" output=""/>
+            <key code="39" output="^"/>
             <key code="40" output=""/>
             <key code="41" output=""/>
             <key code="42" output="|"/>
@@ -384,7 +384,7 @@
             <key code="23" output=""/>
             <key code="24" output=""/>
             <key code="25" output=""/>
-            <key code="26" output=""/>
+            <key code="26" output="\"/>
             <key code="27" output=""/>
             <key code="28" output=""/>
             <key code="29" output=""/>
