@@ -620,6 +620,9 @@ modules["akinsho/pubspec-assist.nvim"] = {
         {
             "lyaml",
             server = "http://rocks.moonscript.org",
+			env = {
+				YAML_DIR = "/opt/homebrew/Cellar/libyaml/0.2.5"
+			}
         },
     },
     config = languages_config.pubspec_assist_nvim,
