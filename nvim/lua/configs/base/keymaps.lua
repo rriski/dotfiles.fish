@@ -12,20 +12,22 @@ keymaps["normal"] = {
     { "<C-c>n", ":enew<CR>" }, -- Create empty buffer
     { "<C-c>s", ":w<CR>" }, -- Save
     { "<C-c>a", ":wa<CR>" }, -- Save all
-    { "<C-c>e", ":qa!<CR>" }, -- Close all, exit nvim
+    { "<C-c>e", ":Quit<CR>" }, -- Close all, exit nvim
     { "<C-c>x", "<C-w>c" }, -- Close current window
     { "<C-c>o", "<C-w>o" }, -- Close other windows
     { "<C-c>d", ":bdelete<CR>" }, -- BDelete
+    { "<C-c>p", ":PickColor<CR>" }, -- Pick color
+    { "<C-c>P", ":PickColorInsert<CR>" }, -- Pick color insert
     { "<C-n>", ":BufSurfForward<CR>" }, -- Next buffer
     { "<C-p>", ":BufSurfBack<CR>" }, -- Previews buffer
     { "<C-c>b", ":GitBlameToggle<CR>" }, -- Git blame toggle
+    { "<C-c>z", ":NeoZoomToggle<CR>" }, -- NeoZoom toggle
     { "<C-c>f", ":Vifm<CR>" }, -- Vifm file explorer
     { "<C-b>", ":b " }, -- Move to window left
     { "<C-h>", "<C-w>h" }, -- Move to window left
     { "<C-l>", "<C-w>l" }, -- Move to window right
     { "<C-j>", "<C-w>j" }, -- Move to window down
     { "<C-k>", "<C-w>k" }, -- Move to window up
-    { "<C-z>", ":NeoZoomToggle<CR>" }, -- NeoZoom toggle
     { "<C-Left>", ":vertical resize -2<CR>" }, -- Resize width -
     { "<C-Right>", ":vertical resize +2<CR>" }, -- Resize width +
     { "<C-Up>", ":resize -2<CR>" }, -- Resize height -
@@ -43,18 +45,23 @@ keymaps["normal"] = {
     { "<A-;>", ":GitSignsPreviewHunk<CR>" }, -- Git signs preview hunk
     { "<A-s>", ":Spectre<CR>" }, -- Replace in multiple files
     { "gw", ":WindowPicker<CR>" }, -- Window picker
-    { "gr", ":LspRename<CR>" }, -- Lsp rename
+    { "gd", ":LspDefinition<CR>" }, -- Lsp definition
+    { "gt", ":LspTypeDefinition<CR>" }, -- Lsp type definition
+    { "gr", ":LspReferences<CR>" }, -- Lsp references
+    { "gi", ":LspImplementation<CR>" }, -- Lsp implementation
+    { "ge", ":LspRename<CR>" }, -- Lsp rename
     { "gf", ":LspFormatting<CR>" }, -- Lsp format code
     { "ga", ":LspCodeAction<CR>" }, -- Lsp code action
+    { "gs", ":LspSignatureHelp<CR>" }, -- Lsp signsture help
     { "gL", ":LspCodeLensRefresh<CR>" }, -- Lsp code lens refresh
     { "gl", ":LspCodeLensRun<CR>" }, -- Lsp code lens run
-    { "gpd", ":LspDefinition<CR>" }, -- Lsp definition
-    { "gpt", ":LspTypeDefinition<CR>" }, -- Lsp type definition
-    { "gpr", ":LspReferences<CR>" }, -- Lsp references
-    { "gpi", ":LspImplementation<CR>" }, -- Lsp implementation
-    { "gps", ":LspSignatureHelp<CR>" }, -- Lsp signsture help
-    { "gh", ":Hover<CR>" }, -- Lsp hover
-    { "gs", ":SnipRun<CR>" }, -- Snip run
+    { "gpd", ":LspPreviewDefinition<CR>" }, -- Lsp definition
+    { "gpt", ":LspPreviewTypeDefinition<CR>" }, -- Lsp type definition
+    { "gpr", ":LspPreviewReferences<CR>" }, -- Lsp references
+    { "gpi", ":LspPreviewImplementation<CR>" }, -- Lsp implementation
+    { "gpp", ":LspPreviewCloseAll<CR>" }, -- Lsp close all
+    { "gh", ":LspHover<CR>" }, -- Lsp hover
+    { "gS", ":SnipRun<CR>" }, -- Snip run
     { "gP", ":hardcopy<CR>" }, -- Print file
     { "tn", ":tabn<CR>" }, -- Tab next
     { "tp", ":tabp<CR>" }, -- Tab prev
@@ -97,7 +104,7 @@ keymaps["visual"] = {
     { "*", "<Esc>/\\%V" }, -- Visual search /
     { "#", "<Esc>?\\%V" }, -- Visual search ?
     { "<A-u>", ":AnyJumpVisual<CR>" }, -- Any jump visual
-    { "gs", ":SnipRun<CR>" }, -- Snip run
+    { "gS", ":SnipRun<CR>" }, -- Snip run
 }
 
 return keymaps

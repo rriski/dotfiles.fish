@@ -33,7 +33,6 @@ local function start_server_tools()
             autostart = true,
             filetypes = { "rust" },
             on_attach = function(client, bufnr)
-                client.offset_encoding = "utf-16"
                 table.insert(global["languages"]["rust"]["pid"], client.rpc.pid)
                 vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
                 languages_setup.document_highlight(client, bufnr)
@@ -76,7 +75,7 @@ language_configs["dap"] = function()
     dap.adapters.cppdbg = {
         id = "cppdbg",
         type = "executable",
-        command = global.mason_path .. "packages/cpptools/extension/debugAdapters/bin/OpenDebugAD7",
+        command = global.mason_path .. "/packages/cpptools/extension/debugAdapters/bin/OpenDebugAD7",
     }
     dap.configurations.rust = {
         {
@@ -102,31 +101,6 @@ language_configs["dap"] = function()
             end,
         },
     }
-    -- dap.adapters.codelldb = {
-    --     type = "server",
-    --     host = "127.0.0.1",
-    --     port = 13000, -- 💀 Use the port printed out or specified with `--port`
-    -- }
-    -- dap.configurations.rust = {
-    --     {
-    --         type = "codelldb",
-    --         request = "launch",
-    --         name = "Launch",
-    --         program = function()
-    --             return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
-    --         end,
-    --         args = {},
-    --         cwd = "${workspaceFolder}",
-    --         env = function()
-    --             local variables = {}
-    --             for k, v in pairs(vim.fn.environ()) do
-    --                 table.insert(variables, string.format("%s=%s", k, v))
-    --             end
-    --             return variables
-    --         end,
-    --         stopOnEntry = false,
-    --     },
-    -- }
 end
 
 return language_configs

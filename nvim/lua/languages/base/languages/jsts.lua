@@ -13,6 +13,9 @@ language_configs["lsp"] = function()
         ["language"] = "js-ts",
         ["dap"] = { "chrome-debug-adapter" },
         ["typescript-language-server"] = { "tsserver", tsserver_config },
+        ["dependencies"] = {
+            "prettierd",
+        },
     })
 end
 
@@ -20,7 +23,7 @@ language_configs["dap"] = function()
     dap.adapters.chrome = {
         type = "executable",
         command = "node",
-        args = { global.mason_path .. "packages/chrome-debug-adapter/out/src/chromeDebug.js" },
+        args = { global.mason_path .. "/packages/chrome-debug-adapter/out/src/chromeDebug.js" },
     }
     dap.configurations.javascript = {
         {
