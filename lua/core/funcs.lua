@@ -1,4 +1,5 @@
 local global = require("core.global")
+local select = require("configs.base.ui.select")
 
 local M = {}
 
@@ -44,6 +45,50 @@ M.configs = function()
     end
 end
 
+M.sudo_exec = function(cmd)
+    vim.fn.inputsave()
+    local password = vim.fn.inputsecret("Password: ")
+    vim.fn.inputrestore()
+    if not password or #password == 0 then
+        vim.notify("Invalid password, sudo aborted!", "error", {
+            title = "LVIM ORG",
+        })
+        return false
+    end
+    vim.fn.system(string.format("sudo -p '' -S %s", cmd), password)
+    if vim.v.shell_error ~= 0 then
+        vim.notify("Shell error or invalid password, sudo aborted!", "error", {
+            title = "LVIM ORG",
+        })
+        return false
+    end
+    return true
+end
+
+M.sudo_write = function(tmpfile, filepath)
+    if not tmpfile then
+        tmpfile = vim.fn.tempname()
+    end
+    if not filepath then
+        filepath = vim.fn.expand("%")
+    end
+    if not filepath or #filepath == 0 then
+        vim.notify("No file name!", "error", {
+            title = "LVIM ORG",
+        })
+        return
+    end
+    local cmd = string.format("dd if=%s of=%s bs=1048576", vim.fn.shellescape(tmpfile), vim.fn.shellescape(filepath))
+    vim.api.nvim_exec(string.format("write! %s", tmpfile), true)
+    if M.sudo_exec(cmd) then
+        vim.notify(string.format('"%s" written!', filepath), "info", {
+            title = "LVIM ORG",
+        })
+        vim.cmd("e!")
+    end
+    vim.fn.delete(tmpfile)
+end
+
 M.file_exists = function(name)
     local f = io.open(name, "r")
     return f ~= nil and io.close(f)
@@ -51,6 +96,18 @@ end
 
 M.dir_exists = function(path)
     return M.file_exists(path)
+end
+
+M.read_json_file = function(file)
+    local content
+    local file_content_ok, _ = pcall(function()
+        content = vim.fn.readfile(file)
+    end)
+    if file_content_ok or type(content) == "table" then
+        return vim.fn.json_decode(content)
+    else
+        return nil
+    end
 end
 
 M.write_file = function(f, content)
@@ -66,7 +123,7 @@ M.delete_file = function(f)
 end
 
 M.delete_packages_file = function()
-    local lvim_packages_file = global.cache_path .. ".lvim_packages"
+    local lvim_packages_file = global.cache_path .. "/.lvim_packages"
     os.remove(lvim_packages_file)
 end
 
@@ -186,6 +243,26 @@ M.file_size = function(size, options)
     end
 end
 
+M.get_snapshot = function()
+    local read_json_file = M.read_json_file(global.cache_path .. "/.lvim_snapshot")
+    if read_json_file ~= nil then
+        if read_json_file["snapshot"] ~= nil then
+            return read_json_file["snapshot"]
+        end
+    end
+    return global.snapshot_path .. "/default"
+end
+
+M.get_commit = function(plugin, plugins_snapshot)
+    if plugins_snapshot ~= nil then
+        if plugins_snapshot[plugin] ~= nil and plugins_snapshot[plugin].commit ~= nil then
+            return plugins_snapshot[plugin].commit
+        end
+    else
+        return nil
+    end
+end
+
 M.get_highlight = function(hlname)
     local hl = vim.api.nvim_get_hl_by_name(hlname, true)
     setmetatable(hl, {
@@ -202,6 +279,31 @@ M.get_highlight = function(hlname)
         end,
     })
     return hl
+end
+
+M.quit = function()
+    local status = true
+    for _, v in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.bo[v].modified then
+            status = false
+        end
+    end
+    if not status then
+        select({
+            "Save all and Quit",
+            "Don't save and Quit",
+            "Cancel",
+        }, { prompt = "  Unsaved files" }, function(choice)
+            if choice == "Save all and Quit" then
+                vim.cmd("wa")
+                vim.cmd("qa")
+            elseif choice == "Don't save and Quit" then
+                vim.cmd("qa!")
+            end
+        end, "editor")
+    else
+        vim.cmd("qa")
+    end
 end
 
 _G.LVIM_COLORS = function()

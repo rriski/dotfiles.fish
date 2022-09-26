@@ -9,14 +9,18 @@ language_configs["lsp"] = function()
     languages_setup.setup_languages({
         ["language"] = "python",
         ["dap"] = { "debugpy" },
-        ["pyright"] = { "pyright", pyright_config },
+        ["python-lsp-server"] = { "pylsp", pyright_config },
+        ["dependencies"] = {
+            "flake8",
+            "black",
+        },
     })
 end
 
 language_configs["dap"] = function()
     dap.adapters.python = {
         type = "executable",
-        command = global.mason_path .. "packages/debugpy/venv/bin/python",
+        command = global.mason_path .. "/packages/debugpy/venv/bin/python",
         args = { "-m", "debugpy.adapter" },
     }
     dap.configurations.python = {
@@ -32,8 +36,8 @@ language_configs["dap"] = function()
                 if venv_path then
                     return venv_path .. "/bin/python"
                 end
-                if vim.fn.executable(global.mason_path .. "packages/debugpy/venv/" .. "bin/python") == 1 then
-                    return global.mason_path .. "packages/debugpy/venv/" .. "bin/python"
+                if vim.fn.executable(global.mason_path .. "/packages/debugpy/venv/" .. "bin/python") == 1 then
+                    return global.mason_path .. "/packages/debugpy/venv/" .. "bin/python"
                 else
                     return "python"
                 end

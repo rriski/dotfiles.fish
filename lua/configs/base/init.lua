@@ -26,70 +26,44 @@ configs["base_events"] = function()
         command = "setlocal ts=2 sw=2",
         group = group,
     })
-    vim.api.nvim_create_autocmd("FileType", {
-        pattern = {
-            "help",
-            "calendar",
-            "Outline",
-            "git",
-            "dapui_scopes",
-            "dapui_breakpoints",
-            "dapui_stacks",
-            "dapui_watches",
-            "NeogitStatus",
-        },
-        command = "setlocal nonumber norelativenumber colorcolumn=0 nocursorcolumn",
-        group = group,
-    })
-    vim.api.nvim_create_autocmd("FileType", {
-        pattern = { "ctrlspace" },
+    vim.api.nvim_create_autocmd({ "BufWinEnter", "BufWinLeave" }, {
         callback = function()
-            vim.api.nvim_win_set_option(0, "winhighlight", "SignColumn:LvimFocusNormal")
+            local buftype = vim.tbl_contains({ "prompt", "nofile", "help", "quickfix" }, vim.bo.buftype)
+            local filetype = vim.tbl_contains({
+                "calendar",
+                "Outline",
+                "git",
+                "dapui_scopes",
+                "dapui_breakpoints",
+                "dapui_stacks",
+                "dapui_watches",
+                "NeogitStatus",
+                "org",
+                "octo",
+                "toggleterm",
+            }, vim.bo.filetype)
+            if buftype or filetype then
+                vim.opt_local.number = false
+                vim.opt_local.relativenumber = false
+                vim.opt_local.cursorcolumn = false
+                vim.opt_local.colorcolumn = "0"
+            end
         end,
         group = group,
     })
-    if vim.fn.has("nvim-0.8") == 1 then
-        vim.api.nvim_create_autocmd(
-            { "CursorMoved", "BufWinEnter", "BufFilePost", "InsertEnter", "BufWritePost", "TabClosed" },
-            {
-                callback = function(args)
-                    local buf = args.buf
-                    local buftype = vim.tbl_contains({
-                        "prompt",
-                        "nofile",
-                        "help",
-                        "quickfix",
-                    }, vim.bo[buf].buftype)
-                    local filetype = vim.tbl_contains({
-                        "ctrlspace",
-                        "ctrlspace_help",
-                        "packer",
-                        "undotree",
-                        "diff",
-                        "Outline",
-                        "LvimHelper",
-                        "floaterm",
-                        "dashboard",
-                        "vista",
-                        "spectre_panel",
-                        "DiffviewFiles",
-                        "flutterToolsOutline",
-                        "log",
-                        "qf",
-                        "dapui_scopes",
-                        "dapui_breakpoints",
-                        "dapui_stacks",
-                        "dapui_watches",
-                        "calendar",
-                    }, vim.bo[buf].filetype)
-                    if buftype or filetype then
-                        vim.opt_local.winbar = nil
-                    end
-                end,
-                group = "LvimIDE",
-            }
-        )
-    end
+    vim.api.nvim_create_autocmd({ "BufWinEnter", "BufWinLeave" }, {
+        callback = function()
+            local buftype = vim.tbl_contains({ "prompt", "nofile", "help", "quickfix" }, vim.bo.buftype)
+            local filetype = vim.tbl_contains({
+                "tex",
+            }, vim.bo.filetype)
+            if buftype or filetype then
+                vim.opt_local.cursorcolumn = false
+                vim.opt_local.colorcolumn = "0"
+            end
+        end,
+        group = group,
+    })
 end
 
 configs["base_languages"] = function()
@@ -104,6 +78,8 @@ end
 configs["base_commands"] = function()
     vim.api.nvim_create_user_command("SetGlobalPath", 'lua require("core.funcs").set_global_path()', {})
     vim.api.nvim_create_user_command("SetWindowPath", 'lua require("core.funcs").set_window_path()', {})
+    vim.api.nvim_create_user_command("SudoWrite", 'lua require("core.funcs").sudo_write()', {})
+    vim.api.nvim_create_user_command("Quit", 'lua require("core.funcs").quit()', {})
 end
 
 configs["base_keymaps"] = function()
@@ -152,7 +128,7 @@ configs["base_ctrlspace_pre_config"] = function()
 end
 
 configs["base_ask_packages"] = function()
-    local lvim_packages_file = global.cache_path .. ".lvim_packages"
+    local lvim_packages_file = global.cache_path .. "/.lvim_packages"
     if funcs.file_exists(lvim_packages_file) then
         global.lvim_packages = true
     end

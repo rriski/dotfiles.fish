@@ -1,7 +1,11 @@
 local config = {}
 
 function config.neogit()
-    require("neogit").setup({
+    local neogit_status_ok, neogit = pcall(require, "neogit")
+    if not neogit_status_ok then
+        return
+    end
+    neogit.setup({
         disable_signs = false,
         disable_context_highlighting = false,
         disable_commit_confirmation = false,
@@ -26,7 +30,11 @@ function config.neogit()
 end
 
 function config.gitsigns_nvim()
-    require("gitsigns").setup({
+    local gitsigns_status_ok, gitsigns = pcall(require, "gitsigns")
+    if not gitsigns_status_ok then
+        return
+    end
+    gitsigns.setup({
         signs = {
             add = {
                 hl = "GitSignsAdd",
@@ -90,8 +98,35 @@ function config.git_blame_nvim()
     }
 end
 
+function config.diffview_nvim()
+    local diffview_status_ok, diffview = pcall(require, "diffview")
+    if not diffview_status_ok then
+        return
+    end
+    diffview.setup({
+        hooks = {
+            diff_buf_read = function(bufnr)
+                vim.schedule(function()
+                    vim.api.nvim_buf_call(bufnr, function()
+                        vim.opt_local.wrap = false
+                        vim.opt_local.list = false
+                        vim.opt_local.relativenumber = false
+                        vim.opt_local.cursorcolumn = false
+                        vim.opt_local.colorcolumn = "0"
+                        require("indent_blankline.commands").disable()
+                    end)
+                end)
+            end,
+        },
+    })
+end
+
 function config.octo_nvim()
-    require("octo").setup()
+    local octo_status_ok, octo = pcall(require, "octo")
+    if not octo_status_ok then
+        return
+    end
+    octo.setup()
 end
 
 return config
