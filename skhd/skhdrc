@@ -104,10 +104,10 @@ shift + cmd - i : yabai -m window --resize top_left:20:20; \
 ##############################################
 
 # Fullscreen (still includes gaps)
-alt - f : yabai -m window --toggle zoom-fullscreen
+alt - f : yabai -m window --toggle zoom-fullscreen --focus
 
 # Toggle window parent zoom
-alt - d : yabai -m window --toggle zoom-parent
+alt - d : yabai -m window --toggle zoom-parent --focus
 
 # Float and center
 alt - t : yabai -m window --toggle float;\
@@ -155,3 +155,4 @@ ctrl - l [
     "Kitty" ~
     "Code" ~
 ]
+
