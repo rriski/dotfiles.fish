@@ -67,18 +67,8 @@ cask 'docker'
 brew 'lazydocker'
 brew 'dive'
 
-# yarn
-brew 'yarn'
-
-# python
-brew 'python'
-
-# node
-brew 'node'
-brew 'volta'
-
 # postgresql
-brew 'postgresql'
+brew 'postgresql@14'
 
 # redis
 brew 'redis'
@@ -143,9 +133,6 @@ cask 'firefox-developer-edition'
 cask 'slack'
 cask 'discord'
 cask 'telegram'
-
-# password manager
-cask 'keeweb'
 
 # dev
 cask 'insomnia'
