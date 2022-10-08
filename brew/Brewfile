@@ -81,6 +81,9 @@ brew 'terraform'
 brew 'tflint'
 brew 'tfsec'
 
+# backup
+brew 'restic'
+
 # misc
 brew 'openssl'
 brew 'howdoi'
