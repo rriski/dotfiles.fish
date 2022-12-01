@@ -1,15 +1,17 @@
 local global = require("core.global")
 local languages_setup = require("languages.base.utils")
-local omnisharp_config = require("languages.base.languages._configs").default_config({ "cs", "vb" }, "cs")
+local omnisharp_config = require("languages.base.languages._configs").omnisharp_config({ "cs", "vb" }, "cs")
 local dap = require("dap")
 
 local language_configs = {}
+
+language_configs["dependencies"] = { "omnisharp", "netcoredbg" }
 
 language_configs["lsp"] = function()
     languages_setup.setup_languages({
         ["language"] = "cs",
         ["dap"] = { "netcoredbg" },
-        ["omnisharp-roslyn"] = { "omnisharp", omnisharp_config },
+        ["omnisharp"] = { "omnisharp", omnisharp_config },
     })
 end
 

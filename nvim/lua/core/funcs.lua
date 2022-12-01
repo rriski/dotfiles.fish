@@ -1,5 +1,4 @@
 local global = require("core.global")
-local select = require("configs.base.ui.select")
 
 local M = {}
 
@@ -45,20 +44,33 @@ M.configs = function()
     end
 end
 
+M.remove_duplicate = function(tbl)
+    local hash = {}
+    local res = {}
+    for _, v in ipairs(tbl) do
+        if not hash[v] then
+            res[#res + 1] = v
+            hash[v] = true
+        end
+    end
+    return res
+end
+
 M.sudo_exec = function(cmd)
+    local notify = require("lvim-ui-config.notify")
     vim.fn.inputsave()
     local password = vim.fn.inputsecret("Password: ")
     vim.fn.inputrestore()
     if not password or #password == 0 then
-        vim.notify("Invalid password, sudo aborted!", "error", {
-            title = "LVIM ORG",
+        notify.error("Invalid password, sudo aborted!", {
+            title = "LVIM IDE",
         })
         return false
     end
     vim.fn.system(string.format("sudo -p '' -S %s", cmd), password)
     if vim.v.shell_error ~= 0 then
-        vim.notify("Shell error or invalid password, sudo aborted!", "error", {
-            title = "LVIM ORG",
+        notify.error("Shell error or invalid password, sudo aborted!", {
+            title = "LVIM IDE",
         })
         return false
     end
@@ -66,6 +78,7 @@ M.sudo_exec = function(cmd)
 end
 
 M.sudo_write = function(tmpfile, filepath)
+    local notify = require("lvim-ui-config.notify")
     if not tmpfile then
         tmpfile = vim.fn.tempname()
     end
@@ -73,16 +86,16 @@ M.sudo_write = function(tmpfile, filepath)
         filepath = vim.fn.expand("%")
     end
     if not filepath or #filepath == 0 then
-        vim.notify("No file name!", "error", {
-            title = "LVIM ORG",
+        notify.error("No file name!", {
+            title = "LVIM IDE",
         })
         return
     end
     local cmd = string.format("dd if=%s of=%s bs=1048576", vim.fn.shellescape(tmpfile), vim.fn.shellescape(filepath))
     vim.api.nvim_exec(string.format("write! %s", tmpfile), true)
     if M.sudo_exec(cmd) then
-        vim.notify(string.format('"%s" written!', filepath), "info", {
-            title = "LVIM ORG",
+        notify.info(string.format('"%s" written!', filepath), {
+            title = "LVIM IDE",
         })
         vim.cmd("e!")
     end
@@ -98,24 +111,34 @@ M.dir_exists = function(path)
     return M.file_exists(path)
 end
 
-M.read_json_file = function(file)
+M.read_file = function(file)
     local content
     local file_content_ok, _ = pcall(function()
         content = vim.fn.readfile(file)
     end)
-    if file_content_ok or type(content) == "table" then
+    if not file_content_ok then
+        return nil
+    end
+    if type(content) == "table" then
         return vim.fn.json_decode(content)
     else
         return nil
     end
 end
 
-M.write_file = function(f, content)
-    local file = io.open(f, "w")
-    if file ~= nil then
-        file:write(content)
-        file:close()
+M.write_file = function(file, content)
+    local f = io.open(file, "w")
+    if f ~= nil then
+        if type(content) == "table" then
+            content = vim.fn.json_encode(content)
+        end
+        f:write(content)
+        f:close()
     end
+end
+
+M.copy_file = function(file, dest)
+    os.execute("cp " .. file .. " " .. dest)
 end
 
 M.delete_file = function(f)
@@ -149,12 +172,10 @@ M.file_size = function(size, options)
     local function isNan(num)
         return num ~= num
     end
-
     local function roundNumber(num, digits)
         local fmt = "%." .. digits .. "f"
         return tonumber(fmt:format(num))
     end
-
     local o = {}
     for key, value in pairs(options or {}) do
         o[key] = value
@@ -164,7 +185,6 @@ M.file_size = function(size, options)
             o[name] = default
         end
     end
-
     setDefault("bits", false)
     setDefault("unix", false)
     setDefault("base", 2)
@@ -212,7 +232,6 @@ M.file_size = function(size, options)
         }
         if o.unix then
             result[2] = result[2]:sub(1, 1)
-
             if result[2] == "b" or result[2] == "B" then
                 result = {
                     math.floor(result[1]),
@@ -244,10 +263,10 @@ M.file_size = function(size, options)
 end
 
 M.get_snapshot = function()
-    local read_json_file = M.read_json_file(global.cache_path .. "/.lvim_snapshot")
-    if read_json_file ~= nil then
-        if read_json_file["snapshot"] ~= nil then
-            return read_json_file["snapshot"]
+    local file_content = M.read_file(global.cache_path .. "/.lvim_snapshot")
+    if file_content ~= nil then
+        if file_content["snapshot"] ~= nil then
+            return file_content["snapshot"]
         end
     end
     return global.snapshot_path .. "/default"
@@ -263,25 +282,23 @@ M.get_commit = function(plugin, plugins_snapshot)
     end
 end
 
-M.get_highlight = function(hlname)
-    local hl = vim.api.nvim_get_hl_by_name(hlname, true)
-    setmetatable(hl, {
-        __index = function(t, k)
-            if k == "fg" then
-                return t.foreground
-            elseif k == "bg" then
-                return t.background
-            elseif k == "sp" then
-                return t.special
-            else
-                return rawget(t, k)
+M.close_float_windows = function()
+    local closed_windows = {}
+    vim.schedule(function()
+        for _, win in ipairs(vim.api.nvim_list_wins()) do
+            if vim.api.nvim_win_is_valid(win) then
+                local config = vim.api.nvim_win_get_config(win)
+                if config.relative ~= "" then
+                    vim.api.nvim_win_close(win, false)
+                    table.insert(closed_windows, win)
+                end
             end
-        end,
-    })
-    return hl
+        end
+    end)
 end
 
 M.quit = function()
+    local select = require("lvim-ui-config.select")
     local status = true
     for _, v in ipairs(vim.api.nvim_list_bufs()) do
         if vim.bo[v].modified then
@@ -304,20 +321,6 @@ M.quit = function()
     else
         vim.cmd("qa")
     end
-end
-
-_G.LVIM_COLORS = function()
-    return {
-        color_01 = M.get_highlight("CursorLineNr").fg,
-        color_02 = M.get_highlight("DiagnosticError").fg,
-        color_03 = M.get_highlight("DiagnosticWarn").fg,
-        color_04 = M.get_highlight("DiagnosticHint").fg,
-        color_05 = M.get_highlight("DiagnosticInfo").fg,
-        status_line_bg = M.get_highlight("StatusLine").bg,
-        status_line_fg = M.get_highlight("StatusLine").fg,
-        status_line_nc_bg = M.get_highlight("StatusLineNC").bg,
-        status_line_nc_fg = M.get_highlight("StatusLineNC").fg,
-    }
 end
 
 return M

@@ -1,25 +1,27 @@
 local config = {}
 
-function config.vim_ctrlspace()
-    vim.api.nvim_create_autocmd("FileType", {
-        pattern = { "ctrlspace" },
-        callback = function()
-            vim.api.nvim_win_set_option(0, "winhighlight", "SignColumn:LvimFocusNormal")
-        end,
-        group = "LvimIDE",
-    })
+config.editorconfig_nvim = function()
+    vim.api.nvim_create_user_command(
+        "EditorConfigCreate",
+        "lua require'core.funcs'.copy_file(require'core.global'.lvim_path .. '/.configs/templates/.editorconfig', vim.fn.getcwd() .. '/.editorconfig')",
+        {}
+    )
 end
 
-function config.telescope_nvim()
+config.vim_ctrlspace = function()
+    vim.keymap.set("n", "<space><space>", function()
+        vim.cmd("CtrlSpace")
+    end, { noremap = true, silent = true, desc = "CtrlSpace" })
+end
+
+config.telescope_nvim = function()
     local telescope_status_ok, telescope = pcall(require, "telescope")
     if not telescope_status_ok then
         return
     end
     if not packer_plugins["telescope-fzf-native.nvim"].loaded then
         local loader = require("packer").loader
-        loader(
-            "telescope-fzf-native.nvim" .. " telescope-file-browser.nvim" .. " telescope-tmux.nvim" .. " howdoi.nvim"
-        )
+        loader("telescope-fzf-native.nvim" .. " telescope-file-browser.nvim" .. " telescope-tmux.nvim")
     end
     telescope.setup({
         defaults = {
@@ -95,13 +97,71 @@ function config.telescope_nvim()
         },
     })
     telescope.load_extension("fzf")
-    -- telescope.load_extension("media_files")
     telescope.load_extension("file_browser")
     telescope.load_extension("tmux")
-    telescope.load_extension("howdoi")
+    vim.keymap.set("n", "<A-,>", function()
+        vim.cmd("Telescope find_files")
+    end, { noremap = true, silent = true, desc = "Telescope find_files" })
+    vim.keymap.set("n", "<A-.>", function()
+        vim.cmd("Telescope live_grep")
+    end, { noremap = true, silent = true, desc = "Telescope live_grep" })
+    vim.keymap.set("n", "<A-/>", function()
+        vim.cmd("Telescope file_browser")
+    end, { noremap = true, silent = true, desc = "Telescope file_browser" })
+    vim.keymap.set("n", "<A-b>", function()
+        vim.cmd("Telescope buffers")
+    end, { noremap = true, silent = true, desc = "Telescope buffers" })
+    vim.keymap.set("n", "tt", function()
+        vim.cmd("Telescope tmux sessions")
+    end, { noremap = true, silent = true, desc = "Telescope tmux sessions" })
 end
 
-function config.rg_nvim()
+config.lvim_linguistics = function()
+    local lvim_linguistics_status_ok, lvim_linguistics = pcall(require, "lvim-linguistics")
+    if not lvim_linguistics_status_ok then
+        return
+    end
+    lvim_linguistics.setup({
+        base_config = {
+            mode_language = {
+                active = false,
+                normal_mode_language = "us",
+                insert_mode_language = "bg",
+                insert_mode_languages = { "en", "fr", "de", "bg" },
+            },
+            spell = {
+                active = false,
+                language = "en",
+                languages = {
+                    en = {
+                        spelllang = "en",
+                        spellfile = "en.add",
+                    },
+                    fr = {
+                        spelllang = "fr",
+                        spellfile = "fr.add",
+                    },
+                    de = {
+                        spelllang = "de",
+                        spellfile = "de.add",
+                    },
+                    bg = {
+                        spelllang = "bg",
+                        spellfile = "bg.add",
+                    },
+                },
+            },
+        },
+    })
+    vim.keymap.set("n", "<C-c>l", function()
+        vim.cmd("LvimLinguisticsTOGGLEInsertModeLanguage")
+    end, { noremap = true, silent = true, desc = "LvimLinguisticsTOGGLEInsertModeLanguage" })
+    vim.keymap.set("n", "<C-c>k", function()
+        vim.cmd("LvimLinguisticsTOGGLESpelling")
+    end, { noremap = true, silent = true, desc = "LvimLinguisticsTOGGLESpelling" })
+end
+
+config.rg_nvim = function()
     local rg_status_ok, rg = pcall(require, "rg")
     if not rg_status_ok then
         return
@@ -109,13 +169,13 @@ function config.rg_nvim()
     rg.setup({
         default_keybindings = {
             enable = true,
-            modes = { "n", "v" },
-            binding = "te",
+            modes = { "v" },
+            binding = "tr",
         },
     })
 end
 
-function config.nvim_hlslens()
+config.nvim_hlslens = function()
     local hlslens_status_ok, hlslens = pcall(require, "hlslens")
     if not hlslens_status_ok then
         return
@@ -149,26 +209,26 @@ function config.nvim_hlslens()
             render.setVirt(0, lnum - 1, col - 1, chunks, nearest)
         end,
     })
-    local kopts = { noremap = true, silent = true }
-    vim.api.nvim_set_keymap(
+    local opts = { noremap = true, silent = true }
+    vim.keymap.set(
         "n",
         "n",
         [[<Cmd>execute('normal! ' . v:count1 . 'n')<CR><Cmd>lua require('hlslens').start()<CR>]],
-        kopts
+        opts
     )
-    vim.api.nvim_set_keymap(
+    vim.keymap.set(
         "n",
         "N",
         [[<Cmd>execute('normal! ' . v:count1 . 'N')<CR><Cmd>lua require('hlslens').start()<CR>]],
-        kopts
+        opts
     )
-    vim.api.nvim_set_keymap("n", "*", [[*<Cmd>lua require('hlslens').start()<CR>]], kopts)
-    vim.api.nvim_set_keymap("n", "#", [[#<Cmd>lua require('hlslens').start()<CR>]], kopts)
-    vim.api.nvim_set_keymap("n", "g*", [[g*<Cmd>lua require('hlslens').start()<CR>]], kopts)
-    vim.api.nvim_set_keymap("n", "g#", [[g#<Cmd>lua require('hlslens').start()<CR>]], kopts)
+    vim.keymap.set("n", "*", [[*<Cmd>lua require('hlslens').start()<CR>]], opts)
+    vim.keymap.set("n", "#", [[#<Cmd>lua require('hlslens').start()<CR>]], opts)
+    vim.keymap.set("n", "g*", [[g*<Cmd>lua require('hlslens').start()<CR>]], opts)
+    vim.keymap.set("n", "g#", [[g#<Cmd>lua require('hlslens').start()<CR>]], opts)
 end
 
-function config.nvim_bqf()
+config.nvim_bqf = function()
     local bqf_status_ok, bqf = pcall(require, "bqf")
     if not bqf_status_ok then
         return
@@ -180,7 +240,7 @@ function config.nvim_bqf()
     })
 end
 
-function config.nvim_pqf()
+config.nvim_pqf = function()
     local pqf_status_ok, pqf = pcall(require, "pqf")
     if not pqf_status_ok then
         return
@@ -188,20 +248,28 @@ function config.nvim_pqf()
     pqf.setup()
 end
 
-function config.tabby_nvim()
+config.tabby_nvim = function()
+    local tabby_status_ok, tabby = pcall(require, "tabby")
+    if not tabby_status_ok then
+        return
+    end
     local tabby_util_status_ok, tabby_util = pcall(require, "tabby.util")
     if not tabby_util_status_ok then
         return
     end
+    local tabby_filename_status_ok, tabby_filename = pcall(require, "tabby.filename")
+    if not tabby_filename_status_ok then
+        return
+    end
+    local theme = _G.LVIM_SETTINGS.colorschemes.theme
     local hl_tabline = {
-        color_01 = "#242B30",
-        color_02 = "#A7C080",
+        color_01 = _G.LVIM_SETTINGS.colorschemes.colors[theme].bg_01,
+        color_02 = _G.LVIM_SETTINGS.colorschemes.colors[theme].bg_03,
+        color_03 = _G.LVIM_SETTINGS.colorschemes.colors[theme].green_01,
+        color_04 = _G.LVIM_SETTINGS.colorschemes.colors[theme].green_02,
     }
     local get_tab_label = function(tab_number)
         local s, v = pcall(function()
-            if not packer_plugins["vim-ctrlspace"].loaded then
-                vim.cmd("packadd vim-ctrlspace")
-            end
             return vim.api.nvim_eval("ctrlspace#util#Gettabvar(" .. tab_number .. ", 'CtrlSpaceLabel')")
         end)
         if s then
@@ -215,14 +283,40 @@ function config.tabby_nvim()
         end
     end
     local components = function()
-        local coms = {
+        local exclude = {
+            "ctrlspace",
+            "ctrlspace_help",
+            "packer",
+            "undotree",
+            "diff",
+            "Outline",
+            "LvimHelper",
+            "floaterm",
+            "toggleterm",
+            "dashboard",
+            "vista",
+            "spectre_panel",
+            "DiffviewFiles",
+            "flutterToolsOutline",
+            "log",
+            "qf",
+            "dapui_scopes",
+            "dapui_breakpoints",
+            "dapui_stacks",
+            "dapui_watches",
+            "calendar",
+            "octo",
+            "neo-tree",
+            "neo-tree-popup",
+        }
+        local comps = {
             {
                 type = "text",
                 text = {
                     "    ",
                     hl = {
+                        bg = hl_tabline.color_04,
                         fg = hl_tabline.color_01,
-                        bg = hl_tabline.color_02,
                         style = "bold",
                     },
                 },
@@ -231,57 +325,116 @@ function config.tabby_nvim()
         local tabs = vim.api.nvim_list_tabpages()
         local current_tab = vim.api.nvim_get_current_tabpage()
         local name_of_buf
-        for _, tabid in ipairs(tabs) do
-            local tab_number = vim.api.nvim_tabpage_get_number(tabid)
-            name_of_buf = get_tab_label(tab_number)
-            if tabid == current_tab then
-                table.insert(coms, {
-                    type = "tab",
-                    tabid = tabid,
-                    label = {
-                        "  " .. name_of_buf .. "  ",
-                        hl = { fg = hl_tabline.color_02, bg = hl_tabline.color_01, style = "bold" },
-                    },
-                })
-                local wins = tabby_util.tabpage_list_wins(current_tab)
-                local top_win = vim.api.nvim_tabpage_get_win(current_tab)
-                for _, winid in ipairs(wins) do
-                    local icon = " "
-                    if winid == top_win then
-                        icon = " "
-                    end
-                    local bufid = vim.api.nvim_win_get_buf(winid)
-                    local buf_name = vim.api.nvim_buf_get_name(bufid)
-                    table.insert(coms, {
-                        type = "win",
-                        winid = winid,
-                        label = icon .. vim.fn.fnamemodify(buf_name, ":~:.") .. "  ",
-                    })
+        local wins = tabby_util.tabpage_list_wins(current_tab)
+        local top_win = vim.api.nvim_tabpage_get_win(current_tab)
+        local hl
+        local win_name
+        for _, win_id in ipairs(wins) do
+            local ft = vim.api.nvim_buf_get_option(vim.api.nvim_win_get_buf(win_id), "filetype")
+            win_name = tabby_filename.unique(win_id)
+            if not vim.tbl_contains(exclude, ft) then
+                if win_id == top_win then
+                    hl = { bg = hl_tabline.color_03, fg = hl_tabline.color_02, style = "bold" }
+                else
+                    hl = { bg = hl_tabline.color_02, fg = hl_tabline.color_03, style = "bold" }
                 end
-            else
-                table.insert(coms, {
-                    type = "tab",
-                    tabid = tabid,
+                table.insert(comps, {
+                    type = "win",
+                    winid = win_id,
                     label = {
-                        "  " .. name_of_buf .. "  ",
-                        hl = { fg = hl_tabline.color_01, bg = hl_tabline.color_02, style = "bold" },
+                        "  " .. win_name .. "  ",
+                        hl = hl,
                     },
+                    right_sep = { "", hl = { bg = hl_tabline.color_01, fg = hl_tabline.color_01 } },
                 })
             end
         end
-        table.insert(coms, { type = "text", text = { " ", hl = { bg = hl_tabline.color_01, style = "bold" } } })
-        return coms
-    end
-    local tabby_status_ok, tabby = pcall(require, "tabby")
-    if not tabby_status_ok then
-        return
+        table.insert(comps, {
+            type = "text",
+            text = { "%=" },
+            hl = { bg = hl_tabline.color_01, fg = hl_tabline.color_01 },
+        })
+        for _, tab_id in ipairs(tabs) do
+            local tab_number = vim.api.nvim_tabpage_get_number(tab_id)
+            name_of_buf = get_tab_label(tab_number)
+            if tab_id == current_tab then
+                hl = { bg = hl_tabline.color_03, fg = hl_tabline.color_02, style = "bold" }
+            else
+                hl = { bg = hl_tabline.color_02, fg = hl_tabline.color_03, style = "bold" }
+            end
+            table.insert(comps, {
+                type = "tab",
+                tabid = tab_id,
+                label = {
+                    "  " .. name_of_buf .. "  ",
+                    hl = hl,
+                },
+            })
+        end
+        return comps
     end
     tabby.setup({
         components = components,
     })
 end
 
-function config.nvim_gomove()
+config.nvim_lastplace = function()
+    local nvim_lastplace_status_ok, nvim_lastplace = pcall(require, "nvim-lastplace")
+    if not nvim_lastplace_status_ok then
+        return
+    end
+    nvim_lastplace.setup({
+        lastplace_ignore_buftype = { "quickfix", "nofile", "help" },
+        lastplace_ignore_filetype = { "gitcommit", "gitrebase", "svn", "hgcommit" },
+        lastplace_open_folds = true,
+    })
+end
+
+config.dial_nvim = function()
+    local dial_config_status_ok, dial_config = pcall(require, "dial.config")
+    if not dial_config_status_ok then
+        return
+    end
+    local dial_augend_status_ok, dial_augend = pcall(require, "dial.augend")
+    if not dial_augend_status_ok then
+        return
+    end
+    dial_config.augends:register_group({
+        default = {
+            dial_augend.integer.alias.decimal,
+            dial_augend.integer.alias.hex,
+            dial_augend.date.alias["%Y/%m/%d"],
+            dial_augend.constant.new({
+                elements = { "true", "false" },
+                word = true,
+                cyclic = true,
+            }),
+            dial_augend.constant.new({
+                elements = { "True", "False" },
+                word = true,
+                cyclic = true,
+            }),
+            dial_augend.constant.new({
+                elements = { "and", "or" },
+                word = true,
+                cyclic = true,
+            }),
+            dial_augend.constant.new({
+                elements = { "&&", "||" },
+                word = false,
+                cyclic = true,
+            }),
+        },
+    })
+    vim.keymap.set("n", "<C-a>", "<Plug>(dial-increment)", { noremap = true, silent = true, desc = "Dial Increment" })
+    vim.keymap.set("n", "<C-x>", "<Plug>(dial-decrement)", { noremap = true, silent = true, desc = "Dial Decrement" })
+    vim.keymap.set("v", "<C-a>", "<Plug>(dial-increment)", { noremap = true, silent = true, desc = "Dial Increment" })
+    vim.keymap.set("v", "<C-x>", "<Plug>(dial-decrement)", { noremap = true, silent = true, desc = "Dial Decrement" })
+    vim.keymap.set("v", "g<C-a>", "<Plug>(dial-increment)", { noremap = true, silent = true, desc = "Dial Increment" })
+    vim.keymap.set("v", "g<C-x>", "<Plug>(dial-decrement)", { noremap = true, silent = true, desc = "Dial Decrement" })
+end
+
+config.nvim_gomove = function()
     local gomove_status_ok, gomove = pcall(require, "gomove")
     if not gomove_status_ok then
         return
@@ -289,41 +442,174 @@ function config.nvim_gomove()
     gomove.setup()
 end
 
-function config.nvim_treesitter_textsubjects()
-    local nvim_treesitter_configs_status_ok, nvim_treesitter_configs = pcall(require, "nvim-treesitter.configs")
-    if not nvim_treesitter_configs_status_ok then
+config.nvim_treesitter_context = function()
+    local treesitter_context_status_ok, treesitter_context = pcall(require, "treesitter-context")
+    if not treesitter_context_status_ok then
         return
     end
-    nvim_treesitter_configs.setup({
-        textsubjects = {
-            enable = true,
-            prev_selection = ",",
-            keymaps = {
-                ["ms"] = "textsubjects-smart",
-                ["mo"] = "textsubjects-container-outer",
-                ["mi"] = "textsubjects-container-inner",
+    treesitter_context.setup({
+        enable = true,
+        max_lines = 0,
+        trim_scope = "outer",
+        min_window_height = 0,
+        patterns = {
+            default = {
+                "class",
+                "function",
+                "method",
+                "for",
+                "while",
+                "if",
+                "switch",
+                "case",
+            },
+            tex = {
+                "chapter",
+                "section",
+                "subsection",
+                "subsubsection",
+            },
+            rust = {
+                "impl_item",
+                "struct",
+                "enum",
+            },
+            scala = {
+                "object_definition",
+            },
+            vhdl = {
+                "process_statement",
+                "architecture_body",
+                "entity_declaration",
+            },
+            markdown = {
+                "section",
+            },
+            elixir = {
+                "anonymous_function",
+                "arguments",
+                "block",
+                "do_block",
+                "list",
+                "map",
+                "tuple",
+                "quoted_content",
+            },
+            json = {
+                "pair",
+            },
+            yaml = {
+                "block_mapping_pair",
             },
         },
+        exact_patterns = {},
+        zindex = 20,
+        mode = "cursor",
+        separator = nil,
     })
 end
 
-function config.rest_nvim()
+config.nvim_treeclimber = function()
+    local nvim_treeclimber_status_ok, nvim_treeclimber = pcall(require, "nvim-treeclimber")
+    if not nvim_treeclimber_status_ok then
+        return
+    end
+    vim.api.nvim_set_hl(
+        0,
+        "TreeClimberHighlight",
+        { background = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].bg_05 }
+    )
+    vim.api.nvim_set_hl(
+        0,
+        "TreeClimberSiblingBoundary",
+        { background = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].bg }
+    )
+    vim.api.nvim_set_hl(0, "TreeClimberSibling", {
+        background = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].bg_04,
+        bold = true,
+    })
+    vim.api.nvim_set_hl(
+        0,
+        "TreeClimberParent",
+        { background = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].orange_01 }
+    )
+    vim.api.nvim_set_hl(
+        0,
+        "TreeClimberParentStart",
+        { background = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].teal_01, bold = true }
+    )
+    vim.keymap.set("n", "<leader>k", nvim_treeclimber.show_control_flow, {})
+    vim.keymap.set({ "x", "o" }, "i.", nvim_treeclimber.select_current_node, { desc = "select current node" })
+    vim.keymap.set({ "x", "o" }, "a.", nvim_treeclimber.select_expand, { desc = "select parent node" })
+    vim.keymap.set(
+        { "n", "x", "o" },
+        "tle",
+        nvim_treeclimber.select_forward_end,
+        { desc = "select and move to the end of the node, or the end of the next node" }
+    )
+    vim.keymap.set(
+        { "n", "x", "o" },
+        "tlb",
+        nvim_treeclimber.select_backward,
+        { desc = "select and move to the begining of the node, or the beginning of the next node" }
+    )
+    vim.keymap.set({ "n", "x", "o" }, "tl[", nvim_treeclimber.select_siblings_backward, {})
+    vim.keymap.set({ "n", "x", "o" }, "tl]", nvim_treeclimber.select_siblings_forward, {})
+    vim.keymap.set(
+        { "n", "x", "o" },
+        "tlg",
+        nvim_treeclimber.select_top_level,
+        { desc = "select the top level node from the current position" }
+    )
+    vim.keymap.set({ "n", "x", "o" }, "tlh", nvim_treeclimber.select_backward, { desc = "select previous node" })
+    vim.keymap.set({ "n", "x", "o" }, "tlj", nvim_treeclimber.select_shrink, { desc = "select child node" })
+    vim.keymap.set({ "n", "x", "o" }, "tlk", nvim_treeclimber.select_expand, { desc = "select parent node" })
+    vim.keymap.set({ "n", "x", "o" }, "tll", nvim_treeclimber.select_forward, { desc = "select the next node" })
+    vim.keymap.set(
+        { "n", "x", "o" },
+        "tlL",
+        nvim_treeclimber.select_grow_forward,
+        { desc = "Add the next node to the selection" }
+    )
+    vim.keymap.set(
+        { "n", "x", "o" },
+        "tlH",
+        nvim_treeclimber.select_grow_backward,
+        { desc = "Add the next node to the selection" }
+    )
+end
+
+config.rest_nvim = function()
     local rest_nvim_status_ok, rest_nvim = pcall(require, "rest-nvim")
     if not rest_nvim_status_ok then
         return
     end
     rest_nvim.setup()
+    vim.api.nvim_create_user_command("Rest", "lua require('rest-nvim').run()", {})
+    vim.api.nvim_create_user_command("RestPreview", "lua require('rest-nvim').run(true)", {})
+    vim.api.nvim_create_user_command("RestLast", "lua require('rest-nvim').last()", {})
+    vim.keymap.set("n", "trr", function()
+        rest_nvim.run()
+    end, { noremap = true, silent = true, desc = "Rest" })
+    vim.keymap.set("n", "trp", function()
+        rest_nvim.run(true)
+    end, { noremap = true, silent = true, desc = "RestPreview" })
+    vim.keymap.set("n", "trl", function()
+        rest_nvim.last()
+    end, { noremap = true, silent = true, desc = "RestLast" })
 end
 
-function config.sniprun()
+config.sniprun = function()
     local sniprun_status_ok, sniprun = pcall(require, "sniprun")
     if not sniprun_status_ok then
         return
     end
     sniprun.setup()
+    vim.keymap.set({ "n", "v" }, "ts", ":SnipRun<CR>", { noremap = true, silent = true, desc = "SnipRun" })
+    vim.keymap.set("n", "<Esc>", "<Esc>:noh<CR>:SnipClose<CR>", { noremap = true, silent = true, desc = "Escape" })
 end
 
-function config.code_runner_nvim()
+config.code_runner_nvim = function()
     local global = require("core.global")
     local code_runner_status_ok, code_runner = pcall(require, "code_runner")
     if not code_runner_status_ok then
@@ -335,7 +621,7 @@ function config.code_runner_nvim()
     })
 end
 
-function config.nvim_spectre()
+config.nvim_spectre = function()
     local spectre_status_ok, spectre = pcall(require, "spectre")
     if not spectre_status_ok then
         return
@@ -428,9 +714,12 @@ function config.nvim_spectre()
         is_open_target_win = true,
         is_insert_mode = false,
     })
+    vim.keymap.set("n", "<A-s>", function()
+        vim.cmd("Spectre")
+    end, { noremap = true, silent = true, desc = "Spectre" })
 end
 
-function config.comment_nvim()
+config.comment_nvim = function()
     local comment_status_ok, comment = pcall(require, "Comment")
     if not comment_status_ok then
         return
@@ -438,7 +727,16 @@ function config.comment_nvim()
     comment.setup()
 end
 
-function config.neogen()
+config.vim_bufsurf = function()
+    vim.keymap.set("n", "<C-n>", function()
+        vim.cmd("BufSurfForward")
+    end, { noremap = true, silent = true, desc = "BufSurfForward" })
+    vim.keymap.set("n", "<C-p>", function()
+        vim.cmd("BufSurfBack")
+    end, { noremap = true, silent = true, desc = "BufSurfBack" })
+end
+
+config.neogen = function()
     local neogen_status_ok, neogen = pcall(require, "neogen")
     if not neogen_status_ok then
         return
@@ -450,25 +748,14 @@ function config.neogen()
     vim.api.nvim_create_user_command("NeogenClass", "lua require('neogen').generate({ type = 'class' })", {})
     vim.api.nvim_create_user_command("NeogenFunction", "lua require('neogen').generate({ type = 'func' })", {})
     vim.api.nvim_create_user_command("NeogenType", "lua require('neogen').generate({ type = 'type' })", {})
-    local opts = { noremap = true, silent = true }
-    vim.api.nvim_set_keymap("i", "<C-l>", ":lua require('neogen').jump_next<CR>", opts)
-    vim.api.nvim_set_keymap("i", "<C-h>", ":lua require('neogen').jump_prev<CR>", opts)
 end
 
-function config.nvim_colorize_lua()
+config.nvim_colorize_lua = function()
     local colorizer_status_ok, colorizer = pcall(require, "colorizer")
     if not colorizer_status_ok then
         return
     end
-    colorizer.setup({})
-end
-
-function config.color_picker_nvim()
-    local color_picker_status_ok, color_picker = pcall(require, "color-picker")
-    if not color_picker_status_ok then
-        return
-    end
-    color_picker.setup({})
+    colorizer.setup()
     vim.api.nvim_create_autocmd("BufWritePost", {
         callback = function()
             vim.api.nvim_command("ColorizerAttachToBuffer")
@@ -477,28 +764,33 @@ function config.color_picker_nvim()
     })
 end
 
-function config.virtcolumn_nvim()
-    vim.api.nvim_set_option("colorcolumn", "120")
-    vim.g.virtcolumn_char = "▕"
-    vim.g.virtcolumn_priority = 10
-end
-
-function config.cinnamon_nvim()
-    local cinnamon_status_ok, cinnamon = pcall(require, "cinnamon")
-    if not cinnamon_status_ok then
+config.color_picker_nvim = function()
+    local color_picker_status_ok, color_picker = pcall(require, "color-picker")
+    if not color_picker_status_ok then
         return
     end
-    cinnamon.setup({
-        extra_keymaps = true,
-        extended_keymaps = true,
-    })
+    color_picker.setup({})
+    vim.keymap.set("n", "<C-c>p", function()
+        vim.cmd("PickColor")
+    end, { noremap = true, silent = true, desc = "ColorPicker" })
+    vim.keymap.set("n", "<C-c>P", function()
+        vim.cmd("PickColorInsert")
+    end, { noremap = true, silent = true, desc = "PickColorInsert" })
 end
 
-function config.suda_vim()
+config.lvim_colorcolumn = function()
+    local lvim_colorcolumn_status_ok, lvim_colorcolumn = pcall(require, "lvim-colorcolumn")
+    if not lvim_colorcolumn_status_ok then
+        return
+    end
+    lvim_colorcolumn.setup()
+end
+
+config.suda_vim = function()
     vim.g.suda_smart_edit = 1
 end
 
-function config.hop_nvim()
+config.hop_nvim = function()
     local hop_status_ok, hop = pcall(require, "hop")
     if not hop_status_ok then
         return
@@ -506,23 +798,37 @@ function config.hop_nvim()
     hop.setup()
 end
 
-function config.todo_comments_nvim()
+config.todo_comments_nvim = function()
     local todo_comments_status_ok, todo_comments = pcall(require, "todo-comments")
     if not todo_comments_status_ok then
         return
     end
     todo_comments.setup({
+        keywords = {
+            FIX = { icon = " ", color = "error", alt = { "FIX", "FIXME" } },
+            TODO = { icon = " ", color = "info", alt = { "TODO" } },
+            HACK = { icon = " ", color = "error", alt = { "HACK" } },
+            WARN = { icon = " ", color = "warning", alt = { "WARNING", "XXX" } },
+            PERF = { icon = "神", color = "warning", alt = { "OPTIM", "PERFORMANCE", "OPTIMIZE" } },
+            NOTE = { icon = " ", color = "hint", alt = { "INFO" } },
+            TEST = { icon = " ", color = "test", alt = { "TEST", "TESTING", "PASSED", "FAILED" } },
+        },
+        highlight = {
+            before = "fg",
+            keyword = "fg",
+            after = "fg",
+        },
         colors = {
-            error = { "#F05F4E", "#F05F4E" },
-            warning = { "#F2994B", "#F2994B" },
-            info = { "#A7C080", "#A7C080" },
-            hint = { "#FF7A66", "#FF7A66" },
-            default = { "#90c1a3", "#90c1a3" },
+            error = { "ToDoError" },
+            warning = { "ToDoWarning" },
+            info = { "ToDoInfo" },
+            hint = { "ToDoHint" },
+            test = { "ToDoTest" },
         },
     })
 end
 
-function config.pretty_fold_nvim()
+config.pretty_fold_nvim = function()
     local pretty_fold_status_ok, pretty_fold = pcall(require, "pretty-fold")
     if not pretty_fold_status_ok then
         return
@@ -553,16 +859,21 @@ function config.pretty_fold_nvim()
         map.show_close_preview_open_fold()
         vim.cmd("IndentBlanklineRefresh")
     end
-
     vim.api.nvim_create_user_command("FoldPreview", "lua _G.fold_preview()", {})
+    vim.keymap.set("n", "zp", function()
+        _G.fold_preview()
+    end, { noremap = true, silent = true, desc = "FoldPreview" })
 end
 
-function config.calendar_vim()
+config.calendar_vim = function()
     vim.g.calendar_diary_extension = ".org"
     vim.g.calendar_diary = "~/Org/diary/"
     vim.g.calendar_diary_path_pattern = "{YYYY}-{MM}-{DD}{EXT}"
     vim.g.calendar_monday = 1
     vim.g.calendar_weeknm = 1
+    vim.keymap.set("n", "tc", function()
+        vim.cmd("CalendarVR")
+    end, { noremap = true, silent = true, desc = "Calendar" })
 end
 
 return config

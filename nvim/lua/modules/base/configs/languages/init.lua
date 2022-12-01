@@ -1,13 +1,19 @@
 local config = {}
 
-function config.mason_nvim()
+config.mason_nvim = function()
+    vim.api.nvim_create_user_command(
+        "LvimInstallLangDependencies",
+        "lua require('languages.base.utils').install_all_packages()",
+        {}
+    )
+    vim.api.nvim_create_user_command("LspHover", "lua vim.lsp.buf.hover()", {})
+    vim.api.nvim_create_user_command("LspRename", "lua vim.lsp.buf.rename()", {})
     vim.api.nvim_create_user_command("LspAddToWorkspaceFolder", "lua vim.lsp.buf.add_workspace_folder()", {})
     vim.api.nvim_create_user_command("LspListWorkspaceFolders", "lua vim.lsp.buf.list_workspace_folders()", {})
     vim.api.nvim_create_user_command("LspRemoveWorkspaceFolder", "lua vim.lsp.buf.remove_workspace_folder()", {})
     vim.api.nvim_create_user_command("LspWorkspaceSymbol", "lua vim.lsp.buf.workspace_symbol()", {})
     vim.api.nvim_create_user_command("LspDocumentSymbol", "lua vim.lsp.buf.document_symbol()", {})
     vim.api.nvim_create_user_command("LspCodeAction", "lua vim.lsp.buf.code_action()", {})
-    vim.api.nvim_create_user_command("LspRangeCodeAction", "lua vim.api.nvim_create_user_command()", {})
     vim.api.nvim_create_user_command("LspCodeLensRefresh", "lua vim.lsp.codelens.refresh()", {})
     vim.api.nvim_create_user_command("LspCodeLensRun", "lua vim.lsp.codelens.run()", {})
     vim.api.nvim_create_user_command("LspDeclaration", "lua vim.lsp.buf.declaration()", {})
@@ -19,13 +25,72 @@ function config.mason_nvim()
     vim.api.nvim_create_user_command("LspImplementation", "lua vim.lsp.buf.implementation()", {})
     vim.api.nvim_create_user_command("LspIncomingCalls", "lua vim.lsp.buf.incoming_calls()", {})
     vim.api.nvim_create_user_command("LspOutgoingCalls", "lua vim.lsp.buf.outgoing_calls()", {})
-    if vim.fn.has("nvim-0.8") == 1 then
-        vim.api.nvim_create_user_command("LspFormatting", "lua vim.lsp.buf.format {async = true}", {})
-    else
-        vim.api.nvim_create_user_command("LspFormatting", "lua vim.lsp.buf.formatting()", {})
-    end
+    vim.api.nvim_create_user_command("LspFormat", "lua vim.lsp.buf.format {async = true}", {})
     vim.api.nvim_create_user_command("LspRename", "lua vim.lsp.buf.rename()", {})
     vim.api.nvim_create_user_command("LspSignatureHelp", "lua vim.lsp.buf.signature_help()", {})
+    vim.api.nvim_create_user_command(
+        "LspShowDiagnosticCurrent",
+        "lua require('languages.base.utils.show_diagnostic').line()",
+        {}
+    )
+    vim.api.nvim_create_user_command(
+        "LspShowDiagnosticNext",
+        "lua require('languages.base.utils.show_diagnostic').goto_next()",
+        {}
+    )
+    vim.api.nvim_create_user_command(
+        "LspShowDiagnosticPrev",
+        "lua require('languages.base.utils.show_diagnostic').goto_prev()",
+        {}
+    )
+    vim.keymap.set("n", "gd", function()
+        vim.lsp.buf.definition()
+    end, { noremap = true, silent = true, desc = "LspDefinition" })
+    vim.keymap.set("n", "gD", function()
+        vim.lsp.buf.definition()
+    end, { noremap = true, silent = true, desc = "LspDeclaration" })
+    vim.keymap.set("n", "gt", function()
+        vim.lsp.buf.type_definition()
+    end, { noremap = true, silent = true, desc = "LspTypeDefinition" })
+    vim.keymap.set("n", "gr", function()
+        vim.lsp.buf.references()
+    end, { noremap = true, silent = true, desc = "LspReferences" })
+    vim.keymap.set("n", "gi", function()
+        vim.lsp.buf.implementation()
+    end, { noremap = true, silent = true, desc = "LspImplementation" })
+    vim.keymap.set("n", "ge", function()
+        vim.lsp.buf.rename()
+    end, { noremap = true, silent = true, desc = "LspRename" })
+    vim.keymap.set("n", "gf", function()
+        vim.lsp.buf.format({ async = true })
+    end, { noremap = true, silent = true, desc = "LspFormat" })
+    vim.keymap.set("n", "ga", function()
+        vim.lsp.buf.code_action()
+    end, { noremap = true, silent = true, desc = "LspCodeAction" })
+    vim.keymap.set("n", "gs", function()
+        vim.lsp.buf.signature_help()
+    end, { noremap = true, silent = true, desc = "LspSignatureHelp" })
+    vim.keymap.set("n", "gL", function()
+        vim.lsp.codelens.refresh()
+    end, { noremap = true, silent = true, desc = "LspCodeLensRefresh" })
+    vim.keymap.set("n", "gl", function()
+        vim.lsp.codelens.run()
+    end, { noremap = true, silent = true, desc = "LspCodeLensRun" })
+    vim.keymap.set("n", "gh", function()
+        vim.lsp.buf.hover()
+    end, { noremap = true, silent = true, desc = "LspHover" })
+    vim.keymap.set("n", "K", function()
+        vim.lsp.buf.hover()
+    end, { noremap = true, silent = true, desc = "LspHover" })
+    vim.keymap.set("n", "dc", function()
+        vim.cmd("LspShowDiagnosticCurrent")
+    end, { noremap = true, silent = true, desc = "LspShowDiagnosticCurrent" })
+    vim.keymap.set("n", "dn", function()
+        vim.cmd("LspShowDiagnosticNext")
+    end, { noremap = true, silent = true, desc = "LspShowDiagnosticNext" })
+    vim.keymap.set("n", "dp", function()
+        vim.cmd("LspShowDiagnosticPrev")
+    end, { noremap = true, silent = true, desc = "LspShowDiagnosticPrev" })
     local mason_status_ok, mason = pcall(require, "mason")
     if not mason_status_ok then
         return
@@ -42,144 +107,168 @@ function config.mason_nvim()
     require("languages.base.utils").setup_diagnostic()
 end
 
-function config.null_ls_nvim()
+config.null_ls_nvim = function()
     local null_ls_status_ok, null_ls = pcall(require, "null-ls")
     if not null_ls_status_ok then
         return
     end
-    local formatting = null_ls.builtins.formatting
-    local diagnostics = null_ls.builtins.diagnostics
     null_ls.setup({
         debug = false,
-        sources = {
-            diagnostics.cpplint,
-            diagnostics.flake8,
-            diagnostics.golangci_lint,
-            diagnostics.luacheck,
-            diagnostics.rubocop,
-            diagnostics.shellcheck,
-            diagnostics.vint,
-            diagnostics.yamllint,
-            formatting.black,
-            formatting.cbfmt,
-            formatting.prettierd,
-            formatting.shfmt,
-            formatting.stylua,
-        },
         on_attach = function(client, bufnr)
-            if vim.fn.has("nvim-0.8") == 1 then
-                if client.server_capabilities.documentFormattingProvider then
-                    vim.api.nvim_create_autocmd("BufWritePre", {
-                        group = "LvimIDE",
-                        buffer = bufnr,
-                        command = "lua vim.lsp.buf.format()",
-                    })
-                end
-            else
-                if client.resolved_capabilities.document_formatting then
-                    vim.api.nvim_create_autocmd("BufWritePre", {
-                        group = "LvimIDE",
-                        buffer = bufnr,
-                        command = "lua vim.lsp.buf.formatting_seq_sync()",
-                    })
-                end
+            if client.server_capabilities.documentFormattingProvider then
+                vim.api.nvim_create_autocmd("BufWritePre", {
+                    buffer = bufnr,
+                    callback = function()
+                        if _G.LVIM_SETTINGS.autoformat == true then
+                            vim.lsp.buf.format()
+                        end
+                    end,
+                    group = "LvimIDE",
+                })
             end
         end,
     })
 end
 
-function config.goto_preview()
-    local lib = require("goto-preview.lib")
-    local goto_preview_status_ok, goto_preview = pcall(require, "goto-preview")
-    if not goto_preview_status_ok then
+config.neotest = function()
+    local neotest_status_ok, neotest = pcall(require, "neotest")
+    if not neotest_status_ok then
         return
     end
-    goto_preview.setup({
-        references = {
-            telescope = lib.has_telescope and lib.telescope.themes.get_dropdown({
-                layout_config = {
-                    width = function(_, max_columns, _)
-                        return math.min(max_columns, 200)
-                    end,
-
-                    height = function(_, _, max_lines)
-                        return math.min(max_lines, 15)
-                    end,
-                },
-                border = {},
-                borderchars = { " ", " ", " ", " ", " ", " ", " ", " " },
-                hide_preview = false,
-            }) or nil,
+    local neotest_ns = vim.api.nvim_create_namespace("neotest")
+    vim.diagnostic.config({
+        virtual_text = {
+            format = function(diagnostic)
+                local message = diagnostic.message:gsub("\n", " "):gsub("\t", " "):gsub("%s+", " "):gsub("^%s+", "")
+                return message
+            end,
         },
-        border = { " ", " ", " ", " ", " ", " ", " ", " " }, -- Border characters of the floating window
+    }, neotest_ns)
+    neotest.setup({
+        adapters = {
+            require("neotest-phpunit"),
+            require("neotest-rust"),
+            require("neotest-go"),
+            require("neotest-python")({
+                dap = { justMyCode = false },
+                args = { "--log-level", "DEBUG" },
+                runner = "pytest",
+            }),
+            require("neotest-haskell"),
+            require("neotest-elixir"),
+            require("neotest-dart")({
+                command = "flutter",
+                use_lsp = true,
+            }),
+        },
     })
-    vim.api.nvim_create_user_command(
-        "LspPreviewDefinition",
-        "lua require('goto-preview').goto_preview_definition()",
-        {}
-    )
-    vim.api.nvim_create_user_command(
-        "LspPreviewTypeDefinition",
-        "lua require('goto-preview').goto_preview_type_definition()",
-        {}
-    )
-    vim.api.nvim_create_user_command(
-        "LspPreviewReferences",
-        "lua require('goto-preview').goto_preview_references()",
-        {}
-    )
-    vim.api.nvim_create_user_command(
-        "LspPreviewImplementation",
-        "lua require('goto-preview').goto_preview_implementation()",
-        {}
-    )
-    vim.api.nvim_create_user_command("LspPreviewCloseAll", "lua require('goto-preview').close_all_win()", {})
+    vim.api.nvim_create_user_command("NeotestRun", require("neotest").run.run, {})
+    vim.api.nvim_create_user_command("NeotestOutput", require("neotest").output.open, {})
+    vim.api.nvim_create_user_command("NeotestSummary", require("neotest").summary.toggle, {})
+    vim.keymap.set("n", "<leader>nr", function()
+        require("neotest").run.run()
+    end, { noremap = true, desc = "NeotestRun" })
+    vim.keymap.set("n", "<leader>no", function()
+        require("neotest").output.open()
+    end, { noremap = true, desc = "NeotestOutput" })
+    vim.keymap.set("n", "<leader>ns", function()
+        require("neotest").summary.toggle()
+    end, { noremap = true, desc = "NeotestSummary" })
 end
 
-function config.hover_nvim()
-    local hover_status_ok, hover = pcall(require, "hover")
-    if not hover_status_ok then
+config.inc_rename_nvim = function()
+    local inc_rename_status_ok, inc_rename = pcall(require, "inc_rename")
+    if not inc_rename_status_ok then
         return
     end
-    hover.setup({
-        init = function()
-            require("hover.providers.lsp")
-        end,
-        preview_opts = {
-            border = nil,
-        },
-        title = false,
-    })
-    vim.api.nvim_create_user_command("LspHover", "lua require('hover').hover()", {})
+    inc_rename.setup()
+    vim.keymap.set("n", "gE", function()
+        return ":IncRename " .. vim.fn.expand("<cword>")
+    end, { expr = true, desc = "IncRename" })
 end
 
-function config.fidget_nvim()
-    local fidget_status_ok, fidget = pcall(require, "fidget")
-    if not fidget_status_ok then
-        return
-    end
-    fidget.setup({
-        sources = {
-            ["null-ls"] = {
-                ignore = true,
+config.glance_nvim = function()
+    local glance = require("glance")
+    local actions = glance.actions
+    glance.setup({
+        zindex = 20,
+        border = {
+            enable = true,
+            top_char = " ",
+            bottom_char = " ",
+        },
+        list = {
+            width = 0.4,
+        },
+        theme = {
+            enable = false,
+        },
+        indent_lines = {
+            enable = true,
+            icon = "▏",
+        },
+        mappings = {
+            list = {
+                ["j"] = actions.next,
+                ["k"] = actions.previous,
+                ["<Tab>"] = actions.next_location,
+                ["<S-Tab>"] = actions.previous_location,
+                ["<C-u>"] = actions.preview_scroll_win(5),
+                ["<C-d>"] = actions.preview_scroll_win(-5),
+                ["v"] = actions.jump_vsplit,
+                ["s"] = actions.jump_split,
+                ["t"] = actions.jump_tab,
+                ["<CR>"] = actions.jump,
+                ["o"] = actions.jump,
+                ["<C-h>"] = actions.enter_win("preview"), -- Focus preview window
+                ["<Esc>"] = actions.close,
+                ["q"] = actions.close,
+            },
+            preview = {
+                ["q"] = actions.close,
+                ["<Tab>"] = actions.next_location,
+                ["<S-Tab>"] = actions.previous_location,
+                ["<C-l>"] = actions.enter_win("list"), -- Focus list window
             },
         },
-        text = {
-            spinner = "bouncing_bar", -- animation shown when tasks are ongoing
-        },
-        window = {
-            relative = "editor", -- where to anchor, either "win" or "editor"
-            blend = 0,
-
-            border = { " ", " ", " ", " ", " ", " ", " ", " " },
+        hooks = {
+            before_open = function(results, open, jump, _)
+                local uri = vim.uri_from_bufnr(0)
+                if #results == 1 then
+                    local target_uri = results[1].uri or results[1].targetUri
+                    if target_uri == uri then
+                        jump(results[1])
+                    else
+                        open(results)
+                    end
+                else
+                    open(results)
+                end
+            end,
         },
     })
-    vim.api.nvim_create_autocmd("VimLeavePre", {
-        command = [[silent! FidgetClose]],
+    vim.keymap.set("n", "gpd", "<Cmd>Glance definitions<CR>")
+    vim.keymap.set("n", "gpr", "<Cmd>Glance references<CR>")
+    vim.keymap.set("n", "gpt", "<Cmd>Glance type_definitions<CR>")
+    vim.keymap.set("n", "gpi", "<Cmd>Glance implementations<CR>")
+end
+
+config.neodev_nvim = function()
+    local neodev_status_ok, neodev = pcall(require, "neodev")
+    if not neodev_status_ok then
+        return
+    end
+    neodev.setup({
+        library = {
+            enabled = true,
+            runtime = true,
+            types = true,
+            plugins = false,
+        },
     })
 end
 
-function config.go_nvim()
+config.go_nvim = function()
     local go_status_ok, go = pcall(require, "go")
     if not go_status_ok then
         return
@@ -191,23 +280,15 @@ function config.go_nvim()
     })
 end
 
-function config.trld_nvim()
-    local trld_status_ok, trld = pcall(require, "trld")
-    if not trld_status_ok then
+config.typescript_nvim = function()
+    local typescript_status_ok, typescript = pcall(require, "typescript")
+    if not typescript_status_ok then
         return
     end
-    trld.setup({
-        position = "bottom",
-        highlights = {
-            error = "DiagnosticError",
-            warn = "DiagnosticWarn",
-            info = "DiagnosticInfo",
-            hint = "DiagnosticHint",
-        },
-    })
+    typescript.setup()
 end
 
-function config.nvim_lightbulb()
+config.nvim_lightbulb = function()
     local nvim_lightbulb_status_ok, nvim_lightbulb = pcall(require, "nvim-lightbulb")
     if not nvim_lightbulb_status_ok then
         return
@@ -229,7 +310,7 @@ function config.nvim_lightbulb()
     vim.fn.sign_define("LightBulbSign", { text = "", texthl = "LightBulb", linehl = "", numhl = "" })
 end
 
-function config.nvim_treesitter()
+config.nvim_treesitter = function()
     local nvim_treesitter_configs_status_ok, nvim_treesitter_configs = pcall(require, "nvim-treesitter.configs")
     if not nvim_treesitter_configs_status_ok then
         return
@@ -261,23 +342,18 @@ function config.nvim_treesitter()
         },
         indent = {
             enable = true,
-            disable = { "html" },
         },
         autopairs = {
             enable = true,
-            disable = { "html" },
         },
         autotag = {
             enable = true,
-            disable = { "html" },
         },
         rainbow = {
             enable = true,
-            disable = { "html" },
         },
         context_commentstring = {
             enable = true,
-            disable = { "html" },
             config = {
                 javascriptreact = {
                     style_element = "{/*%s*/}",
@@ -287,30 +363,7 @@ function config.nvim_treesitter()
     })
 end
 
-function config.nvim_treesitter_contex()
-    local treesitter_context_status_ok, treesitter_context = pcall(require, "treesitter-context")
-    if not treesitter_context_status_ok then
-        return
-    end
-    treesitter_context.setup({
-        enable = true,
-        max_lines = 10,
-        patterns = {
-            default = {
-                "class",
-                "function",
-                "method",
-                "for",
-                "while",
-                "if",
-                "switch",
-                "case",
-            },
-        },
-    })
-end
-
-function config.lsp_inlayhints_nvim()
+config.lsp_inlayhints_nvim = function()
     local lsp_inlayhints_status_ok, lsp_inlayhints = pcall(require, "lsp-inlayhints")
     if not lsp_inlayhints_status_ok then
         return
@@ -320,37 +373,58 @@ function config.lsp_inlayhints_nvim()
             highlight = "Comment",
         },
     })
+    vim.api.nvim_create_augroup("LspAttach_inlayhints", {})
+    vim.api.nvim_create_autocmd("LspAttach", {
+        group = "LspAttach_inlayhints",
+        callback = function(args)
+            if not (args.data and args.data.client_id) then
+                return
+            end
+            local bufnr = args.buf
+            local client = vim.lsp.get_client_by_id(args.data.client_id)
+            lsp_inlayhints.on_attach(client, bufnr)
+        end,
+    })
 end
 
-function config.nvim_navic()
+config.nvim_navic = function()
+    local icons = require("configs.base.ui.icons")
     local nvim_navic_status_ok, nvim_navic = pcall(require, "nvim-navic")
     if not nvim_navic_status_ok then
         return
     end
     nvim_navic.setup({
+        icons = icons.lsp,
         highlight = true,
         separator = " ➤ ",
     })
     vim.g.navic_silence = true
 end
 
-function config.any_jump_nvim()
+config.any_jump_nvim = function()
     vim.g.any_jump_disable_default_keybindings = 1
     vim.g.any_jump_list_numbers = 1
+    vim.keymap.set("n", "<A-u>", ":AnyJump<CR>", { noremap = true, silent = true, desc = "AnyJump" })
+    vim.keymap.set("v", "<A-u>", ":AnyJumpVisual<CR>", { noremap = true, silent = true, desc = "AnyJumpVisual" })
 end
 
-function config.symbols_outline_nvim()
+config.symbols_outline_nvim = function()
+    local icons = require("configs.base.ui.icons")
     local symbols_outline_status_ok, symbols_outline = pcall(require, "symbols-outline")
     if not symbols_outline_status_ok then
         return
     end
     symbols_outline.setup({
+        symbols = icons.outline,
         highlight_hovered_item = true,
         show_guides = true,
     })
+    vim.keymap.set("n", "<A-v>", function()
+        vim.cmd("SymbolsOutline")
+    end, { noremap = true, silent = true, desc = "SymbolsOutline" })
 end
 
-function config.nvim_dap_ui()
+config.nvim_dap_ui = function()
     local dapui_status_ok, dapui = pcall(require, "dapui")
     if not dapui_status_ok then
         return
@@ -377,31 +451,29 @@ function config.nvim_dap_ui()
         layouts = {
             {
                 elements = {
-                    "scopes",
-                    "breakpoints",
-                    "stacks",
-                    "watches",
+                    { id = "scopes", size = 0.33 },
+                    { id = "breakpoints", size = 0.17 },
+                    { id = "stacks", size = 0.25 },
+                    { id = "watches", size = 0.25 },
                 },
-                size = 40,
-                position = "left",
+                size = 0.33,
+                position = "right",
             },
             {
                 elements = {
-                    "repl",
-                    "console",
+                    { id = "repl", size = 0.45 },
+                    { id = "console", size = 0.55 },
                 },
-                size = 10,
+                size = 0.27,
                 position = "bottom",
             },
         },
         floating = {
-            max_height = nil,
-            max_width = nil,
+            max_height = 0.9,
+            max_width = 0.5, -- Floats will be treated as percentage of your screen.
+            border = vim.g.border_chars, -- Border style. Can be 'single', 'double' or 'rounded'
             mappings = {
-                close = {
-                    "q",
-                    "<Esc>",
-                },
+                close = { "q", "<Esc>" },
             },
         },
         windows = {
@@ -435,8 +507,9 @@ function config.nvim_dap_ui()
         linehl = "",
         numhl = "",
     })
+    vim.api.nvim_create_user_command("LuaDapLaunch", 'lua require"osv".run_this()', {})
     vim.api.nvim_create_user_command("DapToggleBreakpoint", 'lua require("dap").toggle_breakpoint()', {})
-    vim.api.nvim_create_user_command("DapStartContinue", 'lua require"dap".continue()', {})
+    vim.api.nvim_create_user_command("DapContinue", 'lua require"dap".continue()', {})
     vim.api.nvim_create_user_command("DapStepInto", 'lua require"dap".step_into()', {})
     vim.api.nvim_create_user_command("DapStepOver", 'lua require"dap".step_over()', {})
     vim.api.nvim_create_user_command("DapStepOut", 'lua require"dap".step_out()', {})
@@ -453,46 +526,76 @@ function config.nvim_dap_ui()
         'lua require"dap".close(); require"dap".disconnect(); require"dapui".close()',
         {}
     )
+    vim.keymap.set("n", "<A-1>", function()
+        dap.toggle_breakpoint()
+    end, { noremap = true, silent = true, desc = "DapToggleBreakpoint" })
+    vim.keymap.set("n", "<A-2>", function()
+        dap.continue()
+    end, { noremap = true, silent = true, desc = "DapContinue" })
+    vim.keymap.set("n", "<A-3>", function()
+        dap.step_into()
+    end, { noremap = true, silent = true, desc = "DapStepInto" })
+    vim.keymap.set("n", "<A-4>", function()
+        dap.step_over()
+    end, { noremap = true, silent = true, desc = "DapStepOver" })
+    vim.keymap.set("n", "<A-5>", function()
+        dap.step_out()
+    end, { noremap = true, silent = true, desc = "DapStepOut" })
+    vim.keymap.set("n", "<A-6>", function()
+        dap.up()
+    end, { noremap = true, silent = true, desc = "DapUp" })
+    vim.keymap.set("n", "<A-7>", function()
+        dap.down()
+    end, { noremap = true, silent = true, desc = "DapDown" })
+    vim.keymap.set("n", "<A-8>", function()
+        dap.close()
+        dap.disconnect()
+        dapui.close()
+    end, { noremap = true, silent = true, desc = "DapUIClose" })
+    vim.keymap.set("n", "<A-9>", function()
+        dap.restart()
+    end, { noremap = true, silent = true, desc = "DapRestart" })
+    vim.keymap.set("n", "<A-0>", function()
+        dap.repl.toggle()
+    end, { noremap = true, silent = true, desc = "DapToggleRepl" })
 end
 
-function config.vim_dadbod_ui()
+config.nvim_dap_vscode_js = function()
+    local global = require("core.global")
+    local dap_vscode_js_status_ok, dap_vscode_js = pcall(require, "dap-vscode-js")
+    if not dap_vscode_js_status_ok then
+        return
+    end
+    dap_vscode_js.setup({
+        node_path = "node", -- Path of node executable. Defaults to $NODE_PATH, and then "node"
+        debugger_path = global.mason_path .. "/bin/vscode-js-debug", -- Path to vscode-js-debug installation.
+        debugger_cmd = { "js-debug-adapter" }, -- Command to use to launch the debug server. Takes precedence over `node_path` and `debugger_path`.
+        adapters = { "pwa-node", "pwa-chrome", "pwa-msedge", "node-terminal", "pwa-extensionHost" }, -- which adapters to register in nvim-dap
+    })
+end
+
+config.vim_dadbod_ui = function()
     vim.g.db_ui_show_help = 0
     vim.g.db_ui_win_position = "left"
     vim.g.db_ui_use_nerd_fonts = 1
     vim.g.db_ui_winwidth = 35
-    vim.api.nvim_set_keymap("n", "<leader>Du", ":DBUIToggle<CR>", {
-        noremap = true,
-        silent = true,
-    })
-    vim.api.nvim_set_keymap("n", "<leader>Df", ":DBUIFindBuffer<CR>", {
-        noremap = true,
-        silent = true,
-    })
-    vim.api.nvim_set_keymap("n", "<leader>Dr", ":DBUIRenameBuffer<CR>", {
-        noremap = true,
-        silent = true,
-    })
-    vim.api.nvim_set_keymap("n", "<leader>Dl", ":DBUILastQueryInfo<CR>", {
-        noremap = true,
-        silent = true,
-    })
     vim.g.db_ui_auto_execute_table_helpers = true
 end
 
-function config.package_info_nvim()
+config.package_info_nvim = function()
     local package_info_status_ok, package_info = pcall(require, "package-info")
     if not package_info_status_ok then
         return
     end
     package_info.setup({
         colors = {
-            up_to_date = "#98c379",
-            outdated = "#F05F4E",
+            up_to_date = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].green_01,
+            outdated = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].red_01,
         },
     })
 end
 
-function config.crates_nvim()
+config.crates_nvim = function()
     local crates_status_ok, crates = pcall(require, "crates")
     if not crates_status_ok then
         return
@@ -515,7 +618,7 @@ function config.crates_nvim()
     vim.api.nvim_create_user_command("CratesHidePopup", "lua require('crates').hide_popup()", {})
 end
 
-function config.pubspec_assist_nvim()
+config.pubspec_assist_nvim = function()
     local pubspec_assist_status_ok, pubspec_assist = pcall(require, "pubspec-assist")
     if not pubspec_assist_status_ok then
         return
@@ -523,7 +626,13 @@ function config.pubspec_assist_nvim()
     pubspec_assist.setup({})
 end
 
-function config.vimtex()
+config.markdown_preview_nvim = function()
+    vim.keymap.set("n", "<S-m>", function()
+        vim.cmd("MarkdownPreviewToggle")
+    end, { noremap = true, silent = true, desc = "MarkdownPreviewToggle" })
+end
+
+config.vimtex = function()
     vim.g.vimtex_view_method = "zathura"
     vim.g.latex_view_general_viewer = "zathura"
     vim.g.vimtex_compiler_progname = "nvr"
@@ -531,7 +640,7 @@ function config.vimtex()
     vim.g.vimtex_quickfix_open_on_warning = 0
 end
 
-function config.orgmode()
+config.orgmode = function()
     local orgmode_status_ok, orgmode = pcall(require, "orgmode")
     if not orgmode_status_ok then
         return
@@ -544,9 +653,12 @@ function config.orgmode()
         org_agenda_files = { "$HOME/Org/**/*" },
         org_default_notes_file = "$HOME/Org/refile.org",
     })
+    vim.keymap.set("n", "to", function()
+        vim.cmd("e ~/Org/notes/notes.org")
+    end, { noremap = true, silent = true, desc = "Open org notes" })
 end
 
-function config.lvim_org_utils()
+config.lvim_org_utils = function()
     local lvim_org_utils_status_ok, lvim_org_utils = pcall(require, "lvim-org-utils")
     if not lvim_org_utils_status_ok then
         return

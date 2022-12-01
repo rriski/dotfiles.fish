@@ -8,20 +8,86 @@ local group = vim.api.nvim_create_augroup("LvimIDE", {
 
 local configs = {}
 
-configs["base_vim"] = function()
+configs["base_lvim"] = function()
+    _G.LVIM_SETTINGS = funcs.read_file(global.lvim_path .. "/.configs/lvim/config.json")
+    local function lvim_theme()
+        local select = require("lvim-ui-config.select")
+        local status
+        if _G.LVIM_SETTINGS.colorschemes.theme == "dark" then
+            status = "Dark"
+        elseif _G.LVIM_SETTINGS.colorschemes.theme == "darksoft" then
+            status = "DarkSoft"
+        elseif _G.LVIM_SETTINGS.colorschemes.theme == "light" then
+            status = "Light"
+        end
+        select({
+            "Dark",
+            "DarkSoft",
+            "Light",
+            "Cancel",
+        }, { prompt = "Theme (" .. status .. ")" }, function(choice)
+            if choice == "Cancel" then
+            else
+                local user_choice = string.lower(choice)
+                _G.LVIM_SETTINGS.colorschemes.theme = user_choice
+                funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
+                local ui_config = require("modules.base.configs.ui")
+                ui_config.heirline_nvim()
+                ui_config.nvim_notify()
+                ui_config.nvim_window_picker()
+                ui_config.neo_tree_nvim()
+                local editor_config = require("modules.base.configs.editor")
+                editor_config.tabby_nvim()
+                local languages_config = require("modules.base.configs.languages")
+                languages_config.package_info_nvim()
+                vim.cmd("colorscheme lvim-" .. user_choice)
+            end
+        end, "editor")
+    end
+    vim.api.nvim_create_user_command("LvimTheme", lvim_theme, {})
+    local function lvim_auto_format()
+        local select = require("lvim-ui-config.select")
+        local status
+        if _G.LVIM_SETTINGS.autoformat == true then
+            status = "Enabled"
+        else
+            status = "Disabled"
+        end
+        select({
+            "Enable",
+            "Disable",
+            "Cancel",
+        }, { prompt = "AutoFormat (" .. status .. ")" }, function(choice)
+            if choice == "Enable" then
+                _G.LVIM_SETTINGS.autoformat = true
+            elseif choice == "Disable" then
+                _G.LVIM_SETTINGS.autoformat = false
+            end
+        end, "editor")
+    end
+    vim.api.nvim_create_user_command("LvimAutoFormat", lvim_auto_format, {})
+end
+
+configs["base_options"] = function()
     options.global()
+    vim.g.indent_blankline_char = "▏"
+    vim.g.gitblame_enabled = 0
+    vim.g.gitblame_highlight_group = "CursorLine"
+    pcall(function()
+        vim.opt.splitkeep = "screen"
+    end)
 end
 
 configs["base_events"] = function()
     vim.api.nvim_create_autocmd("FileType", {
         pattern = {
-            "dart",
-            "ruby",
-            "yaml",
             "c",
             "cpp",
+            "dart",
+            "haskell",
             "objc",
             "objcpp",
+            "ruby",
         },
         command = "setlocal ts=2 sw=2",
         group = group,
@@ -53,11 +119,10 @@ configs["base_events"] = function()
     })
     vim.api.nvim_create_autocmd({ "BufWinEnter", "BufWinLeave" }, {
         callback = function()
-            local buftype = vim.tbl_contains({ "prompt", "nofile", "help", "quickfix" }, vim.bo.buftype)
             local filetype = vim.tbl_contains({
                 "tex",
             }, vim.bo.filetype)
-            if buftype or filetype then
+            if filetype then
                 vim.opt_local.cursorcolumn = false
                 vim.opt_local.colorcolumn = "0"
             end
@@ -76,27 +141,28 @@ configs["base_languages"] = function()
 end
 
 configs["base_commands"] = function()
+    vim.api.nvim_create_user_command("CloseFloatWindows", 'lua require("core.funcs").close_float_windows()', {})
     vim.api.nvim_create_user_command("SetGlobalPath", 'lua require("core.funcs").set_global_path()', {})
     vim.api.nvim_create_user_command("SetWindowPath", 'lua require("core.funcs").set_window_path()', {})
     vim.api.nvim_create_user_command("SudoWrite", 'lua require("core.funcs").sudo_write()', {})
     vim.api.nvim_create_user_command("Quit", 'lua require("core.funcs").quit()', {})
+    vim.api.nvim_create_user_command("Save", function()
+        vim.schedule(function()
+            pcall(function()
+                vim.cmd("w")
+            end)
+        end)
+    end, {})
 end
 
 configs["base_keymaps"] = function()
-    funcs.keymaps("n", { noremap = false, silent = true }, keymaps.normal)
-    funcs.keymaps("x", { noremap = false, silent = true }, keymaps.visual)
-end
-
-configs["base_common"] = function()
-    vim.g.indent_blankline_char = "▏"
-    vim.g.indentLine_char = "▏"
-    vim.g.gitblame_enabled = 0
-    vim.g.gitblame_highlight_group = "CursorLine"
+    funcs.keymaps("n", { noremap = true, silent = true }, keymaps.normal)
+    funcs.keymaps("x", { noremap = true, silent = true }, keymaps.visual)
 end
 
 configs["base_ctrlspace_pre_config"] = function()
     vim.g.ctrlspace_use_tablineend = 1
-    vim.g.CtrlSpaceLoadLastWorkspaceOnStart = 1
+    vim.g.CtrlSpaceLoadLastWorkspaceOnStart = 0
     vim.g.CtrlSpaceSaveWorkspaceOnSwitch = 1
     vim.g.CtrlSpaceSaveWorkspaceOnExit = 1
     vim.g.CtrlSpaceUseTabline = 0
@@ -105,7 +171,7 @@ configs["base_ctrlspace_pre_config"] = function()
     vim.g.CtrlSpaceGlobCommand = "rg --files --follow --hidden -g '!{.git/*,node_modules/*,target/*,vendor/*}'"
     vim.g.CtrlSpaceIgnoredFiles = "\v(tmp|temp)[\\/]"
     vim.g.CtrlSpaceSymbols = {
-        CS = " ",
+        CS = "",
         Sin = "",
         All = "",
         Vis = "★",

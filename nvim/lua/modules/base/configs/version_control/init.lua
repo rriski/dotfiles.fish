@@ -1,6 +1,6 @@
 local config = {}
 
-function config.neogit()
+config.neogit = function()
     local neogit_status_ok, neogit = pcall(require, "neogit")
     if not neogit_status_ok then
         return
@@ -29,7 +29,7 @@ function config.neogit()
     })
 end
 
-function config.gitsigns_nvim()
+config.gitsigns_nvim = function()
     local gitsigns_status_ok, gitsigns = pcall(require, "gitsigns")
     if not gitsigns_status_ok then
         return
@@ -82,9 +82,18 @@ function config.gitsigns_nvim()
     vim.api.nvim_create_user_command("GitSignsResetHunk", "lua require('gitsigns').reset_hunk()", {})
     vim.api.nvim_create_user_command("GitSignsResetBuffer", "lua require('gitsigns').reset_buffer()", {})
     vim.api.nvim_create_user_command("GitSignsBlameLine", "lua require('gitsigns').blame_line()", {})
+    vim.keymap.set("n", "<A-]>", function()
+        vim.cmd("GitSignsNextHunk")
+    end, { noremap = true, silent = true, desc = "GitSignsNextHunk" })
+    vim.keymap.set("n", "<A-[>", function()
+        vim.cmd("GitSignsPrevHunk")
+    end, { noremap = true, silent = true, desc = "GitSignsPrevHunk" })
+    vim.keymap.set("n", "<A-;>", function()
+        vim.cmd("GitSignsPreviewHunk")
+    end, { noremap = true, silent = true, desc = "GitSignsPreviewHunk" })
 end
 
-function config.git_blame_nvim()
+config.git_blame_nvim = function()
     vim.g.gitblame_ignored_filetypes = {
         "help",
         "Outline",
@@ -96,9 +105,12 @@ function config.git_blame_nvim()
         "NeogitStatus",
         "dashboard",
     }
+    vim.keymap.set("n", "<C-c>b", function()
+        vim.cmd("GitBlameToggle")
+    end, { noremap = true, silent = true, desc = "GitBlameToggle" })
 end
 
-function config.diffview_nvim()
+config.diffview_nvim = function()
     local diffview_status_ok, diffview = pcall(require, "diffview")
     if not diffview_status_ok then
         return
@@ -121,12 +133,18 @@ function config.diffview_nvim()
     })
 end
 
-function config.octo_nvim()
+config.octo_nvim = function()
     local octo_status_ok, octo = pcall(require, "octo")
     if not octo_status_ok then
         return
     end
     octo.setup()
+end
+
+config.undotree = function()
+    vim.keymap.set("n", "<F5>", function()
+        vim.cmd("UndotreeToggle")
+    end, { noremap = true, silent = true, desc = "UndotreeToggle" })
 end
 
 return config

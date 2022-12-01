@@ -6,13 +6,15 @@ local packer = nil
 
 local display = {
     open_fn = function()
-        return require("packer.util").float({ border = "single" })
+        return require("packer.util").float({
+            border = { " ", " ", " ", " ", " ", " ", " ", " " },
+        })
     end,
-    working_sym = "ﰭ",
-    error_sym = "",
-    done_sym = "",
-    removed_sym = "",
-    moved_sym = "ﰳ",
+    working_sym = " 金",
+    error_sym = "  ",
+    done_sym = "  ",
+    removed_sym = "  ",
+    moved_sym = " ﰲ ",
 }
 
 local Packer = {}
@@ -97,22 +99,30 @@ end
 
 function plugins.snapshot_current_show()
     local plugins_snapshot = {}
-    local read_json_file = funcs.read_json_file(_G.LVIM_SNAPSHOT)
-    if read_json_file ~= nil then
-        plugins_snapshot = read_json_file
+    local file_content = funcs.read_file(_G.LVIM_SNAPSHOT)
+    if file_content ~= nil then
+        plugins_snapshot = file_content
     end
-    vim.notify(vim.inspect(plugins_snapshot), "info")
+    local notify = require("lvim-ui-config.notify")
+    notify.info(vim.inspect(plugins_snapshot), {
+        title = "LVIM IDE",
+    })
 end
 
 function plugins.snapshot_file_choice()
     local snapshot_file = vim.fn.input("Rollback from file: ", global.snapshot_path .. "/", "file")
-    local read_json_file = funcs.read_json_file(snapshot_file)
-    if read_json_file ~= nil then
+    local file_content = funcs.read_file(snapshot_file)
+    local notify = require("lvim-ui-config.notify")
+    if file_content ~= nil then
         _G.LVIM_SNAPSHOT = snapshot_file
         funcs.write_file(global.cache_path .. "/.lvim_snapshot", '{"snapshot": "' .. _G.LVIM_SNAPSHOT .. '"}')
-        vim.notify("Restart LVIM IDE and run\n:PackerSync", "info")
+        notify.warning("Restart LVIM IDE and run\n:PackerSync", {
+            title = "LVIM IDE",
+        })
     else
-        vim.notify("The file does not exist or is wrong", "error")
+        notify.error("The file does not exist or is wrong", {
+            title = "LVIM IDE",
+        })
     end
 end
 
@@ -141,7 +151,10 @@ function plugins.load_compile()
         group = PackerHooks,
         pattern = "PackerCompileDone",
         callback = function()
-            vim.notify("Compile Done!", vim.log.levels.INFO, { title = "Packer" })
+            local notify = require("lvim-ui-config.notify")
+            notify.info("Compile Done!", {
+                title = "LVIM IDE",
+            })
             dofile(vim.env.MYVIMRC)
         end,
     })

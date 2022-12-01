@@ -1,18 +1,19 @@
 local global = require("core.global")
-local rust_tools = require("rust-tools")
 local languages_setup = require("languages.base.utils")
 local nvim_lsp_util = require("lspconfig/util")
 local navic = require("nvim-navic")
-local lsp_inlayhints = require("lsp-inlayhints")
 local default_debouce_time = 150
 local dap = require("dap")
 
 local language_configs = {}
 
 local function start_server_tools()
+    local rust_tools = require("rust-tools")
     rust_tools.setup({
-        autoSetHints = false,
         tools = {
+            inlay_hints = {
+                auto = false,
+            },
             hover_actions = {
                 border = {
                     { "┌", "FloatBorder" },
@@ -33,14 +34,11 @@ local function start_server_tools()
             autostart = true,
             filetypes = { "rust" },
             on_attach = function(client, bufnr)
-                table.insert(global["languages"]["rust"]["pid"], client.rpc.pid)
-                vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
+                languages_setup.omni(client, bufnr)
+                languages_setup.tag(client, bufnr)
                 languages_setup.document_highlight(client, bufnr)
                 languages_setup.document_formatting(client, bufnr)
-                if vim.fn.has("nvim-0.8") == 1 then
-                    navic.attach(client, bufnr)
-                    lsp_inlayhints.on_attach(client, bufnr, true)
-                end
+                navic.attach(client, bufnr)
             end,
             capabilities = languages_setup.get_capabilities(),
             root_dir = function(fname)
@@ -49,6 +47,8 @@ local function start_server_tools()
         },
     })
 end
+
+language_configs["dependencies"] = { "rust-analyzer", "cpptools" }
 
 language_configs["lsp"] = function()
     languages_setup.setup_languages({
@@ -64,7 +64,7 @@ language_configs["lsp"] = function()
         else
             vim.defer_fn(function()
                 check_status()
-            end, 1000)
+            end, 3100)
         end
     end
 
@@ -87,18 +87,6 @@ language_configs["dap"] = function()
             end,
             cwd = "${workspaceFolder}",
             stopOnEntry = true,
-        },
-        {
-            name = "Attach to gdbserver :1234",
-            type = "cppdbg",
-            request = "launch",
-            MIMode = "gdb",
-            miDebuggerServerAddress = "localhost:1234",
-            miDebuggerPath = "/usr/bin/gdb",
-            cwd = "${workspaceFolder}",
-            program = function()
-                return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
-            end,
         },
     }
 end
