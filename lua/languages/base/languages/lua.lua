@@ -4,6 +4,8 @@ local dap = require("dap")
 
 local language_configs = {}
 
+language_configs["dependencies"] = { "lua-language-server", "stylua", "luacheck" }
+
 language_configs["lsp"] = function()
     languages_setup.setup_languages({
         ["language"] = "lua",
@@ -32,9 +34,12 @@ language_configs["dap"] = function()
                 return "127.0.0.1"
             end,
             port = function()
-                local val = tonumber(vim.fn.input("Port: "))
-                assert(val, "Please provide a port number")
-                return val
+                local value = tonumber(vim.fn.input("Port: "))
+                assert(value, "Please provide a port number")
+                if value ~= "" then
+                    return value
+                end
+                return 8086
             end,
         },
     }

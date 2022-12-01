@@ -1,8 +1,13 @@
 local config = {}
 
-function config.nvim_cmp()
+config.nvim_cmp = function()
+    local icons = require("configs.base.ui.icons")
     local cmp_status_ok, cmp = pcall(require, "cmp")
     if not cmp_status_ok then
+        return
+    end
+    local cmp_config_compare_status_ok, cmp_config_compare = pcall(require, "cmp.config.compare")
+    if not cmp_config_compare_status_ok then
         return
     end
     local snip_status_ok, luasnip = pcall(require, "luasnip")
@@ -14,33 +19,7 @@ function config.nvim_cmp()
         local line, col = unpack(vim.api.nvim_win_get_cursor(0))
         return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
     end
-    local lsp_symbols = {
-        Text = "   (Text) ",
-        Method = "   (Method)",
-        Function = "   (Function)",
-        Constructor = "   (Constructor)",
-        Field = " ﴲ  (Field)",
-        Variable = "[] (Variable)",
-        Class = "   (Class)",
-        Interface = " ﰮ  (Interface)",
-        Module = "   (Module)",
-        Property = " 襁 (Property)",
-        Unit = "   (Unit)",
-        Value = "   (Value)",
-        Enum = " 練 (Enum)",
-        Keyword = "   (Keyword)",
-        Snippet = "   (Snippet)",
-        Color = "   (Color)",
-        File = "   (File)",
-        Reference = "   (Reference)",
-        Folder = "   (Folder)",
-        EnumMember = "   (EnumMember)",
-        Constant = "   (Constant)",
-        Struct = "   (Struct)",
-        Event = "   (Event)",
-        Operator = "   (Operator)",
-        TypeParameter = "   (TypeParameter)",
-    }
+    local lsp_symbols = icons.cmp
     cmp.setup({
         snippet = {
             expand = function(args)
@@ -50,8 +29,8 @@ function config.nvim_cmp()
         mapping = {
             ["<C-p>"] = cmp.mapping.select_prev_item(),
             ["<C-n>"] = cmp.mapping.select_next_item(),
-            ["<C-d>"] = cmp.mapping.scroll_docs(-4),
-            ["<C-f>"] = cmp.mapping.scroll_docs(4),
+            ["<C-d>"] = cmp.mapping.scroll_docs(4),
+            ["<C-u>"] = cmp.mapping.scroll_docs(-4),
             ["<C-Space>"] = cmp.mapping.complete(),
             ["<C-e>"] = cmp.mapping.close(),
             ["<CR>"] = cmp.mapping.confirm({
@@ -122,20 +101,18 @@ function config.nvim_cmp()
                 name = "orgmode",
             },
         },
+        sorting = {
+            comparators = {
+                cmp_config_compare.exact,
+                cmp_config_compare.length,
+            },
+        },
     })
 end
 
-function config.nvim_autopairs()
+config.nvim_autopairs = function()
     local nvim_autopairs_status_ok, nvim_autopairs = pcall(require, "nvim-autopairs")
     if not nvim_autopairs_status_ok then
-        return
-    end
-    local rule_status_ok, rule = pcall(require, "nvim-autopairs.rule")
-    if not rule_status_ok then
-        return
-    end
-    local conds_status_ok, conds = pcall(require, "nvim-autopairs.conds")
-    if not conds_status_ok then
         return
     end
     nvim_autopairs.setup({
@@ -150,34 +127,9 @@ function config.nvim_autopairs()
             java = false,
         },
     })
-    nvim_autopairs.add_rule(rule("$$", "$$", "tex"))
-    nvim_autopairs.add_rules({
-        rule("$", "$", { "tex", "latex" })
-            :with_pair(conds.not_after_regex_check("%%"))
-            :with_pair(conds.not_before_regex_check("xxx", 3))
-            :with_move(conds.none())
-            :with_del(conds.not_after_regex_check("xx"))
-            :with_cr(conds.none()),
-    })
-    nvim_autopairs.add_rules({
-        rule("$$", "$$", "tex"):with_pair(function(opts)
-            print(vim.inspect(opts))
-            if opts.line == "aa $$" then
-                return false
-            end
-        end),
-    })
-    local ts_conds_status_ok, ts_conds = pcall(require, "nvim-autopairs.ts-conds")
-    if not ts_conds_status_ok then
-        return
-    end
-    nvim_autopairs.add_rules({
-        rule("%", "%", "lua"):with_pair(ts_conds.is_ts_node({ "string", "comment" })),
-        rule("$", "$", "lua"):with_pair(ts_conds.is_not_ts_node({ "function" })),
-    })
 end
 
-function config.nvim_ts_autotag()
+config.nvim_ts_autotag = function()
     local nvim_ts_autotag_status_ok, nvim_ts_autotag = pcall(require, "nvim-ts-autotag")
     if not nvim_ts_autotag_status_ok then
         return
@@ -185,7 +137,7 @@ function config.nvim_ts_autotag()
     nvim_ts_autotag.setup()
 end
 
-function config.nvim_surround()
+config.nvim_surround = function()
     local nvim_surround_status_ok, nvim_surround = pcall(require, "nvim-surround")
     if not nvim_surround_status_ok then
         return

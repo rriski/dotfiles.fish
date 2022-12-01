@@ -1,5 +1,15 @@
 *  LANGUAGES
 
+**   [[https://github.com/folke/neoconf.nvim][folke/neoconf.nvim]]
+
+    + INIT
+
+    #+begin_src lua
+    modules["folke/neoconf.nvim"] = {
+        commit = funcs.get_commit("neoconf.nvim", plugins_snapshot),
+    }
+    #+end_src
+
 **   [[https://github.com/williamboman/mason.nvim][mason.nvim]]
 
    + REQUIRES:
@@ -28,7 +38,6 @@
         vim.api.nvim_create_user_command("LspWorkspaceSymbol", "lua vim.lsp.buf.workspace_symbol()", {})
         vim.api.nvim_create_user_command("LspDocumentSymbol", "lua vim.lsp.buf.document_symbol()", {})
         vim.api.nvim_create_user_command("LspCodeAction", "lua vim.lsp.buf.code_action()", {})
-        vim.api.nvim_create_user_command("LspRangeCodeAction", "lua vim.api.nvim_create_user_command()", {})
         vim.api.nvim_create_user_command("LspCodeLensRefresh", "lua vim.lsp.codelens.refresh()", {})
         vim.api.nvim_create_user_command("LspCodeLensRun", "lua vim.lsp.codelens.run()", {})
         vim.api.nvim_create_user_command("LspDeclaration", "lua vim.lsp.buf.declaration()", {})
@@ -40,13 +49,69 @@
         vim.api.nvim_create_user_command("LspImplementation", "lua vim.lsp.buf.implementation()", {})
         vim.api.nvim_create_user_command("LspIncomingCalls", "lua vim.lsp.buf.incoming_calls()", {})
         vim.api.nvim_create_user_command("LspOutgoingCalls", "lua vim.lsp.buf.outgoing_calls()", {})
-        if vim.fn.has("nvim-0.8") == 1 then
-            vim.api.nvim_create_user_command("LspFormatting", "lua vim.lsp.buf.format {async = true}", {})
-        else
-            vim.api.nvim_create_user_command("LspFormatting", "lua vim.lsp.buf.formatting()", {})
-        end
+        vim.api.nvim_create_user_command("LspFormatting", "lua vim.lsp.buf.format {async = true}", {})
         vim.api.nvim_create_user_command("LspRename", "lua vim.lsp.buf.rename()", {})
         vim.api.nvim_create_user_command("LspSignatureHelp", "lua vim.lsp.buf.signature_help()", {})
+        vim.api.nvim_create_user_command(
+            "LspShowDiagnosticCurrent",
+            "lua require('languages.base.utils.show_diagnostic').line()",
+            {}
+        )
+        vim.api.nvim_create_user_command(
+            "LspShowDiagnosticNext",
+            "lua require('languages.base.utils.show_diagnostic').goto_next()",
+            {}
+        )
+        vim.api.nvim_create_user_command(
+            "LspShowDiagnostigPrev",
+            "lua require('languages.base.utils.show_diagnostic').goto_prev()",
+            {}
+        )
+        vim.keymap.set("n", "gd", function()
+            vim.lsp.buf.definition()
+        end, { noremap = true, silent = true, desc = "LspDefinition" })
+        vim.keymap.set("n", "gt", function()
+            vim.lsp.buf.type_definition()
+        end, { noremap = true, silent = true, desc = "LspTypeDefinition" })
+        vim.keymap.set("n", "gr", function()
+            vim.lsp.buf.references()
+        end, { noremap = true, silent = true, desc = "LspReferences" })
+        vim.keymap.set("n", "gi", function()
+            vim.lsp.buf.implementation()
+        end, { noremap = true, silent = true, desc = "LspImplementation" })
+        vim.keymap.set("n", "ge", function()
+            vim.lsp.buf.rename()
+        end, { noremap = true, silent = true, desc = "LspRename" })
+        vim.keymap.set("n", "gf", function()
+            vim.lsp.buf.format({ async = true })
+        end, { noremap = true, silent = true, desc = "LspFormat" })
+        vim.keymap.set("n", "ga", function()
+            vim.lsp.buf.code_action()
+        end, { noremap = true, silent = true, desc = "LspCodeAction" })
+        vim.keymap.set("n", "gs", function()
+            vim.lsp.buf.signature_help()
+        end, { noremap = true, silent = true, desc = "LspSignatureHelp" })
+        vim.keymap.set("n", "gL", function()
+            vim.lsp.codelens.refresh()
+        end, { noremap = true, silent = true, desc = "LspCodeLensRefresh" })
+        vim.keymap.set("n", "gl", function()
+            vim.lsp.codelens.run()
+        end, { noremap = true, silent = true, desc = "LspCodeLensRun" })
+        vim.keymap.set("n", "gh", function()
+            vim.lsp.buf.hover()
+        end, { noremap = true, silent = true, desc = "LspHover" })
+        vim.keymap.set("n", "K", function()
+            vim.lsp.buf.hover()
+        end, { noremap = true, silent = true, desc = "LspHover" })
+        vim.keymap.set("n", "dc", function()
+            vim.cmd("LspShowDiagnosticCurrent")
+        end, { noremap = true, silent = true, desc = "LspShowDiagnosticCurrent" })
+        vim.keymap.set("n", "dn", function()
+            vim.cmd("LspShowDiagnosticNext")
+        end, { noremap = true, silent = true, desc = "LspShowDiagnosticNext" })
+        vim.keymap.set("n", "dp", function()
+            vim.cmd("LspShowDiagnosticPrev")
+        end, { noremap = true, silent = true, desc = "LspShowDiagnosticPrev" })
         local mason_status_ok, mason = pcall(require, "mason")
         if not mason_status_ok then
             return
@@ -83,192 +148,173 @@
         if not null_ls_status_ok then
             return
         end
-        local formatting = null_ls.builtins.formatting
-        local diagnostics = null_ls.builtins.diagnostics
         null_ls.setup({
             debug = false,
-            sources = {
-                diagnostics.flake8,
-                diagnostics.golangci_lint,
-                diagnostics.luacheck,
-                diagnostics.rubocop,
-                diagnostics.shellcheck,
-                diagnostics.vint,
-                diagnostics.yamllint,
-                formatting.black,
-                formatting.cbfmt,
-                formatting.prettierd,
-                formatting.shfmt,
-                formatting.stylua,
-            },
             on_attach = function(client, bufnr)
-                if vim.fn.has("nvim-0.8") == 1 then
-                    if client.server_capabilities.documentFormattingProvider then
-                        vim.api.nvim_create_autocmd("BufWritePre", {
-                            group = "LvimIDE",
-                            buffer = bufnr,
-                            command = "lua vim.lsp.buf.format()",
-                        })
-                    end
-                else
-                    if client.resolved_capabilities.document_formatting then
-                        vim.api.nvim_create_autocmd("BufWritePre", {
-                            group = "LvimIDE",
-                            buffer = bufnr,
-                            command = "lua vim.lsp.buf.formatting_seq_sync()",
-                        })
-                    end
+                if client.server_capabilities.documentFormattingProvider then
+                    vim.api.nvim_create_autocmd("BufWritePre", {
+                        group = "LvimIDE",
+                        buffer = bufnr,
+                        command = "lua vim.lsp.buf.format()",
+                    })
                 end
             end,
         })
     end
     #+end_src
 
-**   [[https://github.com/rmagatti/goto-preview][goto-preview]]
+**   [[https://github.com/smjonas/inc-rename.nvim][inc-rename.nvim]]
 
     + INIT
 
     #+begin_src lua
-    modules["rmagatti/goto-preview"] = {
-        commit = funcs.get_commit("goto-preview", plugins_snapshot),
+    modules["smjonas/inc-rename.nvim"] = {
+        commit = funcs.get_commit("inc-rename.nvim", plugins_snapshot),
         event = {
             "BufRead",
         },
-        config = languages_config.goto_preview,
+        config = languages_config.inc_rename_nvim,
     }
     #+end_src
 
     + CONFIG
 
     #+begin_src lua
-    local lib = require("goto-preview.lib")
-    local goto_preview_status_ok, goto_preview = pcall(require, "goto-preview")
-    if not goto_preview_status_ok then
-        return
-    end
-    goto_preview.setup({
-        references = {
-            telescope = lib.has_telescope and lib.telescope.themes.get_dropdown({
-                layout_config = {
-                    width = function(_, max_columns, _)
-                        return math.min(max_columns, 200)
-                    end,
-    
-                    height = function(_, _, max_lines)
-                        return math.min(max_lines, 15)
-                    end,
-                },
-                border = {},
-                borderchars = { " ", " ", " ", " ", " ", " ", " ", " " },
-                hide_preview = false,
-            }) or nil,
-        },
-        border = { " ", " ", " ", " ", " ", " ", " ", " " }, -- Border characters of the floating window
-    })
-    vim.api.nvim_create_user_command("LspPreviewDefinition", "lua require('goto-preview').goto_preview_definition()", {})
-    vim.api.nvim_create_user_command(
-        "LspPreviewTypeDefinition",
-        "lua require('goto-preview').goto_preview_type_definition()",
-        {}
-    )
-    vim.api.nvim_create_user_command("LspPreviewReferences", "lua require('goto-preview').goto_preview_references()", {})
-    vim.api.nvim_create_user_command(
-        "LspPreviewImplementation",
-        "lua require('goto-preview').goto_preview_implementation()",
-        {}
-    )
-    vim.api.nvim_create_user_command("LspPreviewCloseAll", "lua require('goto-preview').close_all_win()", {})
-    #+end_src
-
-**   [[https://github.com/lewis6991/hover.nvim][hover.nvim]]
-
-    + INIT
-
-    #+begin_src lua
-    modules["lewis6991/hover.nvim"] = {
-        commit = funcs.get_commit("hover.nvim", plugins_snapshot),
-        event = {
-            "BufRead",
-        },
-        config = languages_config.hover_nvim,
-    }
-    #+end_src
-
-    + CONFIG
-
-    #+begin_src lua
-    function config.hover_nvim()
-        local hover_status_ok, hover = pcall(require, "hover")
-        if not hover_status_ok then
+    function config.inc_rename_nvim()
+        local inc_rename_status_ok, inc_rename = pcall(require, "inc_rename")
+        if not inc_rename_status_ok then
             return
         end
-        hover.setup({
-            init = function()
-                require("hover.providers.lsp")
-            end,
-            preview_opts = {
-                border = nil,
-            },
-            title = false,
-        })
-        vim.api.nvim_create_user_command("LspHover", "lua require('hover').hover()", {})
+        inc_rename.setup()
+        vim.keymap.set("n", "gE", function()
+            return ":IncRename " .. vim.fn.expand("<cword>")
+        end, { expr = true, desc = "IncRename" })
     end
     #+end_src
 
-**   [[https://github.com/lvim-tech/fidget.nvim][fidget.nvim]]
+**   [[https://github.com/DNLHC/glance.nvim][glance.nvim]]
 
     + INIT
 
     #+begin_src lua
-    modules["lvim-tech/fidget.nvim"] = {
-        commit = funcs.get_commit("fidget.nvim", plugins_snapshot),
+    modules["DNLHC/glance.nvim"] = {
+        commit = funcs.get_commit("glance.nvim", plugins_snapshot),
         event = {
             "BufRead",
         },
-        config = fidget_nvim,
+        config = languages_config.glance_nvim,
     }
     #+end_src
 
     + CONFIG
 
     #+begin_src lua
-    function config.fidget_nvim()
-        local fidget_status_ok, fidget = pcall(require, "fidget")
-        if not fidget_status_ok then
-            return
-        end
-        fidget.setup({
-            sources = {
-                ["null-ls"] = {
-                    ignore = true,
+    config.glance_nvim = function()
+        local glance = require("glance")
+        local actions = glance.actions
+        glance.setup({
+            border = {
+                enable = true,
+                top_char = " ",
+                bottom_char = " ",
+            },
+            list = {
+                width = 0.4,
+            },
+            theme = {
+                enable = false,
+            },
+            indent_lines = {
+                enable = true,
+                icon = "▏",
+            },
+            mappings = {
+                list = {
+                    ["j"] = actions.next,
+                    ["k"] = actions.previous,
+                    ["<Tab>"] = actions.next_location,
+                    ["<S-Tab>"] = actions.previous_location,
+                    ["<C-u>"] = actions.preview_scroll_win(5),
+                    ["<C-d>"] = actions.preview_scroll_win(-5),
+                    ["v"] = actions.jump_vsplit,
+                    ["s"] = actions.jump_split,
+                    ["t"] = actions.jump_tab,
+                    ["<CR>"] = actions.jump,
+                    ["o"] = actions.jump,
+                    ["<C-h>"] = actions.enter_win("preview"), -- Focus preview window
+                    ["<Esc>"] = actions.close,
+                    ["q"] = actions.close,
+                },
+                preview = {
+                    ["q"] = actions.close,
+                    ["<Tab>"] = actions.next_location,
+                    ["<S-Tab>"] = actions.previous_location,
+                    ["<C-l>"] = actions.enter_win("list"), -- Focus list window
                 },
             },
-            text = {
-                spinner = "bouncing_bar", -- animation shown when tasks are ongoing
-            },
-            window = {
-                relative = "editor", -- where to anchor, either "win" or "editor"
-                blend = 0,
-    
-                border = { " ", " ", " ", " ", " ", " ", " ", " " },
+            hooks = {
+                before_open = function(results, open, jump, _)
+                    local uri = vim.uri_from_bufnr(0)
+                    if #results == 1 then
+                        local target_uri = results[1].uri or results[1].targetUri
+                        if target_uri == uri then
+                            jump(results[1])
+                        else
+                            open(results)
+                        end
+                    else
+                        open(results)
+                    end
+                end,
             },
         })
-        vim.api.nvim_create_autocmd("VimLeavePre", {
-            command = [[silent! FidgetClose]],
-        })
+        vim.keymap.set("n", "gpd", "<Cmd>Glance definitions<CR>")
+        vim.keymap.set("n", "gpr", "<Cmd>Glance references<CR>")
+        vim.keymap.set("n", "gpt", "<Cmd>Glance type_definitions<CR>")
+        vim.keymap.set("n", "gpi", "<Cmd>Glance implementations<CR>")
+        vim.keymap.set("n", "fq", "<Cmd>CloseFloatWindows<CR>")
     end
     #+end_src
 
-
-**   [[https://github.com/folke/lua-dev.nvim][lua-dev.nvim]]
+**   [[https://github.com/mfussenegger/nvim-jdtls][nvim-jdtls]]
 
     + INIT
 
     #+begin_src lua
-    modules["folke/lua-dev.nvim"] = {
-        commit = funcs.get_commit("lua-dev.nvim", plugins_snapshot),
+    modules["mfussenegger/nvim-jdtls"] = {
+        commit = funcs.get_commit("nvim-jdtls", plugins_snapshot),
+        ft = "java",
+    }
+    #+end_src
+
+**   [[https://github.com/folke/neodev.nvim][neodev.nvim]]
+
+    + INIT
+
+    #+begin_src lua
+    modules["folke/neodev.nvim"] = {
+        commit = funcs.get_commit("neodev.nvim", plugins_snapshot),
         ft = "lua",
     }
+    #+end_src
+
+    + CONFIG
+
+    #+begin_src lua
+    function config.neodev_nvim()
+        local neodev_status_ok, neodev = pcall(require, "neodev")
+        if not neodev_status_ok then
+            return
+        end
+        neodev.setup({
+            library = {
+                enabled = true,
+                runtime = true,
+                types = true,
+                plugins = false,
+            },
+        })
+    end
     #+end_src
 
 **   [[https://github.com/simrat39/rust-tools.nvim][rust-tools.nvim]]
@@ -391,40 +437,6 @@
     }
     #+end_src
 
-**   [[https://github.com/Mofiqul/trld.nvim][trld.nvim]]
-
-    + INIT
-
-    #+begin_src lua
-    modules["Mofiqul/trld.nvim"] = {
-        commit = funcs.get_commit("trld.nvim", plugins_snapshot),
-        event = {
-            "BufRead",
-        },
-        config = languages_config.trld_nvim,
-    }
-    #+end_src
-
-    + CONFIG
-
-    #+begin_src lua
-    function config.trld_nvim()
-        local trld_status_ok, trld = pcall(require, "trld")
-        if not trld_status_ok then
-            return
-        end
-        trld.setup({
-            position = "bottom",
-            highlights = {
-                error = "DiagnosticError",
-                warn = "DiagnosticWarn",
-                info = "DiagnosticInfo",
-                hint = "DiagnosticHint",
-            },
-        })
-    end
-    #+end_src
-
 **   [[https://github.com/kosayoda/nvim-lightbulb][nvim-lightbulb]]
 
     + INIT
@@ -472,6 +484,10 @@
     #+begin_src lua
     modules["nvim-treesitter/nvim-treesitter"] = {
         commit = funcs.get_commit("nvim-treesitter", plugins_snapshot),
+        run = function()
+            local ts_update = require("nvim-treesitter.install").update({ with_sync = true })
+            ts_update()
+        end,
         config = languages_config.nvim_treesitter,
     }
     #+end_src
@@ -511,73 +527,22 @@
             },
             indent = {
                 enable = true,
-                disable = { "html" },
             },
             autopairs = {
                 enable = true,
-                disable = { "html" },
             },
             autotag = {
                 enable = true,
-                disable = { "html" },
             },
             rainbow = {
                 enable = true,
-                disable = { "html" },
             },
             context_commentstring = {
                 enable = true,
-                disable = { "html" },
                 config = {
                     javascriptreact = {
                         style_element = "{/*%s*/}",
                     },
-                },
-            },
-        })
-    end
-    #+end_src
-
-**   [[https://github.com/nvim-treesitter/nvim-treesitter-context][nvim-treesitter-context]]
-
-    + REQUIRES:
-        *  [[https://github.com/nvim-treesitter/nvim-treesitter][nvim-treesitter]]
-
-    + INIT
-
-    #+begin_src lua
-    modules["nvim-treesitter/nvim-treesitter-context"] = {
-        commit = funcs.get_commit("nvim-treesitter-context", plugins_snapshot),
-        requires = {
-            "nvim-treesitter/nvim-treesitter",
-            commit = funcs.get_commit("nvim-treesitter-context", plugins_snapshot),
-        },
-        after = "nvim-treesitter",
-        config = languages_config.nvim_treesitter_contex,
-    }
-    #+end_src
-
-    + CONFIG
-
-    #+begin_src lua
-    function config.nvim_treesitter_contex()
-        local treesitter_context_status_ok, treesitter_context = pcall(require, "treesitter-context")
-        if not treesitter_context_status_ok then
-            return
-        end
-        treesitter_context.setup({
-            enable = true,
-            max_lines = 10,
-            patterns = {
-                default = {
-                    "class",
-                    "function",
-                    "method",
-                    "for",
-                    "while",
-                    "if",
-                    "switch",
-                    "case",
                 },
             },
         })
@@ -640,11 +605,13 @@
 
     #+begin_src lua
     function config.nvim_navic()
+        local icons = require("configs.base.ui.icons")
         local nvim_navic_status_ok, nvim_navic = pcall(require, "nvim-navic")
         if not nvim_navic_status_ok then
             return
         end
         nvim_navic.setup({
+            icons = icons.lsp,
             highlight = true,
             separator = " ➤ ",
         })
@@ -672,6 +639,8 @@
     function config.any_jump_nvim()
         vim.g.any_jump_disable_default_keybindings = 1
         vim.g.any_jump_list_numbers = 1
+        vim.keymap.set("n", "<A-u>", ":AnyJump<CR>", { noremap = true, silent = true, desc = "AnyJump" })
+        vim.keymap.set("v", "<A-u>", ":AnyJumpVisual<CR>", { noremap = true, silent = true, desc = "AnyJumpVisual" })
     end
     #+end_src
 
@@ -683,7 +652,9 @@
     #+begin_src lua
     modules["simrat39/symbols-outline.nvim"] = {
         commit = funcs.get_commit("symbols-outline.nvim", plugins_snapshot),
-        cmd = "SymbolsOutline",
+        event = {
+            "BufRead",
+        },
         config = languages_config.symbols_outline_nvim,
     }
     #+end_src
@@ -692,14 +663,19 @@
 
     #+begin_src lua
     function config.symbols_outline_nvim()
+        local icons = require("configs.base.ui.icons")
         local symbols_outline_status_ok, symbols_outline = pcall(require, "symbols-outline")
         if not symbols_outline_status_ok then
             return
         end
         symbols_outline.setup({
+            symbols = icons.outline,
             highlight_hovered_item = true,
             show_guides = true,
         })
+        vim.keymap.set("n", "<A-v>", function()
+            vim.cmd("SymbolsOutline")
+        end, { noremap = true, silent = true, desc = "SymbolsOutline" })
     end
     #+end_src
 
@@ -721,6 +697,11 @@
             {
                 "mfussenegger/nvim-dap",
                 commit = funcs.get_commit("nvim-dap", plugins_snapshot),
+            },
+            {
+                "mxsdev/nvim-dap-vscode-js",
+                commit = funcs.get_commit("nvim-dap-vscode-js", plugins_snapshot),
+                config = languages_config.nvim_dap_vscode_js,
             },
             {
                 "jbyuki/one-small-step-for-vimkind",
@@ -837,14 +818,53 @@
             'lua require"dap".close(); require"dap".disconnect(); require"dapui".close()',
             {}
         )
+        vim.keymap.set("n", "<A-1>", function()
+            dap.toggle_breakpoint()
+        end, { noremap = true, silent = true, desc = "DapToggleBreakpoint" })
+        vim.keymap.set("n", "<A-2>", function()
+            dap.continue()
+        end, { noremap = true, silent = true, desc = "DapContinue" })
+        vim.keymap.set("n", "<A-3>", function()
+            dap.step_into()
+        end, { noremap = true, silent = true, desc = "DapStepInto" })
+        vim.keymap.set("n", "<A-4>", function()
+            dap.step_over()
+        end, { noremap = true, silent = true, desc = "DapStepOver" })
+        vim.keymap.set("n", "<A-5>", function()
+            dap.step_out()
+        end, { noremap = true, silent = true, desc = "DapStepOut" })
+        vim.keymap.set("n", "<A-6>", function()
+            dap.up()
+        end, { noremap = true, silent = true, desc = "DapUp" })
+        vim.keymap.set("n", "<A-7>", function()
+            dap.down()
+        end, { noremap = true, silent = true, desc = "DapDown" })
+        vim.keymap.set("n", "<A-8>", function()
+            dap.close()
+            dap.disconnect()
+            dapui.close()
+        end, { noremap = true, silent = true, desc = "DapUIClose" })
+        vim.keymap.set("n", "<A-9>", function()
+            dap.restart()
+        end, { noremap = true, silent = true, desc = "DapRestart" })
+        vim.keymap.set("n", "<A-0>", function()
+            dap.repl.toggle()
+        end, { noremap = true, silent = true, desc = "DapToggleRepl" })
     end
     #+end_src
 
     #+begin_src lua
-    function config.dapinstall()
-        local path_debuggers = vim.fn.stdpath("data") .. "/dapinstall/"
-        require("dap-install").setup({
-            installation_path = path_debuggers,
+    function config.nvim_dap_vscode_js()
+        local global = require("core.global")
+        local dap_vscode_js_status_ok, dap_vscode_js = pcall(require, "dap-vscode-js")
+        if not dap_vscode_js_status_ok then
+            return
+        end
+        dap_vscode_js.setup({
+            node_path = "node", -- Path of node executable. Defaults to $NODE_PATH, and then "node"
+            debugger_path = global.mason_path .. "/bin/vscode-js-debug", -- Path to vscode-js-debug installation.
+            debugger_cmd = { "js-debug-adapter" }, -- Command to use to launch the debug server. Takes precedence over `node_path` and `debugger_path`.
+            adapters = { "pwa-node", "pwa-chrome", "pwa-msedge", "node-terminal", "pwa-extensionHost" }, -- which adapters to register in nvim-dap
         })
     end
     #+end_src
@@ -891,22 +911,6 @@
         vim.g.db_ui_win_position = "left"
         vim.g.db_ui_use_nerd_fonts = 1
         vim.g.db_ui_winwidth = 35
-        vim.api.nvim_set_keymap("n", "<leader>Du", ":DBUIToggle<CR>", {
-            noremap = true,
-            silent = true,
-        })
-        vim.api.nvim_set_keymap("n", "<leader>Df", ":DBUIFindBuffer<CR>", {
-            noremap = true,
-            silent = true,
-        })
-        vim.api.nvim_set_keymap("n", "<leader>Dr", ":DBUIRenameBuffer<CR>", {
-            noremap = true,
-            silent = true,
-        })
-        vim.api.nvim_set_keymap("n", "<leader>Dl", ":DBUILastQueryInfo<CR>", {
-            noremap = true,
-            silent = true,
-        })
         vim.g.db_ui_auto_execute_table_helpers = true
     end
     #+end_src
@@ -940,8 +944,8 @@
         end
         package_info.setup({
             colors = {
-                up_to_date = "#98c379",
-                outdated = "#F05F4E",
+                up_to_date = _G.LVIM_SETTINGS.colorscheme.colors[_G.LVIM_SETTINGS.colorscheme.theme].green_01,
+                outdated = _G.LVIM_SETTINGS.colorscheme.colors[_G.LVIM_SETTINGS.colorscheme.theme].red_01,
             },
         })
     end
@@ -1030,15 +1034,27 @@
     end
     #+end_src
 
-**   [[https://github.com/davidgranstrom/nvim-markdown-preview][nvim-markdown-preview]]
+**   [[https://github.com/iamcco/markdown-preview.nvim][markdown-preview.nvim]]
 
     + INIT
 
     #+begin_src lua
-    modules["davidgranstrom/nvim-markdown-preview"] = {
-        commit = funcs.get_commit("nvim-markdown-preview", plugins_snapshot),
+    modules["iamcco/markdown-preview.nvim"] = {
+        commit = funcs.get_commit("markdown-preview.nvim", plugins_snapshot),
+        run = "cd app && npm install",
         ft = "markdown",
+        config = languages_config.markdown_preview_nvim,
     }
+    #+end_src
+
+    + CONFIG
+
+    #+begin_src lua
+    function config.markdown_preview_nvim()
+        vim.keymap.set("n", "<S-m>", function()
+            vim.cmd("MarkdownPreviewToggle")
+        end, { noremap = true, silent = true, desc = "MarkdownPreviewToggle" })
+    end
     #+end_src
 
 **   [[https://github.com/lervag/vimtex][vimtex]]
@@ -1105,6 +1121,9 @@
             org_default_notes_file = "$HOME/Org/refile.org",
         })
     end
+    vim.keymap.set("n", "to", function()
+        vim.cmd("e ~/Org/notes/notes.org")
+    end, { noremap = true, silent = true, desc = "Open org notes" })
     #+end_src
 
 **   [[https://github.com/lvim-tech/lvim-org-utils][lvim-org-utils]]

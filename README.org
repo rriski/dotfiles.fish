@@ -4,9 +4,13 @@
 
   LVIM IDE is a modular Neovim configuration written in LUA with full customization
 
-  Current version - 2.2.45 (2022-09-21)
+  * LSP support for 60+ languages
 
-  108 plugins
+  * Debug support for c, cpp, dart, elixir, go, haskell, java, javascript/typescript, lua, php, python, ruby, rust
+
+  Current version - 2.5.77 (2022-11-29)
+
+  122 plugins
 
 **  SCREENSHOTS
 
@@ -44,9 +48,11 @@
 
   [[./LVIM/media/lvim-ide-screenshot_17.png]]
 
+  [[./LVIM/media/lvim-ide-screenshot_18.png]]
+
 **  INTRODUCTION
 
-    * Neovim 0.7.0+
+    * Neovim 0.8.0+ (for NEOVIM < 0.8 use branch NEOVIM-0.7)
     * Add or remove plugins, rewrite all plugins
     * Add or remove settings, rewrite all settings
     * Dynamic LSP activation
@@ -58,7 +64,7 @@
 
 **  REQUIREMENTS
 
-    * [[https://github.com/neovim/neovim/wiki/Installing-Neovim][neovim >= 0.7.0]]
+    * [[https://github.com/neovim/neovim/wiki/Installing-Neovim][neovim >= 0.8.0]]
     * [[https://github.com/neovim/pynvim][pynvim]]
     * [[https://github.com/mhinz/neovim-remote][neovim-remote]]
     * [[https://nodejs.org/en/][nodejs]]
@@ -89,15 +95,62 @@
     end
     #+end_src
 
+**  LVIM CONFIG
+
+    - Help for keybinds
+
+    #+begin_src lua
+
+    :LvimHelper
+
+    #+end_src
+
+    - Theme - Dark (default), DarkSoft and Light
+
+    #+begin_src lua
+
+    :LvimTheme
+
+    #+end_src
+
+    - AutoFormat (on save) - true (default), false
+
+    #+begin_src lua
+
+    :LvimAutoFormat
+
+    #+end_src
+
+    - Charset, End of line, Indent style, Indent size, Insert final newline, Max line length, Tab width, Trim trailing whitespace
+
+    #+begin_src lua
+
+    :EditorConfigCreate
+
+    #+end_src
+
+    - LSP
+
+    #+begin_src lua
+
+    :LvimInstallLangDependencies
+    :Neoconf
+    :Neoconf local
+    :Neoconf global
+    :Neoconf show
+    :Neoconf lsp
+
+    #+end_src
+
 **  SNAPSHOTS 
 
-    + Snap folder: *~/.config/nvim/.snapshots/* 
+    + Snap folder: *~/.config/nvim/.snapshots/*
 
-    + Default snapshot file: *default* 
+    + Default snapshot file: *default*
 
-    + Show current snapshot: 
+    + Show current snapshot:
 
-    #+begin_src bash
+    #+begin_src lua
 
     :PackerShowCurrentSnapshot
 
@@ -105,7 +158,7 @@
 
     + Create new snapshot: 
 
-    #+begin_src bash
+    #+begin_src lua
 
     :PackerSnapshot
 
@@ -113,7 +166,7 @@
 
     + Choice file to rollback: 
 
-    #+begin_src bash
+    #+begin_src lua
 
     :PackerChoiceSnapshotToRollback
 
@@ -121,7 +174,7 @@
 
     Then restart LVIM IDE and run:
 
-    #+begin_src bash
+    #+begin_src lua
 
     :PackerSync
 
@@ -133,7 +186,7 @@
 
 ****  FILE STRUCTURE
 
-    #+begin_src bash
+    #+begin_src
 
     core
     ├── funcs.lua
@@ -150,7 +203,7 @@
 
 ****  FILE STRUCTURE
 
-    #+begin_src bash
+    #+begin_src
 
     configs
     ├── base
@@ -170,7 +223,7 @@
 
 ****  FILE STRUCTURE
 
-    #+begin_src bash
+    #+begin_src
 
     modules
     ├── base
@@ -225,7 +278,7 @@
 
 ****  FILE STRUCTURE
 
-     #+begin_src bash
+     #+begin_src
 
     languages
     ├── base
@@ -289,7 +342,7 @@
 
 
 
-****  LSP SUPPORT OF THE FOLLOWING FILETYPES 
+****  LSP SUPPORT 
 
       + bib
       + c
@@ -310,6 +363,7 @@
       + gomod
       + graphql
       + groovy
+      + haskell
       + handlebars
       + html
       + java
@@ -354,3 +408,19 @@
       + yaml
       + zig
       + zir
+
+****  DEBUG SUPPORT 
+
+      + c
+      + cpp
+      + dart
+      + elixir
+      + go
+      + haskell
+      + java
+      + javascript/typescript
+      + lua
+      + php
+      + python
+      + ruby
+      + rust

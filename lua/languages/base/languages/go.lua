@@ -4,6 +4,8 @@ local dap = require("dap")
 
 local language_configs = {}
 
+language_configs["dependencies"] = { "gopls", "delve", "golangci-lint" }
+
 language_configs["lsp"] = function()
     languages_setup.setup_languages({
         ["language"] = "go",
@@ -24,7 +26,6 @@ language_configs["dap"] = function()
             detached = true,
         }, function(code)
             handle:close()
-            vim.notify("Delve exited with exit code: " .. code)
         end)
         vim.defer_fn(function()
             callback({ type = "server", host = "127.0.0.1", port = port })
