@@ -2,7 +2,7 @@
 if command -qs gh
 	gh config set git_protocol ssh
 
-	for ext in mislav/gh-branch vilmibm/gh-user-status dlvhdr/gh-prs
+	for ext in mislav/gh-branch vilmibm/gh-user-status dlvhdr/gh-dash
 		gh extension install $ext || true
 	end
 end
