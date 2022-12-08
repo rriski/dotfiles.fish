@@ -110,7 +110,7 @@ brew 'htop'
 
 cask 'font-jetbrains-mono-nerd-font'
 cask 'font-meslo-lg-nerd-font'
-cask 'font-fira-code'
+cask 'font-fira-code-nerd-font'
 cask 'font-fontawesome' # spacbar icons
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
