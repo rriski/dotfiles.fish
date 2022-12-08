@@ -1,5 +1,6 @@
 #!/usr/bin/env fish
 switch (uname)
 case Darwin
-	ln -sf $DOTFILES/rectangle/com.knollsoft.Rectangle.plist ~/Library/Preferences/com.knollsoft.Rectangle.plist
+	mkdir -p "$HOME/Library/Application Support/Rectangle/"
+	ln -sf $DOTFILES/rectangle/RectangleConfig.json "$HOME/Library/Application Support/Rectangle/RectangleConfig.json"
 end
