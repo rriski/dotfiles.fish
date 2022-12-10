@@ -2,6 +2,7 @@
 	name = Timo Riski
 	email = 25483483+rriski@users.noreply.github.com
 	username = rriski
+	signingkey = ~/.ssh/id_ed25519.pub
 
 [url "git@github.com:"]
 	insteadOf = http://github.com/
@@ -18,6 +19,7 @@
 
 [commit]
 	template = ~/.gitmessage
+	gpgsign = true
 
 [apply]
 	whitespace = nowarn
@@ -37,6 +39,15 @@
 	attributesfile = "~/.gitattributes"
 	pager = delta
 	autocrlf = input
+
+[gpg]
+	format = ssh
+
+[gpg "ssh"]
+	allowedSignersFile = "~/.ssh/allowed_signers"
+
+[tag]
+	gpgsign = true
 
 [interactive]
 	diffFilter = delta --color-only
