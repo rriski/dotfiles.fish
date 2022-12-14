@@ -68,6 +68,7 @@
 	helper = osxkeychain
 
 [merge]
+	conflictstyle = diff3
 	tool = vscode
 
 [mergetool "vscode"]
