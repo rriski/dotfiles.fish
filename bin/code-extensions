@@ -1,5 +1,4 @@
 adpyke.vscode-sql-formatter
-amazonwebservices.aws-toolkit-vscode
 apollographql.vscode-apollo
 arcanis.vscode-zipfs
 asvetliakov.vscode-neovim
@@ -7,10 +6,12 @@ bmalehorn.vscode-fish
 dbaeumer.vscode-eslint
 dracula-theme.theme-dracula
 dsznajder.es7-react-js-snippets
+eamodio.gitlens
 EditorConfig.EditorConfig
 esbenp.prettier-vscode
 eseom.nunjucks-template
 fabiospampinato.vscode-highlight
+golang.go
 hashicorp.terraform
 iciclesoft.workspacesort
 James-Yu.latex-workshop
@@ -36,7 +37,6 @@ ms-vscode.remote-explorer
 ms-vsliveshare.vsliveshare
 naumovs.color-highlight
 NicolasVuillamy.vscode-groovy-lint
-nrwl.angular-console
 octref.vetur
 sibiraj-s.vscode-scss-formatter
 thild.referencite
