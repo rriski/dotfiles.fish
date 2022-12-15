@@ -103,6 +103,7 @@ brew 'grc'
 brew 'zoxide'
 brew 'gnupg'
 brew 'htop'
+brew 'wget'
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Fonts
