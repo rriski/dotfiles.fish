@@ -223,6 +223,25 @@ echo "› Time Machine:"
 echo "  › Prevent Time Machine from prompting to use new hard drives as backup volume"
 defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
 
+#############################
+
+echo ""
+echo "› Screenshot:"
+echo "  › Don't include drop shadow in full-screen screenshots"
+defaults write com.apple.screencapture disable-shadow -bool true
+
+echo "  › Set default name for screen captures"
+defaults write com.apple.screencapture name "Capture"
+
+echo "  › Don't include date in screen captures"
+defaults write com.apple.screencapture include-date -bool false
+
+echo "  › Save screen captures as JPG"
+defaults write com.apple.screencapture type jpg
+
+echo "  › Save screen captures in '~/Desktop/Screen Captures'"
+defaults write com.apple.screencapture location ~/Desktop/Screen\ Captures
+
 ###############################################################################
 # SSD-specific tweaks                                                         #
 ###############################################################################
