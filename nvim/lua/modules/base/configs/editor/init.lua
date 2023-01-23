@@ -8,20 +8,18 @@ config.editorconfig_nvim = function()
     )
 end
 
-config.vim_ctrlspace = function()
-    vim.keymap.set("n", "<space><space>", function()
-        vim.cmd("CtrlSpace")
-    end, { noremap = true, silent = true, desc = "CtrlSpace" })
+config.navigator_nvim = function()
+    require("Navigator").setup()
+    vim.keymap.set("n", "<C-h>", "<CMD>NavigatorLeft<CR>")
+    vim.keymap.set("n", "<C-l>", "<CMD>NavigatorRight<CR>")
+    vim.keymap.set("n", "<C-k>", "<CMD>NavigatorUp<CR>")
+    vim.keymap.set("n", "<C-j>", "<CMD>NavigatorDown<CR>")
 end
 
 config.telescope_nvim = function()
     local telescope_status_ok, telescope = pcall(require, "telescope")
     if not telescope_status_ok then
         return
-    end
-    if not packer_plugins["telescope-fzf-native.nvim"].loaded then
-        local loader = require("packer").loader
-        loader("telescope-fzf-native.nvim" .. " telescope-file-browser.nvim" .. " telescope-tmux.nvim")
     end
     telescope.setup({
         defaults = {
@@ -35,14 +33,14 @@ config.telescope_nvim = function()
             layout_config = {
                 horizontal = {
                     prompt_position = "top",
-                    preview_width = 0.55,
-                    results_width = 0.8,
+                    preview_width = 0.5,
+                    results_width = 0.5,
                 },
                 vertical = {
                     mirror = false,
                 },
                 width = 0.95,
-                height = 0.90,
+                height = 0.95,
                 preview_cutoff = 120,
             },
             vimgrep_arguments = {
@@ -99,21 +97,63 @@ config.telescope_nvim = function()
     telescope.load_extension("fzf")
     telescope.load_extension("file_browser")
     telescope.load_extension("tmux")
-    vim.keymap.set("n", "<A-,>", function()
-        vim.cmd("Telescope find_files")
-    end, { noremap = true, silent = true, desc = "Telescope find_files" })
-    vim.keymap.set("n", "<A-.>", function()
-        vim.cmd("Telescope live_grep")
-    end, { noremap = true, silent = true, desc = "Telescope live_grep" })
-    vim.keymap.set("n", "<A-/>", function()
-        vim.cmd("Telescope file_browser")
-    end, { noremap = true, silent = true, desc = "Telescope file_browser" })
-    vim.keymap.set("n", "<A-b>", function()
-        vim.cmd("Telescope buffers")
-    end, { noremap = true, silent = true, desc = "Telescope buffers" })
     vim.keymap.set("n", "tt", function()
         vim.cmd("Telescope tmux sessions")
     end, { noremap = true, silent = true, desc = "Telescope tmux sessions" })
+    vim.api.nvim_create_autocmd("User", {
+        pattern = "TelescopePreviewerLoaded",
+        callback = function()
+            vim.opt.number = true
+        end,
+    })
+end
+
+config.fzf_lua = function()
+    local fzf_lua_status_ok, fzf_lua = pcall(require, "fzf-lua")
+    if not fzf_lua_status_ok then
+        return
+    end
+    local actions = require("fzf-lua.actions")
+    fzf_lua.setup({
+        winopts = {
+            height = 0.95,
+            width = 0.95,
+            border = { " ", " ", " ", " ", " ", " ", " ", " " },
+            preview = {
+                vertical = "down:45%",
+                horizontal = "right:50%",
+                border = "noborder",
+            },
+        },
+        keymap = {
+            builtin = {
+                ["<F1>"] = "toggle-help",
+                ["<F2>"] = "toggle-fullscreen",
+                ["<F3>"] = "toggle-preview-wrap",
+                ["<F4>"] = "toggle-preview",
+                ["<F5>"] = "toggle-preview-ccw",
+                ["<C-d>"] = "preview-page-down",
+                ["<C-u>"] = "preview-page-up",
+                ["<C-r>"] = "preview-page-reset",
+            },
+        },
+        actions = {
+            files = {
+                ["default"] = actions.file_edit_or_qf,
+                ["ctrl-h"] = actions.file_split,
+                ["ctrl-v"] = actions.file_vsplit,
+                ["ctrl-t"] = actions.file_tabedit,
+                ["alt-q"] = actions.file_sel_to_qf,
+                ["alt-l"] = actions.file_sel_to_ll,
+            },
+            buffers = {
+                ["default"] = actions.buf_edit,
+                ["ctrl-h"] = actions.buf_split,
+                ["ctrl-v"] = actions.buf_vsplit,
+                ["ctrl-t"] = actions.buf_tabedit,
+            },
+        },
+    })
 end
 
 config.lvim_linguistics = function()
@@ -308,6 +348,7 @@ config.tabby_nvim = function()
             "octo",
             "neo-tree",
             "neo-tree-popup",
+            "netrw",
         }
         local comps = {
             {

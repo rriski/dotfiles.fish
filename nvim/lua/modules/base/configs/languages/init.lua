@@ -43,45 +43,10 @@ config.mason_nvim = function()
         "lua require('languages.base.utils.show_diagnostic').goto_prev()",
         {}
     )
-    vim.keymap.set("n", "gd", function()
-        vim.lsp.buf.definition()
-    end, { noremap = true, silent = true, desc = "LspDefinition" })
-    vim.keymap.set("n", "gD", function()
-        vim.lsp.buf.definition()
-    end, { noremap = true, silent = true, desc = "LspDeclaration" })
-    vim.keymap.set("n", "gt", function()
-        vim.lsp.buf.type_definition()
-    end, { noremap = true, silent = true, desc = "LspTypeDefinition" })
-    vim.keymap.set("n", "gr", function()
-        vim.lsp.buf.references()
-    end, { noremap = true, silent = true, desc = "LspReferences" })
-    vim.keymap.set("n", "gi", function()
-        vim.lsp.buf.implementation()
-    end, { noremap = true, silent = true, desc = "LspImplementation" })
-    vim.keymap.set("n", "ge", function()
-        vim.lsp.buf.rename()
-    end, { noremap = true, silent = true, desc = "LspRename" })
-    vim.keymap.set("n", "gf", function()
-        vim.lsp.buf.format({ async = true })
-    end, { noremap = true, silent = true, desc = "LspFormat" })
-    vim.keymap.set("n", "ga", function()
-        vim.lsp.buf.code_action()
-    end, { noremap = true, silent = true, desc = "LspCodeAction" })
-    vim.keymap.set("n", "gs", function()
-        vim.lsp.buf.signature_help()
-    end, { noremap = true, silent = true, desc = "LspSignatureHelp" })
-    vim.keymap.set("n", "gL", function()
-        vim.lsp.codelens.refresh()
-    end, { noremap = true, silent = true, desc = "LspCodeLensRefresh" })
-    vim.keymap.set("n", "gl", function()
-        vim.lsp.codelens.run()
-    end, { noremap = true, silent = true, desc = "LspCodeLensRun" })
-    vim.keymap.set("n", "gh", function()
-        vim.lsp.buf.hover()
-    end, { noremap = true, silent = true, desc = "LspHover" })
-    vim.keymap.set("n", "K", function()
-        vim.lsp.buf.hover()
-    end, { noremap = true, silent = true, desc = "LspHover" })
+    vim.api.nvim_create_user_command("DAPLocal", "lua require('languages.base.utils').dap_local()", {})
+    vim.keymap.set("n", "<C-c><C-l>", function()
+        vim.cmd("DAPLocal")
+    end, { noremap = true, silent = true, desc = "DAPLocal" })
     vim.keymap.set("n", "dc", function()
         vim.cmd("LspShowDiagnosticCurrent")
     end, { noremap = true, silent = true, desc = "LspShowDiagnosticCurrent" })
@@ -91,6 +56,9 @@ config.mason_nvim = function()
     vim.keymap.set("n", "dp", function()
         vim.cmd("LspShowDiagnosticPrev")
     end, { noremap = true, silent = true, desc = "LspShowDiagnosticPrev" })
+    vim.keymap.set("n", "dl", function()
+        vim.diagnostic.setloclist()
+    end, { noremap = true, silent = true, desc = "LspShowDiagnosticInLocList" })
     local mason_status_ok, mason = pcall(require, "mason")
     if not mason_status_ok then
         return
@@ -373,9 +341,9 @@ config.lsp_inlayhints_nvim = function()
             highlight = "Comment",
         },
     })
-    vim.api.nvim_create_augroup("LspAttach_inlayhints", {})
+    vim.api.nvim_create_augroup("LspAttachInlayHints", {})
     vim.api.nvim_create_autocmd("LspAttach", {
-        group = "LspAttach_inlayhints",
+        group = "LspAttachInlayHints",
         callback = function(args)
             if not (args.data and args.data.client_id) then
                 return
@@ -601,12 +569,7 @@ config.package_info_nvim = function()
     if not package_info_status_ok then
         return
     end
-    package_info.setup({
-        colors = {
-            up_to_date = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].green_01,
-            outdated = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].red_01,
-        },
-    })
+    package_info.setup({})
 end
 
 config.crates_nvim = function()
@@ -637,7 +600,13 @@ config.pubspec_assist_nvim = function()
     if not pubspec_assist_status_ok then
         return
     end
-    pubspec_assist.setup({})
+    pubspec_assist.setup({
+        highlights = {
+            up_to_date = "PubspecAssistDependencyUpToDate",
+            outdated = "PubspecAssistDependencyOutdated",
+            unknown = "PubspecAssistDependencyUnknown",
+        },
+    })
 end
 
 config.markdown_preview_nvim = function()

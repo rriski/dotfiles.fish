@@ -9,7 +9,6 @@ local group = vim.api.nvim_create_augroup("LvimIDE", {
 local configs = {}
 
 configs["base_lvim"] = function()
-    _G.LVIM_SETTINGS = funcs.read_file(global.lvim_path .. "/.configs/lvim/config.json")
     local function lvim_theme()
         local select = require("lvim-ui-config.select")
         local status
@@ -38,8 +37,6 @@ configs["base_lvim"] = function()
                 ui_config.neo_tree_nvim()
                 local editor_config = require("modules.base.configs.editor")
                 editor_config.tabby_nvim()
-                local languages_config = require("modules.base.configs.languages")
-                languages_config.package_info_nvim()
                 vim.cmd("colorscheme lvim-" .. user_choice)
             end
         end, "editor")
@@ -76,6 +73,43 @@ configs["base_options"] = function()
     pcall(function()
         vim.opt.splitkeep = "screen"
     end)
+    vim.g.netrw_banner = 0
+    vim.g.netrw_hide = 1
+    vim.g.netrw_browse_split = 0
+    vim.g.netrw_altv = 1
+    vim.g.netrw_liststyle = 4
+    vim.g.netrw_winsize = 20
+    vim.g.netrw_keepdir = 1
+    vim.g.netrw_list_hide = "(^|ss)\zs.S+"
+    vim.g.netrw_localcopydircmd = "cp -r"
+    vim.api.nvim_create_autocmd("FileType", {
+        pattern = {
+            "netrw",
+        },
+        callback = function()
+            vim.api.nvim_set_keymap("n", "<Esc>", "<Cmd>:bd<CR>", {})
+            vim.api.nvim_set_keymap("n", ".", "gh", {})
+            vim.api.nvim_set_keymap("n", "P", "<C-w>z", {})
+            vim.api.nvim_set_keymap("n", ".", "gh", {})
+            vim.api.nvim_set_keymap("n", "<TAB>", "mf", {})
+            vim.api.nvim_set_keymap("n", "<S-TAB>", "mF", {})
+            vim.api.nvim_set_keymap("n", "<Leader><TAB>", "mu", {})
+            vim.api.nvim_set_keymap("n", "fc", "mc", {})
+            vim.api.nvim_set_keymap("n", "fC", "mtmc", {})
+            vim.api.nvim_set_keymap("n", "fx", "mm", {})
+            vim.api.nvim_set_keymap("n", "fX", "mtmm", {})
+            vim.api.nvim_set_keymap("n", "f;", "mx", {})
+            vim.api.nvim_set_keymap("n", "bb", "mb", {})
+            vim.api.nvim_set_keymap("n", "bd", "mB", {})
+            vim.api.nvim_set_keymap("n", "bl", "gb", {})
+            vim.api.nvim_set_keymap("n", "H", "u", {})
+            vim.api.nvim_set_keymap("n", "fa", "d", {})
+            vim.api.nvim_set_keymap("n", "ff", [[%:w<CR>]], {})
+            vim.api.nvim_set_keymap("n", "fr", "R", {})
+            vim.api.nvim_set_keymap("n", "fd", "D", {})
+        end,
+        group = group,
+    })
 end
 
 configs["base_events"] = function()
@@ -96,16 +130,17 @@ configs["base_events"] = function()
         callback = function()
             local buftype = vim.tbl_contains({ "prompt", "nofile", "help", "quickfix" }, vim.bo.buftype)
             local filetype = vim.tbl_contains({
-                "calendar",
+                "NeogitStatus",
                 "Outline",
-                "git",
-                "dapui_scopes",
+                "calendar",
                 "dapui_breakpoints",
+                "dapui_scopes",
                 "dapui_stacks",
                 "dapui_watches",
-                "NeogitStatus",
-                "org",
+                "git",
+                "netrw",
                 "octo",
+                "org",
                 "toggleterm",
             }, vim.bo.filetype)
             if buftype or filetype then
@@ -170,6 +205,7 @@ configs["base_ctrlspace_pre_config"] = function()
     vim.g.CtrlSpaceUseMouseAndArrowsInTerm = 1
     vim.g.CtrlSpaceGlobCommand = "rg --files --follow --hidden -g '!{.git/*,node_modules/*,target/*,vendor/*}'"
     vim.g.CtrlSpaceIgnoredFiles = "\v(tmp|temp)[\\/]"
+    vim.g.CtrlSpaceSearchTiming = 10
     vim.g.CtrlSpaceSymbols = {
         CS = "",
         Sin = "",

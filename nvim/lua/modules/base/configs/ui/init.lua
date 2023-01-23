@@ -65,7 +65,7 @@ config.nui_nvim = function()
                     width = calculate_popup_width(default_value, border_top_text),
                 },
                 border = {
-                    highlight = "LvimInputBorder",
+                    highlight = "NormalFloat:LvimInputBorder",
                     style = { " ", " ", " ", " ", " ", " ", " ", " " },
                     text = {
                         top = border_top_text,
@@ -122,7 +122,7 @@ config.nui_nvim = function()
                 relative = "editor",
                 position = "50%",
                 border = {
-                    highlight = "LvimSelectBorder",
+                    highlight = "NormalFloat:LvimSelectBorder",
                     style = { " ", " ", " ", " ", " ", " ", " ", " " },
                     text = {
                         top = border_top_text,
@@ -282,12 +282,28 @@ config.noice_nvim = function()
             history = {
                 view = "split",
                 opts = { enter = true, format = "details" },
-                filter = { event = { "msg_show", "notify" }, ["not"] = { kind = { "search_count", "echo" } } },
+                filter = {
+                    any = {
+                        { event = "notify" },
+                        { error = true },
+                        { warning = true },
+                        { event = "msg_show", kind = { "" } },
+                        { event = "lsp", kind = "message" },
+                    },
+                },
             },
             last = {
                 view = "popup",
                 opts = { enter = true, format = "details" },
-                filter = { event = { "msg_show", "notify" }, ["not"] = { kind = { "search_count", "echo" } } },
+                filter = {
+                    any = {
+                        { event = "notify" },
+                        { error = true },
+                        { warning = true },
+                        { event = "msg_show", kind = { "" } },
+                        { event = "lsp", kind = "message" },
+                    },
+                },
                 filter_opts = { count = 1 },
             },
             errors = {
@@ -687,9 +703,10 @@ config.alpha_nvim = function()
     end
     local function footer()
         local global = require("core.global")
-        local plugins = #vim.tbl_keys(packer_plugins)
+        local plugins = require("lazy").stats().count
+        local startup_time = require("lazy").stats().startuptime
         local v = vim.version()
-        local datetime = os.date(" %d-%m-%Y   %H:%M:%S")
+        local datetime = os.date(" %d-%m-%Y")
         local platform
         if global.os == "linux" then
             platform = " Linux"
@@ -698,7 +715,16 @@ config.alpha_nvim = function()
         else
             platform = ""
         end
-        return string.format("  %d   v%d.%d.%d  %s  %s", plugins, v.major, v.minor, v.patch, platform, datetime)
+        return string.format(
+            "  %d plugins   %d ms   v%d.%d.%d  %s  %s",
+            plugins,
+            startup_time,
+            v.major,
+            v.minor,
+            v.patch,
+            platform,
+            datetime
+        )
     end
     alpha_themes_dashboard.section.header.val = {
         " 888     Y88b      / 888      e    e      ",
@@ -729,22 +755,43 @@ config.alpha_nvim = function()
         },
     })
     alpha.setup(alpha_themes_dashboard.config)
-    vim.api.nvim_create_augroup("alpha_tabline", { clear = true })
-    vim.api.nvim_create_autocmd("FileType", {
-        group = "alpha_tabline",
-        pattern = "alpha",
-        command = "set showtabline=0 laststatus=0 noruler",
-    })
-    vim.api.nvim_create_autocmd("FileType", {
-        group = "alpha_tabline",
-        pattern = "alpha",
+    vim.api.nvim_create_autocmd("User", {
+        pattern = "LazyVimStarted",
         callback = function()
-            vim.api.nvim_create_autocmd("BufUnload", {
-                group = "alpha_tabline",
-                buffer = 0,
-                command = "set showtabline=2 ruler laststatus=3",
-            })
+            alpha_themes_dashboard.section.footer.val = footer()
         end,
+    })
+end
+
+config.statuscol_nvim = function()
+    local statuscol_nvim_status_ok, statuscol_nvim = pcall(require, "statuscol")
+    if not statuscol_nvim_status_ok then
+        return
+    end
+    statuscol_nvim.setup({
+        separator = " ",
+        thousands = false,
+        relculright = true,
+        lnumfunc = nil,
+        reeval = true,
+        setopt = true,
+        order = "FSNs",
+        Lnum = false,
+        FoldPlus = false,
+        FoldMinus = false,
+        FoldEmpty = false,
+        DapBreakpointRejected = false,
+        DapBreakpoint = false,
+        DapBreakpointCondition = false,
+        DiagnosticSignError = false,
+        DiagnosticSignHint = false,
+        DiagnosticSignInfo = false,
+        DiagnosticSignWarn = false,
+        GitSignsTopdelete = false,
+        GitSignsUntracked = false,
+        GitSignsAdd = false,
+        GitSignsChangedelete = false,
+        GitSignsDelete = false,
     })
 end
 
@@ -775,6 +822,7 @@ config.nvim_window_picker = function()
         return windows
     end
     window_picker.setup({
+        show_prompt = false,
         autoselect_one = false,
         include_current_win = true,
         filter_func = special_autoselect,
@@ -882,27 +930,14 @@ config.neo_tree_nvim = function()
             show_unloaded = true,
         },
     })
-    vim.keymap.set("n", "<S-x>", function()
-        vim.cmd("Neotree filesystem left")
-    end, { noremap = true, silent = true, desc = "Neotree filesystem" })
-    vim.keymap.set("n", "<C-c><C-f>", function()
-        vim.cmd("Neotree filesystem left")
-    end, { noremap = true, silent = true, desc = "Neotree filesystem" })
-    vim.keymap.set("n", "<C-c><C-b>", function()
-        vim.cmd("Neotree buffers left")
-    end, { noremap = true, silent = true, desc = "Neotree buffers" })
-    vim.keymap.set("n", "<C-c><C-g>", function()
-        vim.cmd("Neotree git_status left")
-    end, { noremap = true, silent = true, desc = "Neotree git_status" })
-    vim.keymap.set("n", "<C-c><C-l>", function()
-        vim.cmd("Neotree diagnostics left")
-    end, { noremap = true, silent = true, desc = "Neotree diagnostics" })
-    vim.keymap.set("n", "<A-e>", function()
-        vim.cmd("Neotree diagnostics reveal bottom")
-    end, { noremap = true, silent = true, desc = "Neotree diagnostics bottom" })
-    vim.keymap.set("n", "<C-c><C-d>", function()
-        vim.cmd("Neotree diagnostics reveal bottom")
-    end, { noremap = true, silent = true, desc = "Neotree diagnostics bottom" })
+end
+
+config.netrw_nvim = function()
+    local netrw_nvim_status_ok, netrw_nvim = pcall(require, "netrw")
+    if not netrw_nvim_status_ok then
+        return
+    end
+    netrw_nvim.setup()
 end
 
 config.dirbuf_nvim = function()
@@ -1013,7 +1048,9 @@ config.which_key_nvim = function()
             l = { "<Cmd>DBUILastQueryInfo<CR>", "DB last query" },
         },
         e = {
-            name = "NeoTree",
+            name = "Explorer",
+            e = { "<Cmd>Lexplore<CR>", "Neotree left" },
+            c = { "<Cmd>Lexplore %:p:h<CR>", "Neotree left" },
             l = { "<Cmd>Neotree left<CR>", "Neotree left" },
             f = { "<Cmd>Neotree float<CR>", "Neotree float" },
             b = { "<Cmd>Neotree buffers float<CR>", "Neotree buffers" },
@@ -1055,8 +1092,8 @@ config.which_key_nvim = function()
         l = {
             name = "LSP",
             r = { "<Cmd>LspRename<CR>", "Rename" },
-            f = { "<Cmd>LspFormatting<CR>", "Format" },
-            h = { "<Cmd>Hover<CR>", "Hover" },
+            f = { "<Cmd>LspFormat<CR>", "Format" },
+            h = { "<Cmd>LspHover<CR>", "Hover" },
             a = { "<Cmd>LspCodeAction<CR>", "Code action" },
             d = { "<Cmd>LspDefinition<CR>", "Definition" },
             t = { "<Cmd>LspTypeDefinition<CR>", "Type definition" },
@@ -1074,14 +1111,6 @@ config.which_key_nvim = function()
             },
         },
         p = {
-            name = "Packer",
-            c = { "<cmd>PackerCompile<CR>", "Compile" },
-            i = { "<cmd>PackerInstall<CR>", "Install" },
-            s = { "<cmd>PackerSync<CR>", "Sync" },
-            S = { "<cmd>PackerStatus<CR>", "Status" },
-            u = { "<cmd>PackerUpdate<CR>", "Update" },
-        },
-        P = {
             name = "Path",
             g = { "<Cmd>SetGlobalPath<CR>", "Set global path" },
             w = { "<Cmd>SetWindowPath<CR>", "Set window path" },
@@ -1149,14 +1178,38 @@ config.which_key_nvim = function()
             u = { "<Cmd>Telescope buffers<CR>", "Buffers" },
             m = { "<Cmd>Telescope marks<CR>", "Marks" },
             o = { "<Cmd>Telescope commands<CR>", "Commands" },
+            t = { "<Cmd>Telescope tmux sessions<CR>", "Tmux" },
             y = { "<Cmd>Telescope symbols<CR>", "Symbols" },
-            n = { "<Cmd>Telescope quickfix<CR>", "Quickfix" },
-            c = { "<Cmd>Telescope git_commits<CR>", "Git commits" },
-            B = { "<Cmd>Telescope git_bcommits<CR>", "Git bcommits" },
-            r = { "<Cmd>Telescope git_branches<CR>", "Git branches" },
-            s = { "<Cmd>Telescope git_status<CR>", "Git status" },
-            S = { "<Cmd>Telescope git_stash<CR>", "Git stash" },
-            i = { "<Cmd>Telescope git_files<CR>", "Git files" },
+            q = { "<Cmd>Telescope quickfix<CR>", "Quickfix" },
+            g = {
+                name = "Git",
+                c = { "<Cmd>Telescope git_commits<CR>", "Git commits" },
+                C = { "<Cmd>Telescope git_bcommits<CR>", "Git bcommits" },
+                b = { "<Cmd>Telescope git_branches<CR>", "Git branches" },
+                s = { "<Cmd>Telescope git_status<CR>", "Git status" },
+                t = { "<Cmd>Telescope git_stash<CR>", "Git stash" },
+                f = { "<Cmd>Telescope git_files<CR>", "Git files" },
+            },
+        },
+        z = {
+            name = "Fzf",
+            t = { "<Cmd>FzfLua tabs<CR>", "Tabs" },
+            m = { "<Cmd>FzfLua marks<CR>", "Marks" },
+            r = { "<Cmd>FzfLua registers<CR>", "Registers" },
+            f = { "<Cmd>FzfLua files<CR>", "Files" },
+            q = { "<Cmd>FzfLua quickfix<CR>", "Quickfix" },
+            l = { "<Cmd>FzfLua loclist<CR>", "Locklist" },
+            w = { "<Cmd>FzfLua live_grep<CR>", "Live grep" },
+            k = { "<Cmd>FzfLua keymaps<CR>", "Key maps" },
+            g = {
+                name = "Git",
+                c = { "<Cmd>FzfLua git_commits<CR>", "Git commits" },
+                C = { "<Cmd>FzfLua git_bcommits<CR>", "Git bcommits" },
+                b = { "<Cmd>FzfLua git_branches<CR>", "Git branches" },
+                s = { "<Cmd>FzfLua git_status<CR>", "Git status" },
+                t = { "<Cmd>FzfLua git_stash<CR>", "Git stash" },
+                f = { "<Cmd>FzfLua git_files<CR>", "Git files" },
+            },
         },
     }
     local vmappings = {
@@ -1281,7 +1334,7 @@ config.heirline_nvim = function()
             local trail = cwd:sub(-1) == "/" and "" or "/"
             return icon .. cwd .. trail
         end,
-        hl = { fg = theme_colors.fg_05, bold = true },
+        hl = { fg = theme_colors.blue_01, bold = true },
         on_click = {
             callback = function()
                 vim.cmd("Neotree position=left")
@@ -1356,16 +1409,8 @@ config.heirline_nvim = function()
             hl = { fg = theme_colors.red_01 },
         },
     }
-    file_name_block = heirline_utils.insert(
-        file_name_block,
-        space,
-        space,
-        file_icon,
-        file_name,
-        file_size,
-        unpack(file_flags),
-        { provider = "%<" }
-    )
+    file_name_block =
+        heirline_utils.insert(file_name_block, file_name, file_icon, file_size, unpack(file_flags), { provider = "%<" })
     local git = {
         condition = heirline_conditions.is_git_repo,
         init = function(self)
@@ -1766,7 +1811,10 @@ config.heirline_nvim = function()
             navic,
         },
     }
-    heirline.setup(status_lines, win_bars)
+    heirline.setup({
+        statusline = status_lines,
+        winbar = win_bars,
+    })
     vim.api.nvim_create_autocmd("User", {
         pattern = "HeirlineInitWinbar",
         callback = function(args)

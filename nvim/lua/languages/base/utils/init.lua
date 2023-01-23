@@ -289,22 +289,18 @@ M.setup_diagnostic = function()
     vim.fn.sign_define("DiagnosticSignError", {
         text = M.icons.error,
         texthl = "DiagnosticError",
-        numhl = "DiagnosticError",
     })
     vim.fn.sign_define("DiagnosticSignWarn", {
         text = M.icons.warn,
         texthl = "DiagnosticWarn",
-        numhl = "DiagnosticWarn",
     })
     vim.fn.sign_define("DiagnosticSignHint", {
         text = M.icons.hint,
         texthl = "DiagnosticHint",
-        numhl = "DiagnosticHint",
     })
     vim.fn.sign_define("DiagnosticSignInfo", {
         text = M.icons.info,
         texthl = "DiagnosticInfo",
-        numhl = "DiagnosticInfo",
     })
 end
 
@@ -384,4 +380,95 @@ M.get_cpp_capabilities = function()
     return capabilities
 end
 
+M.keymaps = function(_, bufnr)
+    vim.keymap.set("n", "gd", function()
+        vim.lsp.buf.definition()
+    end, { noremap = true, silent = true, buffer = bufnr, desc = "LspDefinition" })
+    vim.keymap.set("n", "gD", function()
+        vim.lsp.buf.definition()
+    end, { noremap = true, silent = true, buffer = bufnr, desc = "LspDeclaration" })
+    vim.keymap.set("n", "gt", function()
+        vim.lsp.buf.type_definition()
+    end, { noremap = true, silent = true, buffer = bufnr, desc = "LspTypeDefinition" })
+    vim.keymap.set("n", "gr", function()
+        vim.lsp.buf.references()
+    end, { noremap = true, silent = true, buffer = bufnr, desc = "LspReferences" })
+    vim.keymap.set("n", "gi", function()
+        vim.lsp.buf.implementation()
+    end, { noremap = true, silent = true, buffer = bufnr, desc = "LspImplementation" })
+    vim.keymap.set("n", "ge", function()
+        vim.lsp.buf.rename()
+    end, { noremap = true, silent = true, buffer = bufnr, desc = "LspRename" })
+    vim.keymap.set("n", "gf", function()
+        vim.lsp.buf.format({ async = true })
+    end, { noremap = true, silent = true, buffer = bufnr, desc = "LspFormat" })
+    vim.keymap.set("v", "g;", function()
+        local start_row, _ = unpack(vim.api.nvim_buf_get_mark(0, "<"))
+        local end_row, _ = unpack(vim.api.nvim_buf_get_mark(0, ">"))
+        vim.lsp.buf.format({
+            range = {
+                ["start"] = { start_row, 0 },
+                ["end"] = { end_row, 0 },
+            },
+            async = true,
+        })
+    end, { noremap = true, silent = true, buffer = bufnr, desc = "LspRangeFormat" })
+    vim.keymap.set("n", "ga", function()
+        vim.lsp.buf.code_action()
+    end, { noremap = true, silent = true, buffer = bufnr, desc = "LspCodeAction" })
+    vim.keymap.set("n", "gs", function()
+        vim.lsp.buf.signature_help()
+    end, { noremap = true, silent = true, buffer = bufnr, desc = "LspSignatureHelp" })
+    vim.keymap.set("n", "gL", function()
+        vim.lsp.codelens.refresh()
+    end, { noremap = true, silent = true, buffer = bufnr, desc = "LspCodeLensRefresh" })
+    vim.keymap.set("n", "gl", function()
+        vim.lsp.codelens.run()
+    end, { noremap = true, silent = true, buffer = bufnr, desc = "LspCodeLensRun" })
+    vim.keymap.set("n", "gh", function()
+        vim.lsp.buf.hover()
+    end, { noremap = true, silent = true, buffer = bufnr, desc = "LspHover" })
+    vim.keymap.set("n", "K", function()
+        vim.lsp.buf.hover()
+    end, { noremap = true, silent = true, buffer = bufnr, desc = "LspHover" })
+end
+
+M.dap_local = function()
+    local notify = require("lvim-ui-config.notify")
+    local config_paths = { "./.nvim-dap/nvim-dap.lua", "./.nvim-dap.lua", "./.nvim/nvim-dap.lua" }
+    if not pcall(require, "dap") then
+        notify.error("Not found DAP plugin!", {
+            title = "LVIM IDE",
+        })
+        return
+    end
+    local project_config = ""
+    for _, p in ipairs(config_paths) do
+        local f = io.open(p)
+        if f ~= nil then
+            f:close()
+            project_config = p
+            break
+        end
+    end
+    if project_config == "" then
+        notify.info(
+            "You can define DAP configuration in './.nvim-dap/nvim-dap.lua', './.nvim-dap.lua', './.nvim/nvim-dap.lua'",
+            {
+                title = "LVIM IDE",
+            }
+        )
+        return
+    end
+    notify.info("Found DAP configuration at " .. project_config, {
+        title = "LVIM IDE",
+    })
+    require("dap").adapters = (function()
+        return {}
+    end)()
+    require("dap").configurations = (function()
+        return {}
+    end)()
+    vim.cmd(":luafile " .. project_config)
+end
 return M
