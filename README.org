@@ -6,9 +6,9 @@
 
   * LSP support for 60+ languages
 
-  * Debug support for c, cpp, dart, elixir, go, haskell, java, javascript/typescript, lua, php, python, ruby, rust, scala
+  * Debug support for c, cpp, cs, dart, elixir, go, haskell, java, javascript/typescript, lua, php, python, ruby, rust, scala
 
-  Current version - 2.5.85 (2022-12-07)
+  Current version - 2.6.25 (2023-01-06)
 
   123 plugins
 
@@ -73,7 +73,6 @@
     * [[https://github.com/junegunn/fzf][fzf]]
     * [[https://github.com/WayneD/rsync][rsync]]
     * [[https://github.com/jesseduffield/lazygit][lazygit]]
-    * [[https://github.com/gleitz/howdoi][howdoi]]
     * [[https://github.com/htacg/tidy-html5][tidy-html5]]
     * [[https://git-scm.com/][git]]
     * [[https://curl.se/][curl]] or [[https://www.gnu.org/software/wget/][wget]]
@@ -83,16 +82,6 @@
 
     #+begin_src bash
     git clone https://github.com/lvim-tech/lvim.git ~/.config/nvim
-    #+end_src
-
-    + For osx bigsur bug
-        Issue: [[https://github.com/wbthomason/packer.nvim/issues/180][Luarocks fails to install on macOS BigSur #180]]
-        Uncoment these lines in *lua/init.lua*:
-
-    #+begin_src lua
-    if vim.fn.has("mac") == 1 then
-        vim.fn.setenv("MACOSX_DEPLOYMENT_TARGET", "10.15")
-    end
     #+end_src
 
 **  LVIM CONFIG
@@ -152,31 +141,24 @@
 
     #+begin_src lua
 
-    :PackerShowCurrentSnapshot
+    :SnapshotFileShow
 
     #+end_src
 
-    + Create new snapshot: 
-
-    #+begin_src lua
-
-    :PackerSnapshot
-
-    #+end_src
 
     + Choice file to rollback: 
 
     #+begin_src lua
 
-    :PackerChoiceSnapshotToRollback
+    :SnapshotFileChoice
 
     #+end_src
 
-    Then restart LVIM IDE and run:
+    Then run:
 
     #+begin_src lua
 
-    :PackerSync
+    :Lazy sync
 
     #+end_src
 
@@ -379,6 +361,7 @@
       + mysql
       + objc
       + objcpp
+      + ocaml
       + perl
       + php
       + postcss
@@ -414,6 +397,7 @@
 
       + c
       + cpp
+      + cs
       + dart
       + elixir
       + go
