@@ -12,3 +12,9 @@
 if ! test -f ~/.asdf/asdf.fish
 	git clone https://github.com/asdf-vm/asdf.git ~/.asdf
 end
+
+for plugin in nodejs lua java python rust
+	if ! test -d ~/.asdf/plugins/$plugin
+		asdf plugin add $plugin
+	end
+end
