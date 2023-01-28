@@ -5,7 +5,7 @@ set -Ux WEDITOR code
 set -Ux TERM xterm-kitty
 
 set -Ux DOTFILES ~/.dotfiles.fish
-set -Ux PROJECTS ~/work
+set -Ux PROJECTS ~/code
 
 set -Ua fish_user_paths $DOTFILES/bin $HOME/.bin $HOME/.local/bin
 
