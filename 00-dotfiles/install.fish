@@ -9,9 +9,6 @@ set -Ux PROJECTS ~/code
 
 set -Ua fish_user_paths $DOTFILES/bin $HOME/.bin $HOME/.local/bin
 
-# Fisher plugin config variables
-set -x fish_tmux_config "$HOME/.config/tmux/tmux.conf"
-
 for f in $DOTFILES/*/functions
 	set -Up fish_function_path $f
 end

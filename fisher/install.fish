@@ -1,6 +1,7 @@
 #!/usr/bin/env fish
 
 # budimanjojo/tmux.fish
+set -x fish_tmux_config "$HOME/.config/tmux/tmux.conf"
 set -U fish_tmux_autostart true
 set -U fish_tmux_autostart_once true
 set -U fish_tmux_unicode true
