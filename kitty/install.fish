@@ -7,3 +7,6 @@ curl -sL https://raw.githubusercontent.com/dracula/kitty/master/dracula.conf -o 
 
 link_file $DOTFILES_ROOT/kitty/kitty.conf $HOME/.config/kitty/kitty.conf backup
 	or abort kitty
+
+link_file $DOTFILES_ROOT/kitty/kitty.app.png $HOME/.config/kitty/kitty.app.png backup
+	or abort kitty
