@@ -78,7 +78,6 @@ brew 'redis'
 brew 'ansible'
 
 # terraform
-brew 'terraform'
 brew 'tflint'
 brew 'tfsec'
 
