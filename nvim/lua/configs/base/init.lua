@@ -2,7 +2,6 @@ local global = require("core.global")
 local funcs = require("core.funcs")
 local options = require("configs.base.options")
 local keymaps = require("configs.base.keymaps")
-require("configs.base.ui.sign")
 local group = vim.api.nvim_create_augroup("LvimIDE", {
     clear = true,
 })
@@ -82,9 +81,6 @@ end
 
 configs["base_options"] = function()
     options.global()
-    if _G.LVIM_NVIM_VERSION.major == 0 and _G.LVIM_NVIM_VERSION.minor >= 9 then
-        vim.opt.statuscolumn = [[%!v:lua.Status.statuscolumn()]]
-    end
     vim.g.indent_blankline_char = "▏"
     vim.g.gitblame_enabled = 0
     vim.g.gitblame_highlight_group = "CursorLine"
