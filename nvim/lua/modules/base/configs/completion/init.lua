@@ -14,7 +14,9 @@ config.nvim_cmp = function()
     if not snip_status_ok then
         return
     end
+    require("luasnip.loaders.from_lua").lazy_load()
     require("luasnip.loaders.from_vscode").lazy_load()
+    require("luasnip.loaders.from_vscode").lazy_load({ paths = vim.fn.stdpath("config") .. "/snippets/vscode" })
     local check_backspace = function()
         local line, col = unpack(vim.api.nvim_win_get_cursor(0))
         return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
@@ -27,8 +29,8 @@ config.nvim_cmp = function()
             end,
         },
         mapping = {
-            ["<C-p>"] = cmp.mapping.select_prev_item(),
-            ["<C-n>"] = cmp.mapping.select_next_item(),
+            ["<C-j>"] = cmp.mapping.select_next_item(),
+            ["<C-k>"] = cmp.mapping.select_prev_item(),
             ["<C-d>"] = cmp.mapping.scroll_docs(4),
             ["<C-u>"] = cmp.mapping.scroll_docs(-4),
             ["<C-Space>"] = cmp.mapping.complete(),
@@ -105,6 +107,20 @@ config.nvim_cmp = function()
             comparators = {
                 cmp_config_compare.exact,
                 cmp_config_compare.length,
+            },
+        },
+    })
+    cmp.setup.cmdline({ ":", "/", "?" }, {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = {
+            {
+                name = "cmdline",
+            },
+            {
+                name = "buffer",
+            },
+            {
+                name = "path",
             },
         },
     })

@@ -1,13 +1,5 @@
 local config = {}
 
-config.editorconfig_nvim = function()
-    vim.api.nvim_create_user_command(
-        "EditorConfigCreate",
-        "lua require'core.funcs'.copy_file(require'core.global'.lvim_path .. '/.configs/templates/.editorconfig', vim.fn.getcwd() .. '/.editorconfig')",
-        {}
-    )
-end
-
 config.navigator_nvim = function()
     require("Navigator").setup()
     vim.keymap.set("n", "<C-h>", "<CMD>NavigatorLeft<CR>")
@@ -94,6 +86,7 @@ config.telescope_nvim = function()
             file_browser = {},
         },
     })
+    telescope.load_extension("macros")
     telescope.load_extension("fzf")
     telescope.load_extension("file_browser")
     telescope.load_extension("tmux")
@@ -215,12 +208,34 @@ config.rg_nvim = function()
     })
 end
 
+config.neocomposer_nvim = function()
+    local neocomposer_status_ok, neocomposer = pcall(require, "NeoComposer")
+    if not neocomposer_status_ok then
+        return
+    end
+    neocomposer.setup({
+        notify = false,
+        colors = {
+            bg = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].bg,
+            fg = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].teal_01,
+            red = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].red_02,
+            blue = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].blue_02,
+            green = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].green_02,
+        },
+        keymaps = {
+            cycle_next = "<m-n>",
+            cycle_prev = "<m-p>",
+        },
+    })
+end
+
 config.nvim_hlslens = function()
     local hlslens_status_ok, hlslens = pcall(require, "hlslens")
     if not hlslens_status_ok then
         return
     end
     hlslens.setup({
+        nearest_float_when = false,
         override_lens = function(render, posList, nearest, idx, relIdx)
             local sfw = vim.v.searchforward == 1
             local indicator, text, chunks
@@ -344,6 +359,8 @@ config.tabby_nvim = function()
             "dapui_breakpoints",
             "dapui_stacks",
             "dapui_watches",
+            "dapui_console",
+            "dap-repl",
             "calendar",
             "octo",
             "neo-tree",
@@ -475,12 +492,12 @@ config.dial_nvim = function()
     vim.keymap.set("v", "g<C-x>", "<Plug>(dial-decrement)", { noremap = true, silent = true, desc = "Dial Decrement" })
 end
 
-config.nvim_gomove = function()
-    local gomove_status_ok, gomove = pcall(require, "gomove")
-    if not gomove_status_ok then
+config.lvim_move = function()
+    local lvim_move_status_ok, lvim_move = pcall(require, "lvim-move")
+    if not lvim_move_status_ok then
         return
     end
-    gomove.setup()
+    lvim_move.setup()
 end
 
 config.nvim_treesitter_context = function()
@@ -791,40 +808,20 @@ config.neogen = function()
     vim.api.nvim_create_user_command("NeogenType", "lua require('neogen').generate({ type = 'type' })", {})
 end
 
-config.nvim_colorize_lua = function()
-    local colorizer_status_ok, colorizer = pcall(require, "colorizer")
-    if not colorizer_status_ok then
+config.ccc_nvim = function()
+    local ccc_status_ok, ccc = pcall(require, "ccc")
+    if not ccc_status_ok then
         return
     end
-    colorizer.setup()
-    vim.api.nvim_create_autocmd("BufWritePost", {
-        callback = function()
-            vim.api.nvim_command("ColorizerAttachToBuffer")
-        end,
-        group = "LvimIDE",
+    ccc.setup({
+        alpha_show = "show",
     })
-end
-
-config.color_picker_nvim = function()
-    local color_picker_status_ok, color_picker = pcall(require, "color-picker")
-    if not color_picker_status_ok then
-        return
-    end
-    color_picker.setup({})
     vim.keymap.set("n", "<C-c>p", function()
-        vim.cmd("PickColor")
+        vim.cmd("CccPick")
     end, { noremap = true, silent = true, desc = "ColorPicker" })
-    vim.keymap.set("n", "<C-c>P", function()
-        vim.cmd("PickColorInsert")
-    end, { noremap = true, silent = true, desc = "PickColorInsert" })
-end
-
-config.lvim_colorcolumn = function()
-    local lvim_colorcolumn_status_ok, lvim_colorcolumn = pcall(require, "lvim-colorcolumn")
-    if not lvim_colorcolumn_status_ok then
-        return
-    end
-    lvim_colorcolumn.setup()
+    vim.api.nvim_create_autocmd("Filetype", {
+        command = "CccHighlighterEnable",
+    })
 end
 
 config.suda_vim = function()

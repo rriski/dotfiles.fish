@@ -35,38 +35,44 @@ config.gitsigns_nvim = function()
         return
     end
     gitsigns.setup({
-        numhl = true,
-        signcolumn = false,
+        numhl = false,
+        signcolumn = true,
         signs = {
             add = {
                 hl = "GitSignsAdd",
-                text = " ▎",
+                text = "▌",
                 numhl = "GitSignsAddNr",
                 linehl = "GitSignsAddLn",
             },
             change = {
                 hl = "GitSignsChange",
-                text = " ▎",
+                text = "▌",
                 numhl = "GitSignsChangeNr",
                 linehl = "GitSignsChangeLn",
             },
             delete = {
                 hl = "GitSignsDelete",
-                text = " ▎",
+                text = "▌",
                 numhl = "GitSignsDeleteNr",
                 linehl = "GitSignsDeleteLn",
             },
             topdelete = {
-                hl = "GitSignsDelete",
-                text = " ▎",
-                numhl = "GitSignsDeleteNr",
-                linehl = "GitSignsDeleteLn",
+                hl = "GitSignsTopDelete",
+                text = "▌",
+                numhl = "GitSignsTopDeleteNr",
+                linehl = "GitSignsTopDeleteLn",
             },
             changedelete = {
-                hl = "GitSignsChange",
-                text = " ▎",
-                numhl = "GitSignsChangeNr",
-                linehl = "GitSignsChangeLn",
+                hl = "GitSignsChangeDelete",
+                text = "▌",
+                numhl = "GitSignsChangeDeleteNr",
+                linehl = "GitSignsChangeDeleteLn",
+            },
+            untracked = {
+                hl = "GitSignsUntracked",
+                text = "▌",
+                numhl = "GitSignsUntrackedNr",
+                linehl = "GitSignsUntrackedLn",
             },
         },
         linehl = false,
@@ -95,6 +101,9 @@ config.gitsigns_nvim = function()
 end
 
 config.git_blame_nvim = function()
+    vim.g.gitblame_message_when_not_committed = "➤ Not committed yet"
+    vim.g.gitblame_date_format = "%r"
+    vim.g.gitblame_message_template = "➤ <summary> ➤ <date> ➤ <author>"
     vim.g.gitblame_ignored_filetypes = {
         "help",
         "Outline",
@@ -132,6 +141,74 @@ config.diffview_nvim = function()
             end,
         },
     })
+end
+
+config.lvim_forgit = function()
+    local lvim_forgit_status_ok, lvim_forgit = pcall(require, "lvim-forgit")
+    if not lvim_forgit_status_ok then
+        return
+    end
+    lvim_forgit.setup()
+    vim.keymap.set("n", "<C-c>fg", function()
+        vim.cmd("LvimForgit")
+    end, { noremap = true, silent = true, desc = "LvimForgit" })
+    vim.keymap.set("n", "<C-c>gga", function()
+        vim.cmd("LvimForgitAdd")
+    end, { noremap = true, silent = true, desc = "LvimForgitAdd" })
+    vim.keymap.set("n", "<C-c>ggb", function()
+        vim.cmd("LvimForgitBlame")
+    end, { noremap = true, silent = true, desc = "LvimForgitBlame" })
+    vim.keymap.set("n", "<C-c>ggd", function()
+        vim.cmd("LvimForgitBranchDelete")
+    end, { noremap = true, silent = true, desc = "LvimForgitBranchDelete" })
+    vim.keymap.set("n", "<C-c>ggcb", function()
+        vim.cmd("LvimForgitCheckoutBranch")
+    end, { noremap = true, silent = true, desc = "LvimForgitCheckoutBranch" })
+    vim.keymap.set("n", "<C-c>ggcc", function()
+        vim.cmd("LvimForgitCheckoutCommit")
+    end, { noremap = true, silent = true, desc = "LvimForgitCheckoutCommit" })
+    vim.keymap.set("n", "<C-c>ggcf", function()
+        vim.cmd("LvimForgitCheckoutFile")
+    end, { noremap = true, silent = true, desc = "LvimForgitCheckoutFile" })
+    vim.keymap.set("n", "<C-c>ggct", function()
+        vim.cmd("LvimForgitCheckoutTag")
+    end, { noremap = true, silent = true, desc = "LvimForgitCheckoutTag" })
+    vim.keymap.set("n", "<C-c>ggp", function()
+        vim.cmd("LvimForgitCherryPick")
+    end, { noremap = true, silent = true, desc = "LvimForgitCherryPick" })
+    vim.keymap.set("n", "<C-c>ggP", function()
+        vim.cmd("LvimForgitCheckoutBranch")
+    end, { noremap = true, silent = true, desc = "LvimForgitCherryPickFromBranch" })
+    vim.keymap.set("n", "<C-c>ggn", function()
+        vim.cmd("LvimForgitClean")
+    end, { noremap = true, silent = true, desc = "LvimForgitClean" })
+    vim.keymap.set("n", "<C-c>ggd", function()
+        vim.cmd("LvimForgitDiff")
+    end, { noremap = true, silent = true, desc = "LvimForgitDiff" })
+    vim.keymap.set("n", "<C-c>ggf", function()
+        vim.cmd("LvimForgitFixUp")
+    end, { noremap = true, silent = true, desc = "LvimForgitFixUp" })
+    vim.keymap.set("n", "<C-c>ggi", function()
+        vim.cmd("LvimForgitIgnore")
+    end, { noremap = true, silent = true, desc = "LvimForgitIgnore" })
+    vim.keymap.set("n", "<C-c>ggl", function()
+        vim.cmd("LvimForgitLog")
+    end, { noremap = true, silent = true, desc = "LvimForgitLog" })
+    vim.keymap.set("n", "<C-c>ggrr", function()
+        vim.cmd("LvimForgitRebase")
+    end, { noremap = true, silent = true, desc = "LvimForgitRebase" })
+    vim.keymap.set("n", "<C-c>ggrh", function()
+        vim.cmd("LvimForgitResetHead")
+    end, { noremap = true, silent = true, desc = "LvimForgitResetHead" })
+    vim.keymap.set("n", "<C-c>ggrc", function()
+        vim.cmd("LvimForgitRevertCommit")
+    end, { noremap = true, silent = true, desc = "LvimForgitRevertCommit" })
+    vim.keymap.set("n", "<C-c>ggss", function()
+        vim.cmd("LvimForgitStashShow")
+    end, { noremap = true, silent = true, desc = "LvimForgitStashShow" })
+    vim.keymap.set("n", "<C-c>ggsp", function()
+        vim.cmd("LvimForgitStashPush")
+    end, { noremap = true, silent = true, desc = "LvimForgitStashPush" })
 end
 
 config.octo_nvim = function()

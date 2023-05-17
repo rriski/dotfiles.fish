@@ -5,6 +5,7 @@
 | Key              | Action                            | Description                           |
 | ---------------- | --------------------------------- | ------------------------------------- |
 | `<space><space>` | `:CtrlSpace<CR>`                  | CtrlSpace                             |
+| `<space>r`       | `:LvimFileManager<CR>`            | LvimFileManager                       |
 | `<F1>`           | `:TTOne<CR>`                      | Toggleterm one open                   |
 | `<F2>`           | `:TTTwo<CR>`                      | Toggleterm two open                   |
 | `<F3>`           | `:TTThree<CR>`                    | Toggleterm three open                 |
@@ -23,11 +24,14 @@
 | `<C-c>d`         | `:bdelete<CR>`                    | Bdelete buffer                        |
 | `<C-c>p`         | `:PickColor<CR>`                  | Pick color                            |
 | `<C-c>P`         | `:PickColorInsert<CR>`            | Pick color insert                     |
+| `<C-c>=`         | `:wincmd=<CR>`                    | Win resize =                          |
 | `<C-n>`          | `:BufSurfForward<CR>`             | Bnext buffer                          |
 | `<C-p>`          | `:BufSurfBack<CR>`                | Bprev buffer                          |
 | `<C-c>b`         | `:GitBlameToggle<CR>`             | GitBlame toggle                       |
 | `<C-space>`      | `:NeoZoom<CR>`                    | Zoom toggle                           |
-| `<C-c>f`         | `:Vifm<CR>`                       | Vifm                                  |
+| `<C-c>fv`        | `:Vifm<CR>`                       | Vifm                                  |
+| `<C-c>fr`        | `:Ranger<CR>`                     | Ranger                                |
+| `<C-c>w`         | `:WinShift`                       | WinShift                              |
 | `<C-h>`          | `<C-w>h`                          | Move to window left                   |
 | `<C-l>`          | `<C-w>l`                          | Move to window right                  |
 | `<C-j>`          | `<C-w>j`                          | Move to window down                   |
@@ -36,6 +40,7 @@
 | `<C-Right>`      | `:vertical resize +2<CR>`         | Resize width +                        |
 | `<C-Up>`         | `:resize -2<CR>`                  | Resize height -                       |
 | `<C-Down>`       | `:resize +2<CR>`                  | Resize height +                       |
+| `<C-c><C-c>o`    | `:Oil<CR>`                        | Oil file explorer                     |
 | `<S-x>`          | `:Neotree filesystem left<CR>`    | Neotree filesystem left               |
 | `<C-c><C-f>`     | `:Neotree filesystem left<CR>`    | Neotree filesystem left               |
 | `<C-c><C-b>`     | `:Neotree buffers left<CR>`       | Neotree filesystem left               |
@@ -53,6 +58,10 @@
 | `<A-[>`          | `:GitSignsPrevHunk<CR>`           | Git signs prev hunk                   |
 | `<A-;>`          | `:GitSignsPreviewHunk<CR>`        | Git signs preview hunk                |
 | `<A-s>`          | `:Spectre<CR>`                    | Replace in multiple files             |
+| `<A-j>`          | `LvimMoveDownN`                   | Move line down                        |
+| `<A-k>`          | `LvimMoveUpN`                     | Move line up                          |
+| `<A-h>`          | `LvimMoveLeftN`                   | Move line left                        |
+| `<A-l>`          | `LvimMoveRightN`                  | Move line right                       |
 | `gw`             | `:WindowPicker<CR>`               | Window picker                         |
 | `<C-c><C-l>`     | `:DAPLocal<CR>`                   | DAP local config                      |
 | `dc`             | `:LspShowDiagnosticCurrent<CR>`   | Lsp show diagnostic current           |

@@ -80,19 +80,26 @@ config.null_ls_nvim = function()
     if not null_ls_status_ok then
         return
     end
+    local generators = require("null-ls.generators")
+    local methods = require("null-ls.methods")
     null_ls.setup({
         debug = false,
         on_attach = function(client, bufnr)
             if client.server_capabilities.documentFormattingProvider then
-                vim.api.nvim_create_autocmd("BufWritePre", {
-                    buffer = bufnr,
-                    callback = function()
-                        if _G.LVIM_SETTINGS.autoformat == true then
-                            vim.lsp.buf.format()
-                        end
-                    end,
-                    group = "LvimIDE",
-                })
+                local filetype = vim.api.nvim_buf_get_option(bufnr, "filetype")
+                local method = methods.internal.FORMATTING
+                local available = generators.get_available(filetype, method)
+                if next(available) then
+                    vim.api.nvim_create_autocmd("BufWritePre", {
+                        buffer = bufnr,
+                        callback = function()
+                            if _G.LVIM_SETTINGS.autoformat == true then
+                                vim.lsp.buf.format()
+                            end
+                        end,
+                        group = "LvimIDE",
+                    })
+                end
             end
         end,
     })
@@ -248,6 +255,78 @@ config.go_nvim = function()
     })
 end
 
+config.flutter_tools_nvim = function()
+    local languages_setup = require("languages.base.utils")
+    local navic = require("nvim-navic")
+    local flutter_tools_status_ok, flutter_tools = pcall(require, "flutter-tools")
+    if not flutter_tools_status_ok then
+        return
+    end
+    flutter_tools.setup({
+        ui = {
+            notification_style = "plugin",
+        },
+        debugger = {
+            enabled = true,
+            run_via_dap = false,
+            exception_breakpoints = {},
+            register_configurations = function(paths)
+                local dap = require("dap")
+                dap.adapters.dart = {
+                    type = "executable",
+                    command = "dart",
+                    args = { "debug_adapter" },
+                }
+                dap.adapters.flutter = {
+                    type = "executable",
+                    command = "flutter",
+                    args = { "debug_adapter" },
+                }
+                dap.configurations.dart = {
+                    {
+                        type = "dart",
+                        name = "Launch Dart",
+                        request = "launch",
+                        dartSdkPath = paths["dart_sdk"],
+                        flutterSdkPath = paths["flutter_sdk"],
+                        program = function()
+                            return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
+                        end,
+                        cwd = "${workspaceFolder}",
+                    },
+                    {
+                        type = "flutter",
+                        name = "Launch Flutter",
+                        request = "launch",
+                        dartSdkPath = paths["dart_sdk"],
+                        flutterSdkPath = paths["flutter_sdk"],
+                        program = function()
+                            return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
+                        end,
+                        cwd = "${workspaceFolder}",
+                    },
+                }
+            end,
+        },
+        closing_tags = {
+            prefix = " ",
+        },
+        lsp = {
+            on_attach = function(client, bufnr)
+                languages_setup.keymaps(client, bufnr)
+                languages_setup.omni(client, bufnr)
+                languages_setup.tag(client, bufnr)
+                languages_setup.document_highlight(client, bufnr)
+                languages_setup.document_formatting(client, bufnr)
+                if client.server_capabilities.documentSymbolProvider then
+                    navic.attach(client, bufnr)
+                end
+            end,
+            capabilities = languages_setup.get_capabilities(),
+        },
+    })
+end
+
 config.typescript_nvim = function()
     local typescript_status_ok, typescript = pcall(require, "typescript")
     if not typescript_status_ok then
@@ -263,7 +342,7 @@ config.nvim_lightbulb = function()
     end
     nvim_lightbulb.setup({
         sign = {
-            enabled = true,
+            enabled = false,
             priority = 10,
         },
         virtual_text = {
@@ -275,7 +354,6 @@ config.nvim_lightbulb = function()
             enabled = true,
         },
     })
-    vim.fn.sign_define("LightBulbSign", { text = "", texthl = "LightBulb", linehl = "", numhl = "" })
 end
 
 config.nvim_treesitter = function()
@@ -369,6 +447,40 @@ config.nvim_navic = function()
     vim.g.navic_silence = true
 end
 
+config.nvim_navbuddy = function()
+    local icons = require("configs.base.ui.icons")
+    local nvim_navbuddy_status_ok, nvim_navbuddy = pcall(require, "nvim-navbuddy")
+    if not nvim_navbuddy_status_ok then
+        return
+    end
+    nvim_navbuddy.setup({
+        window = {
+            border = "single",
+            size = "80%",
+            position = "50%",
+            sections = {
+                left = {
+                    size = "33%",
+                    border = nil,
+                },
+                mid = {
+                    size = "34%",
+                    border = nil,
+                },
+                right = {
+                    size = "33%",
+                    border = nil,
+                },
+            },
+        },
+        icons = icons,
+        lsp = { auto_attach = true },
+    })
+    vim.keymap.set("n", "<C-c>v", function()
+        vim.cmd("Navbuddy")
+    end, { noremap = true, silent = true, desc = "Navbuddy" })
+end
+
 config.any_jump_nvim = function()
     vim.g.any_jump_disable_default_keybindings = 1
     vim.g.any_jump_list_numbers = 1
@@ -402,20 +514,19 @@ config.nvim_dap_ui = function()
         return
     end
     dapui.setup({
-        icons = {
-            expanded = "▾",
-            collapsed = "▸",
-        },
+        icons = { expanded = "", collapsed = "", current_frame = "" },
         mappings = {
-            expand = {
-                "<CR>",
-                "<2-LeftMouse>",
-            },
+            -- Use a table to apply multiple mappings
+            expand = { "<CR>", "<2-LeftMouse>" },
             open = "o",
             remove = "d",
             edit = "e",
             repl = "r",
+            toggle = "t",
         },
+        element_mappings = {},
+        expand_lines = vim.fn.has("nvim-0.7") == 1,
+        force_buffers = true,
         layouts = {
             {
                 elements = {
@@ -425,7 +536,7 @@ config.nvim_dap_ui = function()
                     { id = "watches", size = 0.25 },
                 },
                 size = 0.33,
-                position = "right",
+                position = "left",
             },
             {
                 elements = {
@@ -437,55 +548,61 @@ config.nvim_dap_ui = function()
             },
         },
         floating = {
-            max_height = 0.9,
-            max_width = 0.5, -- Floats will be treated as percentage of your screen.
-            border = vim.g.border_chars, -- Border style. Can be 'single', 'double' or 'rounded'
+            max_height = nil,
+            max_width = nil,
+            border = "single",
             mappings = {
-                close = { "q", "<Esc>" },
+                ["close"] = { "q", "<Esc>" },
             },
-        },
-        windows = {
-            indent = 1,
         },
         controls = {
-            enabled = true,
+            enabled = vim.fn.exists("+winbar") == 1,
             element = "repl",
             icons = {
-                pause = "",
-                play = "",
-                step_over = "",
-                step_into = "",
-                step_back = "",
-                step_out = "",
-                run_last = "",
-                terminate = "",
+                pause = "",
+                play = "",
+                step_into = "",
+                step_over = "",
+                step_out = "",
+                step_back = "",
+                run_last = "",
+                terminate = "",
+                disconnect = "",
             },
         },
+        render = {
+            max_type_length = nil, -- Can be integer or nil.
+            max_value_lines = 100, -- Can be integer or nil.
+            indent = 1,
+        },
     })
-    dap.listeners.after.event_initialized["dapui_config"] = function()
-        dapui.open({})
-    end
-    dap.listeners.before.event_terminated["dapui_config"] = function()
-        dapui.close({})
-    end
-    dap.listeners.before.event_exited["dapui_config"] = function()
-        dapui.close({})
-    end
     vim.fn.sign_define("DapBreakpoint", {
         text = "",
-        texthl = "",
+        texthl = "DapBreakpoint",
+        linehl = "",
+        numhl = "",
+    })
+    vim.fn.sign_define("DapBreakpointRejected", {
+        text = "",
+        texthl = "DapBreakpointRejected",
+        linehl = "",
+        numhl = "",
+    })
+    vim.fn.sign_define("DapBreakpointCondition", {
+        text = "",
+        texthl = "DapBreakpointCondition",
         linehl = "",
         numhl = "",
     })
     vim.fn.sign_define("DapStopped", {
         text = "",
-        texthl = "",
+        texthl = "DapStopped",
         linehl = "",
         numhl = "",
     })
     vim.fn.sign_define("DapLogPoint", {
         text = "▶",
-        texthl = "",
+        texthl = "DapLogPoint",
         linehl = "",
         numhl = "",
     })
@@ -540,6 +657,17 @@ config.nvim_dap_ui = function()
     vim.keymap.set("n", "<A-0>", function()
         dap.repl.toggle()
     end, { noremap = true, silent = true, desc = "DapToggleRepl" })
+    dap.listeners.after.event_initialized["dapui_config"] = function()
+        vim.defer_fn(function()
+            dapui.open()
+        end, 200)
+    end
+    dap.listeners.before.event_terminated["dapui_config"] = function()
+        dapui.close()
+    end
+    dap.listeners.before.event_exited["dapui_config"] = function()
+        dapui.close()
+    end
 end
 
 config.nvim_dap_vscode_js = function()
@@ -616,6 +744,7 @@ config.markdown_preview_nvim = function()
 end
 
 config.vimtex = function()
+    vim.g.vimtex_mappings_prefix = ";"
     vim.g.vimtex_view_method = "zathura"
     vim.g.latex_view_general_viewer = "zathura"
     vim.g.vimtex_compiler_progname = "nvr"
