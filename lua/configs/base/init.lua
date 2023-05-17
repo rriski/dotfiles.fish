@@ -9,6 +9,12 @@ local group = vim.api.nvim_create_augroup("LvimIDE", {
 local configs = {}
 
 configs["base_lvim"] = function()
+    vim.api.nvim_create_autocmd("OptionSet", {
+        callback = function()
+            vim.opt.guicursor = "n-v-c-sm:block,i-ci-ve:ver25,r-cr-o:hor20"
+        end,
+        group = group,
+    })
     local function lvim_theme()
         local select = require("lvim-ui-config.select")
         local status
@@ -37,6 +43,7 @@ configs["base_lvim"] = function()
                 ui_config.neo_tree_nvim()
                 local editor_config = require("modules.base.configs.editor")
                 editor_config.tabby_nvim()
+                editor_config.neocomposer_nvim()
                 vim.cmd("colorscheme lvim-" .. user_choice)
             end
         end, "editor")
@@ -57,12 +64,19 @@ configs["base_lvim"] = function()
         }, { prompt = "AutoFormat (" .. status .. ")" }, function(choice)
             if choice == "Enable" then
                 _G.LVIM_SETTINGS.autoformat = true
+                funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
             elseif choice == "Disable" then
                 _G.LVIM_SETTINGS.autoformat = false
+                funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
             end
         end, "editor")
     end
     vim.api.nvim_create_user_command("LvimAutoFormat", lvim_auto_format, {})
+    vim.api.nvim_create_user_command(
+        "EditorConfigCreate",
+        "lua require'core.funcs'.copy_file(require'core.global'.lvim_path .. '/.configs/templates/.editorconfig', vim.fn.getcwd() .. '/.editorconfig')",
+        {}
+    )
 end
 
 configs["base_options"] = function()
@@ -87,6 +101,7 @@ configs["base_options"] = function()
             "netrw",
         },
         callback = function()
+            vim.opt_local.statuscolumn = ""
             vim.api.nvim_set_keymap("n", "<Esc>", "<Cmd>:bd<CR>", {})
             vim.api.nvim_set_keymap("n", ".", "gh", {})
             vim.api.nvim_set_keymap("n", "P", "<C-w>z", {})

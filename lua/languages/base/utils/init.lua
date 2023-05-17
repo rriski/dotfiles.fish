@@ -32,10 +32,6 @@ local null_ls_builtins = {
     cbfmt = formatting.cbfmt,
     prettierd = formatting.prettierd.with({
         filetypes = {
-            "javascript",
-            "javascriptreact",
-            "typescript",
-            "typescriptreact",
             "vue",
             "css",
             "scss",
@@ -56,6 +52,7 @@ local null_ls_builtins = {
     }),
     shfmt = formatting.shfmt,
     stylua = formatting.stylua,
+    yamlfmt = formatting.yamlfmt,
 }
 
 M.install_all_packages = function()

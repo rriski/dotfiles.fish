@@ -215,7 +215,6 @@ modules["folke/noice.nvim"] = {
         "rcarriga/nvim-notify",
         "hrsh7th/nvim-cmp",
     },
-    cmd = "Noice",
     config = ui_config.noice_nvim,
 }
 
@@ -225,14 +224,27 @@ modules["goolord/alpha-nvim"] = {
     config = ui_config.alpha_nvim,
 }
 
-modules["luukvbaal/statuscol.nvim"] = {
-    commit = funcs.get_commit("statuscol.nvim", plugins_snapshot),
-    config = ui_config.statuscol_nvim,
-}
-
 modules["s1n7ax/nvim-window-picker"] = {
     commit = funcs.get_commit("nvim-window-picker", plugins_snapshot),
     config = ui_config.nvim_window_picker,
+}
+
+modules["sindrets/winshift.nvim"] = {
+    commit = funcs.get_commit("winshift.nvim", plugins_snapshot),
+    keys = {
+        { "<C-c>w", "<Cmd>Neotree close<CR><Cmd>WinShift<CR>", desc = "WinShift" },
+    },
+    cmd = "WinShift",
+    config = ui_config.winshift_nvim,
+}
+
+modules["stevearc/oil.nvim"] = {
+    commit = funcs.get_commit("oil.nvim", plugins_snapshot),
+    keys = {
+        { "<C-c><C-c>o", "<Cmd>Oil<CR>", desc = "Oil" },
+    },
+    cmd = "Oil",
+    config = ui_config.oil_nvim,
 }
 
 modules["prichrd/netrw.nvim"] = {
@@ -277,9 +289,18 @@ modules["rebelot/heirline.nvim"] = {
     config = ui_config.heirline_nvim,
 }
 
-modules["is0n/fm-nvim"] = {
-    commit = funcs.get_commit("fm-nvim", plugins_snapshot),
-    config = ui_config.fm_nvim,
+modules["lvim-tech/lvim-shell"] = {
+    commit = funcs.get_commit("lvim-shell", plugins_snapshot),
+    config = ui_config.lvim_shell,
+}
+
+modules["lvim-tech/lvim-fm"] = {
+    commit = funcs.get_commit("lvim-fm", plugins_snapshot),
+    dependencies = {
+        "lvim-tech/lvim-shell",
+    },
+    event = "BufRead",
+    config = ui_config.lvim_fm,
 }
 
 modules["akinsho/toggleterm.nvim"] = {
@@ -320,12 +341,6 @@ modules["lukas-reineke/indent-blankline.nvim"] = {
     config = ui_config.indent_blankline_nvim,
 }
 
-modules["lvim-tech/lvim-focus"] = {
-    commit = funcs.get_commit("lvim-focus", plugins_snapshot),
-    event = "VimEnter",
-    config = ui_config.lvim_focus,
-}
-
 modules["lvim-tech/lvim-helper"] = {
     commit = funcs.get_commit("lvim-helper", plugins_snapshot),
     config = ui_config.lvim_helper,
@@ -336,11 +351,6 @@ modules["lvim-tech/lvim-helper"] = {
 -- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 local editor_config = require("modules.base.configs.editor")
-
-modules["gpanders/editorconfig.nvim"] = {
-    commit = funcs.get_commit("editorconfig.nvim", plugins_snapshot),
-    config = editor_config.editorconfig_nvim,
-}
 
 modules["vim-ctrlspace/vim-ctrlspace"] = {
     commit = funcs.get_commit("vim-ctrlspace", plugins_snapshot),
@@ -397,6 +407,15 @@ modules["winston0410/rg.nvim"] = {
     config = editor_config.rg_nvim,
 }
 
+modules["ecthelionvi/NeoComposer.nvim"] = {
+    commit = funcs.get_commit("NeoComposer.nvim", plugins_snapshot),
+    dependencies = { "kkharji/sqlite.lua" },
+    event = {
+        "BufRead",
+    },
+    config = editor_config.neocomposer_nvim,
+}
+
 modules["kevinhwang91/nvim-hlslens"] = {
     commit = funcs.get_commit("nvim-hlslens", plugins_snapshot),
     event = {
@@ -446,12 +465,12 @@ modules["monaqa/dial.nvim"] = {
     config = editor_config.dial_nvim,
 }
 
-modules["booperlv/nvim-gomove"] = {
-    commit = funcs.get_commit("nvim-gomove", plugins_snapshot),
+modules["lvim-tech/lvim-move"] = {
+    commit = funcs.get_commit("lvim-move", plugins_snapshot),
     event = {
         "BufRead",
     },
-    config = editor_config.nvim_gomove,
+    config = editor_config.lvim_move,
 }
 
 modules["nvim-treesitter/nvim-treesitter-context"] = {
@@ -535,28 +554,12 @@ modules["danymat/neogen"] = {
     config = editor_config.neogen,
 }
 
-modules["NvChad/nvim-colorizer.lua"] = {
-    commit = funcs.get_commit("nvim-colorizer.lua", plugins_snapshot),
+modules["uga-rosa/ccc.nvim"] = {
+    commit = funcs.get_commit("uga-rosa/ccc.nvim", plugins_snapshot),
     event = {
         "BufRead",
     },
-    config = editor_config.nvim_colorize_lua,
-}
-
-modules["ziontee113/color-picker.nvim"] = {
-    commit = funcs.get_commit("color-picker.nvim", plugins_snapshot),
-    event = {
-        "BufRead",
-    },
-    config = editor_config.color_picker_nvim,
-}
-
-modules["lvim-tech/lvim-colorcolumn"] = {
-    commit = funcs.get_commit("lvim-colorcolumn", plugins_snapshot),
-    event = {
-        "BufRead",
-    },
-    config = editor_config.lvim_colorcolumn,
+    config = editor_config.ccc_nvim,
 }
 
 modules["phaazon/hop.nvim"] = {
@@ -603,6 +606,13 @@ modules["renerocksai/calendar-vim"] = {
 
 local version_control_config = require("modules.base.configs.version_control")
 
+modules["wintermute-cell/gitignore.nvim"] = {
+    event = { "BufRead" },
+    dependencies = {
+        "nvim-telescope/telescope.nvim",
+    },
+}
+
 modules["TimUntersberger/neogit"] = {
     commit = funcs.get_commit("neogit", plugins_snapshot),
     dependencies = {
@@ -635,6 +645,15 @@ modules["sindrets/diffview.nvim"] = {
     commit = funcs.get_commit("diffview.nvim", plugins_snapshot),
     event = "BufRead",
     config = version_control_config.diffview_nvim,
+}
+
+modules["lvim-tech/lvim-forgit"] = {
+    commit = funcs.get_commit("lvim-forgit", plugins_snapshot),
+    dependencies = {
+        "lvim-tech/lvim-shell",
+    },
+    event = "BufRead",
+    config = version_control_config.lvim_forgit,
 }
 
 modules["pwntester/octo.nvim"] = {
@@ -754,6 +773,7 @@ modules["akinsho/flutter-tools.nvim"] = {
     dependencies = {
         "nvim-lua/plenary.nvim",
     },
+    config = languages_config.flutter_tools_nvim,
 }
 
 modules["jose-elias-alvarez/typescript.nvim"] = {
@@ -797,6 +817,16 @@ modules["SmiteshP/nvim-navic"] = {
     config = languages_config.nvim_navic,
 }
 
+modules["SmiteshP/nvim-navbuddy"] = {
+    commit = funcs.get_commit("nvim-navbuddy", plugins_snapshot),
+    dependencies = {
+        "neovim/nvim-lspconfig",
+        "SmiteshP/nvim-navic",
+        "MunifTanjim/nui.nvim",
+    },
+    config = languages_config.nvim_navbuddy,
+}
+
 modules["pechorin/any-jump.vim"] = {
     commit = funcs.get_commit("any-jump.vim", plugins_snapshot),
     event = {
@@ -816,7 +846,7 @@ modules["simrat39/symbols-outline.nvim"] = {
 modules["rcarriga/nvim-dap-ui"] = {
     commit = funcs.get_commit("nvim-dap-ui", plugins_snapshot),
     event = {
-        "BufRead",
+        "BufReadPre",
     },
     dependencies = {
         "mfussenegger/nvim-dap",
@@ -914,6 +944,7 @@ modules["hrsh7th/nvim-cmp"] = {
         "hrsh7th/cmp-buffer",
         "hrsh7th/cmp-path",
         "kdheepak/cmp-latex-symbols",
+        "hrsh7th/cmp-cmdline",
     },
     event = {
         "InsertEnter",
@@ -926,11 +957,6 @@ modules["L3MON4D3/LuaSnip"] = {
     dependencies = {
         "rafamadriz/friendly-snippets",
     },
-}
-
-modules["Neevash/awesome-flutter-snippets"] = {
-    commit = funcs.get_commit("awesome-flutter-snippets", plugins_snapshot),
-    ft = "dart",
 }
 
 modules["windwp/nvim-autopairs"] = {

@@ -11,6 +11,7 @@ keymaps["normal"] = {
     { "<C-c>x", "<C-w>c" }, -- Close current window
     { "<C-c>o", "<C-w>o" }, -- Close other windows
     { "<C-c>d", ":bdelete<CR>" }, -- BDelete
+    { "<C-c>=", ":wincmd=<CR>" }, -- Win resize =
     { "<C-h>", "<C-w>h" }, -- Move to window left
     { "<C-l>", "<C-w>l" }, -- Move to window right
     { "<C-j>", "<C-w>j" }, -- Move to window down
@@ -19,7 +20,6 @@ keymaps["normal"] = {
     { "<C-Right>", ":vertical resize +2<CR>" }, -- Resize width +
     { "<C-Up>", ":resize -2<CR>" }, -- Resize height -
     { "<C-Down>", ":resize +2<CR>" }, -- Resize height +
-    { "gP", ":hardcopy<CR>" }, -- Print file
     { "tn", ":tabn<CR>" }, -- Tab next
     { "tp", ":tabp<CR>" }, -- Tab prev
     { "tf", ":CloseFloatWindows<CR>" }, -- Tab prev
