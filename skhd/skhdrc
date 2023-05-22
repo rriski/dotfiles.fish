@@ -6,7 +6,7 @@
 cmd - return : /Applications/Kitty.app/Contents/MacOS/kitty
 
 # Restart yabai launch agent
-ctrl + alt + cmd - r : launchctl kickstart -k "gui/$(id -u)/homebrew.mxcl.yabai"
+ctrl + alt + cmd - r : yabai --restart-service
 
 ##############################################
 # Navigation (focusing)
