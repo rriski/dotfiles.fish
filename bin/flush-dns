@@ -2,4 +2,5 @@
 #
 # I always forget this crap.
 #
-sudo killall -HUP mDNSResponder
+sudo killall -HUP mDNSResponder;sudo killall mDNSResponderHelper;sudo dscacheutil -flushcache
+
