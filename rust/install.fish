@@ -1,2 +1,5 @@
 #!/usr/bin/env fish
-set -Ua fish_user_paths $HOME/.cargo/bin
+
+if test -d $HOME/.cargo/bin
+	fish_add_path -Ua $HOME/.cargo/bin
+end
