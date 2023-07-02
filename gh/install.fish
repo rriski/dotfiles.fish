@@ -1,4 +1,7 @@
 #!/usr/bin/env fish
+
+source $DOTFILES/script/utils.fish
+
 if command -qs gh
 	gh config set git_protocol ssh
 
@@ -7,11 +10,6 @@ if command -qs gh
 	end
 end
 
-switch (uname)
-case Darwin
-	mkdir -p "$HOME/Library/Application Support/prs"
-	ln -sf "$DOTFILES/gh/prs.yml" "$HOME/Library/Application Support/prs/sections.yml"
-case Linux
-	mkdir -p "$HOME/.config/prs"
-	ln -sf "$DOTFILES/gh/prs.yml" "$HOME/.config/prs/sections.yml"
-end
+link_file $DOTFILES_ROOT/gh/gh-dash/config.yml $HOME/.config/gh-dash/config.yml backup
+	or abort gh
+
