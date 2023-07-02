@@ -95,8 +95,6 @@ brew 'imagemagick'
 brew 'trash'
 brew 'direnv'
 brew 'pre-commit'
-brew 'pyenv'
-brew 'pyenv-virtualenv'
 brew 'reattach-to-user-namespace' # copying in tmux vi-mode. See tmux.conf
 brew 'tree'
 brew 'grc'
