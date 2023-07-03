@@ -13,7 +13,7 @@ if ! test -f ~/.asdf/asdf.fish
 	git clone https://github.com/asdf-vm/asdf.git ~/.asdf
 end
 
-for plugin in nodejs lua golang terraform python rust
+for plugin in nodejs lua golang terraform python rust java
 	if ! test -d ~/.asdf/plugins/$plugin
 		asdf plugin add $plugin
 	end
