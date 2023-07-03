@@ -20,7 +20,7 @@ fisher update
 	and success 'plugins'
 	or abort 'plugins'
 
-mkdir -p ~/.config/fish/completions/
+mkdir -p $__fish_config_dir/completions/
 	and success 'completions'
 	or abort 'completions'
 
