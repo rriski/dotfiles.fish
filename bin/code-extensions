@@ -19,6 +19,7 @@ mblode.zotero
 ms-azuretools.vscode-azureterraform
 ms-azuretools.vscode-docker
 ms-python.isort
+ms-python.black-formatter
 ms-python.python
 ms-python.vscode-pylance
 ms-toolsai.jupyter
