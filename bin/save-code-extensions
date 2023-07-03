@@ -1,4 +1,0 @@
-#!/usr/bin/env fish
-
-echo "Saving VSCode extensions..."
-code --list-extensions > $DOTFILES/bin/code-extensions

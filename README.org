@@ -1,0 +1,461 @@
+*  LVIM IDE
+
+  [[./LVIM/media/lvim-ide-logo.png]]
+
+  LVIM IDE is a modular Neovim configuration written in LUA with full customization
+
+  * LSP support for 60+ languages
+
+  * Debug support for c, cpp, cs, dart, elixir, go, haskell, java, javascript/typescript, lua, php, python, ruby, rust, scala
+
+  Current version - 3.3.61 (2023-07-03)
+
+  128 plugins
+
+**  SCREENSHOTS
+
+  [[./LVIM/media/lvim-ide-screenshot_01.png]]
+
+  [[./LVIM/media/lvim-ide-screenshot_02.png]]
+
+  [[./LVIM/media/lvim-ide-screenshot_03.png]]
+
+  [[./LVIM/media/lvim-ide-screenshot_04.png]]
+
+  [[./LVIM/media/lvim-ide-screenshot_05.png]]
+
+  [[./LVIM/media/lvim-ide-screenshot_06.png]]
+
+  [[./LVIM/media/lvim-ide-screenshot_07.png]]
+
+  [[./LVIM/media/lvim-ide-screenshot_08.png]]
+
+  [[./LVIM/media/lvim-ide-screenshot_09.png]]
+
+  [[./LVIM/media/lvim-ide-screenshot_10.png]]
+
+  [[./LVIM/media/lvim-ide-screenshot_11.png]]
+
+  [[./LVIM/media/lvim-ide-screenshot_12.png]]
+
+  [[./LVIM/media/lvim-ide-screenshot_13.png]]
+
+  [[./LVIM/media/lvim-ide-screenshot_14.png]]
+
+  [[./LVIM/media/lvim-ide-screenshot_15.png]]
+
+  [[./LVIM/media/lvim-ide-screenshot_16.png]]
+
+  [[./LVIM/media/lvim-ide-screenshot_17.png]]
+
+  [[./LVIM/media/lvim-ide-screenshot_18.png]]
+
+**  INTRODUCTION
+
+    * Neovim 0.9.0+ (for NEOVIM < 0.9 use branch NEOVIM-0.8)
+    * Add or remove plugins, rewrite all plugins
+    * Add or remove settings, rewrite all settings
+    * Dynamic LSP activation
+    * Dynamic debugging activation - DAP
+    * Autoinstall the LSP servers, DAP servers, linters, and formatters
+    * Custom settings for projects
+
+*** Icons
+
+    Now LvimIDE support Nerd fonts v3
+
+    All icons are predefined - `configs/base/ui/icons.lua`
+
+***  For keybindings - press `F11` or `<C-c>h`
+
+***  Hydra
+
+    - `;;` - All hydra keys
+
+    - `;l` - LVIM IDE
+    - `;a` - Common
+    - `;n` - Navigation
+    - `;r` - Replace
+    - `;h` - Hop
+    - `;e` - Explorer
+    - `;c` - Comment, annotation, fold
+    - `;u` - Linguistics
+    - `;t` - Telescope
+    - `;z` - FZF
+    - `;g` - GIT
+    - `;q` - Quickfix
+    - `;o` - Location
+    - `;d` - Diagnostics
+    - `;s` - Glance
+    - `;p` - DAP
+    - `;'` - Neotest
+    - `;m` - Terminal
+    - `;w` - Dependencies
+      * package.json (npm / yarn)
+      * Cargo.toml (rust)
+      * pubspec.yaml (dart)
+
+**  REQUIREMENTS
+
+    * [[https://github.com/neovim/neovim/wiki/Installing-Neovim][neovim >= 0.9.0]]
+    * [[https://github.com/neovim/pynvim][pynvim]]
+    * [[https://github.com/mhinz/neovim-remote][neovim-remote]]
+    * [[https://nodejs.org/en/][nodejs]]
+    * [[https://github.com/BurntSushi/ripgrep][ripgrep]]
+    * sed
+    * [[https://github.com/junegunn/fzf][fzf]]
+    * [[https://github.com/WayneD/rsync][rsync]]
+    * [[https://github.com/jesseduffield/lazygit][lazygit]]
+    * [[https://github.com/htacg/tidy-html5][tidy-html5]]
+    * [[https://git-scm.com/][git]]
+    * [[https://curl.se/][curl]] or [[https://www.gnu.org/software/wget/][wget]]
+    * unzip, tar, gzip
+
+**  INSTALL
+
+    #+begin_src bash
+    git clone https://github.com/lvim-tech/lvim.git ~/.config/nvim
+    #+end_src
+
+**  LVIM CONFIG
+
+    - Help for keybinds
+
+    #+begin_src lua
+
+    :LvimHelper
+
+    #+end_src
+
+    - Theme - Lvim Dark (default), Lvim Dark Soft, Lvim Light, Lvim Everforest Dark, Lvim Everforest Dark Soft, Lvim Gruvbox Dark, Lvim Gruvbox Dark Soft, Lvim Catppuccin Dark, Lvim Catppuccin Dark Soft, Lvim Solarized Dark
+
+    #+begin_src lua
+
+    :LvimTheme
+
+    #+end_src
+
+    - AutoFormat (on save) - true (default), false
+
+    #+begin_src lua
+
+    :LvimAutoFormat
+
+    #+end_src
+
+    - VirtualDiagnostic - true, false (default)
+
+    #+begin_src lua
+
+    :LvimVirtualDiagnostic
+
+    #+end_src
+
+    - InlayHint - true (default), false
+
+    #+begin_src lua
+
+    :LvimInlayHint
+
+    #+end_src
+
+    - Charset, End of line, Indent style, Indent size, Insert final newline, Max line length, Tab width, Trim trailing whitespace
+
+    #+begin_src lua
+
+    :EditorConfigCreate
+
+    #+end_src
+
+    - LSP
+
+    #+begin_src lua
+
+    :LvimInstallLangDependencies
+    :Neoconf
+    :Neoconf local
+    :Neoconf global
+    :Neoconf show
+    :Neoconf lsp
+
+    #+end_src
+
+**  SNAPSHOTS
+
+    + Snap folder: *~/.config/nvim/.snapshots/*
+
+    + Default snapshot file: *default*
+
+    + Show current snapshot:
+
+    #+begin_src lua
+
+    :SnapshotFileShow
+
+    #+end_src
+
+
+    + Choice file to rollback:
+
+    #+begin_src lua
+
+    :SnapshotFileChoice
+
+    #+end_src
+
+    Then run:
+
+    #+begin_src lua
+
+    :Lazy sync
+
+    #+end_src
+
+**  COMPONENTS
+
+***  CORE
+
+****  FILE STRUCTURE
+
+    #+begin_src
+
+    core
+    ├── funcs.lua
+    ├── global.lua
+    ├── init.lua
+    └── pack.lua
+
+    0 directories, 4 files
+
+    #+end_src
+
+
+***  CONFIGS
+
+****  FILE STRUCTURE
+
+    #+begin_src
+
+    configs
+    ├── base
+    │   ├── init.lua
+    │   ├── keymaps.lua
+    │   └── options.lua
+    └── user
+        ├── init.lua
+        ├── keymaps.lua
+        └── options.lua
+
+    2 directories, 6 files
+
+    #+end_src
+
+***  MODULES
+
+****  FILE STRUCTURE
+
+    #+begin_src
+
+    modules
+    ├── base
+    │   ├── configs
+    │   │   ├── completion
+    │   │   │   └── init.lua
+    │   │   ├── editor
+    │   │   │   └── init.lua
+    │   │   ├── languages
+    │   │   │   └── init.lua
+    │   │   ├── ui
+    │   │   │   ├── init.lua
+    │   │   │   └── utils
+    │   │   │       ├── input.lua
+    │   │   │       └── select.lua
+    │   │   └── version_control
+    │   │       └── init.lua
+    │   └── init.lua
+    └── user
+        ├── configs
+        │   ├── completion
+        │   │   └── init.lua
+        │   ├── editor
+        │   │   └── init.lua
+        │   ├── languages
+        │   │   └── init.lua
+        │   ├── ui
+        │   │   └── init.lua
+        │   └── version_control
+        │       └── init.lua
+        └── init.lua
+
+    15 directories, 14 files
+
+    #+end_src
+
+****  PLUGINS
+
+    + [[./LVIM/modules/utils.org][UTILS]]
+
+    + [[./LVIM/modules/ui.org][UI]]
+
+    + [[./LVIM/modules/editor.org][EDITOR]]
+
+    + [[./LVIM/modules/version-control.org][VERSION CONTROL]]
+
+    + [[./LVIM/modules/languages.org][LANGUAGES]]
+
+    + [[./LVIM/modules/completion.org][COMPLETION]]
+
+***  LANGUAGES
+
+****  FILE STRUCTURE
+
+     #+begin_src
+
+    languages
+    ├── base
+    │   ├── init.lua
+    │   ├── languages
+    │   │   ├── angular.lua
+    │   │   ├── clojure.lua
+    │   │   ├── cmake.lua
+    │   │   ├── _configs_diagnosticls.lua
+    │   │   ├── _configs.lua
+    │   │   ├── cpp.lua
+    │   │   ├── cs.lua
+    │   │   ├── css.lua
+    │   │   ├── dart.lua
+    │   │   ├── _diagnosticls.lua
+    │   │   ├── d.lua
+    │   │   ├── elixir.lua
+    │   │   ├── elm.lua
+    │   │   ├── ember.lua
+    │   │   ├── _emmet.lua
+    │   │   ├── erlang.lua
+    │   │   ├── _eslint.lua
+    │   │   ├── fortran.lua
+    │   │   ├── go.lua
+    │   │   ├── graphql.lua
+    │   │   ├── groovy.lua
+    │   │   ├── html.lua
+    │   │   ├── java.lua
+    │   │   ├── json.lua
+    │   │   ├── jsts.lua
+    │   │   ├── julia.lua
+    │   │   ├── kotlin.lua
+    │   │   ├── latex.lua
+    │   │   ├── lua.lua
+    │   │   ├── markdown.lua
+    │   │   ├── perl.lua
+    │   │   ├── php.lua
+    │   │   ├── python.lua
+    │   │   ├── r.lua
+    │   │   ├── ruby.lua
+    │   │   ├── rust.lua
+    │   │   ├── shell.lua
+    │   │   ├── sql.lua
+    │   │   ├── _stylelint.lua
+    │   │   ├── toml.lua
+    │   │   ├── vim.lua
+    │   │   ├── vue.lua
+    │   │   ├── xml.lua
+    │   │   ├── yaml.lua
+    │   └── zig.lua
+    │   └── utils
+    │       ├── diagnostics.lua
+    │       ├── init.lua
+    │       └── select.lua
+    └── user
+        └── init.lua
+
+    4 directories, 50 files
+
+     #+end_src
+
+
+
+****  LSP SUPPORT
+
+      + bib
+      + c
+      + clojure
+      + cmake
+      + cpp
+      + cs
+      + css
+      + d
+      + dart
+      + edn
+      + eelixir
+      + elixir
+      + elm
+      + erlang
+      + fortran
+      + go
+      + gomod
+      + graphql
+      + groovy
+      + haskell
+      + handlebars
+      + html
+      + java
+      + javascript
+      + javascript.jsx
+      + javascriptreact
+      + json
+      + julia
+      + kotlin
+      + less
+      + lua
+      + markdown
+      + mysql
+      + objc
+      + objcpp
+      + ocaml
+      + perl
+      + php
+      + postcss
+      + python
+      + r
+      + rmd
+      + ruby
+      + rust
+      + sass
+      + scss
+      + scala
+      + sh
+      + sql
+      + sugarss
+      + svg
+      + tex
+      + toml
+      + typescript
+      + typescript.tsx
+      + typescriptreact
+      + vb
+      + vim
+      + vue
+      + xml
+      + xsd
+      + xsl
+      + xslt
+      + yaml
+      + zig
+      + zir
+
+****  DEBUG SUPPORT
+
+      + c
+      + cpp
+      + cs
+      + dart
+      + elixir
+      + go
+      + haskell
+      + java
+      + javascript/typescript
+      + lua
+      + php
+      + python
+      + ruby
+      + rust
+      + scala

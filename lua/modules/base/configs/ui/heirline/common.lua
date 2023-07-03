@@ -1,14 +1,13 @@
 local heirline = require("heirline")
 local heirline_conditions = require("heirline.conditions")
 local heirline_utils = require("heirline.utils")
-local theme_colors = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme]
+local theme_colors = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme]
 local icons = require("configs.base.ui.icons")
 
 local buftype = {
     "nofile",
     "prompt",
     "help",
-    "quickfix",
 }
 
 local filetype = {
@@ -27,7 +26,6 @@ local filetype = {
     "DiffviewFiles",
     "flutterToolsOutline",
     "log",
-    "qf",
     "dapui_scopes",
     "dapui_breakpoints",
     "dapui_stacks",
@@ -39,6 +37,7 @@ local filetype = {
     "noice",
     "toggleterm",
     "LvimShell",
+    "oil",
 }
 
 local vi_mode = {
@@ -106,10 +105,10 @@ local vi_mode = {
         },
     },
     provider = function(self)
-        return "   %(" .. self.mode_names[self.mode] .. "%)  "
+        return " " .. icons.common.vim .. " %(" .. self.mode_names[self.mode] .. "%)  "
     end,
     hl = function(self)
-        _G.LVIM_SETTINGS.mode = self.mode:sub(1, 1)
+        _G.LVIM_MODE = self.mode:sub(1, 1)
         return { bg = self.mode_colors[self.mode:sub(1, 1)], fg = theme_colors.bg_01, bold = true }
     end,
     update = {
@@ -142,7 +141,7 @@ local file_icon = {
     end,
     hl = function()
         return {
-            fg = vi_mode.static.mode_colors[_G.LVIM_SETTINGS.mode],
+            fg = vi_mode.static.mode_colors[_G.LVIM_MODE],
             bold = true,
         }
     end,
