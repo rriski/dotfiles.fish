@@ -79,6 +79,7 @@ brew 'tfsec'
 brew 'restic'
 
 # misc
+brew 'asciinema'
 brew 'openssl'
 brew 'howdoi'
 brew 'fx'
