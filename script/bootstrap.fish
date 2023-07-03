@@ -41,8 +41,15 @@ test (which fish) = $SHELL
 	and success 'dotfiles installed/updated!'
 	and exit 0
 
-chsh -s (which fish)
-	and success set (fish --version) as the default shell
-	or abort 'set fish as default shell'
+
+if command -qs chsh
+	chsh -s (which fish)
+		and success set (fish --version) as the default shell
+		or abort 'set fish as default shell'
+else if command -qs usermod
+	usermod -s (which fish) $USER
+		and success set (fish --version) as the default shell
+		or abort 'set fish as default shell'
+end
 
 success 'dotfiles installed/updated!'
