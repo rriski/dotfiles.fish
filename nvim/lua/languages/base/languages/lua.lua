@@ -4,7 +4,7 @@ local dap = require("dap")
 
 local language_configs = {}
 
-language_configs["dependencies"] = { "lua-language-server", "stylua", "luacheck" }
+language_configs["dependencies"] = { "lua-language-server", "stylua" }
 
 language_configs["lsp"] = function()
     languages_setup.setup_languages({
@@ -12,7 +12,6 @@ language_configs["lsp"] = function()
         ["lua-language-server"] = { "lua_ls", lua_lsp_config },
         ["dependencies"] = {
             "stylua",
-            "luacheck",
         },
     })
 end

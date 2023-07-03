@@ -2,9 +2,14 @@ local keymaps = {}
 
 keymaps["normal"] = {
     { "<Esc>", "<Esc>:noh<CR>" }, -- Remove highlight after search
+    { "q", "<Nop>" }, -- Remove highlight after search
     { "j", "gj" }, -- Re-map j
     { "k", "gk" }, -- Re-map k
-    { "<C-c>n", ":enew<CR>" }, -- Create empty buffer
+    { "<C-d>", "<C-d>zz" }, -- Re-map C-d
+    { "<C-u>", "<C-u>zz" }, -- Re-map C-u
+    { "<C-f>", "<C-f>zz" }, -- Re-map C-f
+    { "<C-b>", "<C-b>zz" }, -- Re-map C-b
+    { "<C-c>N", ":enew<CR>" }, -- Create empty buffer
     { "<C-c>s", ":Save<CR>" }, -- Save
     { "<C-c>a", ":wa<CR>" }, -- Save all
     { "<C-c>e", ":Quit<CR>" }, -- Close all, exit nvim
@@ -20,10 +25,10 @@ keymaps["normal"] = {
     { "<C-Right>", ":vertical resize +2<CR>" }, -- Resize width +
     { "<C-Up>", ":resize -2<CR>" }, -- Resize height -
     { "<C-Down>", ":resize +2<CR>" }, -- Resize height +
-    { "tn", ":tabn<CR>" }, -- Tab next
-    { "tp", ":tabp<CR>" }, -- Tab prev
-    { "tf", ":CloseFloatWindows<CR>" }, -- Tab prev
-    { "ti", ":Inspect<CR>" }, -- Tab prev
+    { "<C-c>n", ":tabn<CR>" }, -- Tab next
+    { "<C-c>p", ":tabp<CR>" }, -- Tab prev
+    { "<C-c>ff", ":CloseFloatWindows<CR>" }, -- Tab prev
+    { "<C-c>c", ":Inspect<CR>" }, -- Tab prev
 }
 
 keymaps["visual"] = {

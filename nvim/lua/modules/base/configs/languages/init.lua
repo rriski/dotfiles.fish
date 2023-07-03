@@ -1,3 +1,5 @@
+local icons = require("configs.base.ui.icons")
+
 local config = {}
 
 config.mason_nvim = function()
@@ -8,26 +10,40 @@ config.mason_nvim = function()
     )
     vim.api.nvim_create_user_command("LspHover", "lua vim.lsp.buf.hover()", {})
     vim.api.nvim_create_user_command("LspRename", "lua vim.lsp.buf.rename()", {})
-    vim.api.nvim_create_user_command("LspAddToWorkspaceFolder", "lua vim.lsp.buf.add_workspace_folder()", {})
-    vim.api.nvim_create_user_command("LspListWorkspaceFolders", "lua vim.lsp.buf.list_workspace_folders()", {})
-    vim.api.nvim_create_user_command("LspRemoveWorkspaceFolder", "lua vim.lsp.buf.remove_workspace_folder()", {})
-    vim.api.nvim_create_user_command("LspWorkspaceSymbol", "lua vim.lsp.buf.workspace_symbol()", {})
-    vim.api.nvim_create_user_command("LspDocumentSymbol", "lua vim.lsp.buf.document_symbol()", {})
+    vim.api.nvim_create_user_command("LspFormat", "lua vim.lsp.buf.format {async = true}", {})
     vim.api.nvim_create_user_command("LspCodeAction", "lua vim.lsp.buf.code_action()", {})
-    vim.api.nvim_create_user_command("LspCodeLensRefresh", "lua vim.lsp.codelens.refresh()", {})
-    vim.api.nvim_create_user_command("LspCodeLensRun", "lua vim.lsp.codelens.run()", {})
-    vim.api.nvim_create_user_command("LspDeclaration", "lua vim.lsp.buf.declaration()", {})
+    vim.api.nvim_create_user_command(
+        "LspShowDiagnosticCurrent",
+        "lua require('languages.base.utils.show_diagnostic').line()",
+        {}
+    )
+    vim.api.nvim_create_user_command(
+        "LspShowDiagnosticNext",
+        "lua require('languages.base.utils.show_diagnostic').goto_next()",
+        {}
+    )
+    vim.api.nvim_create_user_command(
+        "LspShowDiagnosticPrev",
+        "lua require('languages.base.utils.show_diagnostic').goto_prev()",
+        {}
+    )
     vim.api.nvim_create_user_command("LspDefinition", "lua vim.lsp.buf.definition()", {})
     vim.api.nvim_create_user_command("LspTypeDefinition", "lua vim.lsp.buf.type_definition()", {})
+    vim.api.nvim_create_user_command("LspDeclaration", "lua vim.lsp.buf.declaration()", {})
     vim.api.nvim_create_user_command("LspReferences", "lua vim.lsp.buf.references()", {})
-    vim.api.nvim_create_user_command("LspClearReferences", "lua vim.lsp.buf.clear_references()", {})
-    vim.api.nvim_create_user_command("LspDocumentHighlight", "lua vim.lsp.buf.document_highlight()", {})
     vim.api.nvim_create_user_command("LspImplementation", "lua vim.lsp.buf.implementation()", {})
+    vim.api.nvim_create_user_command("LspSignatureHelp", "lua vim.lsp.buf.signature_help()", {})
+    vim.api.nvim_create_user_command("LspDocumentSymbol", "lua vim.lsp.buf.document_symbol()", {})
+    vim.api.nvim_create_user_command("LspWorkspaceSymbol", "lua vim.lsp.buf.workspace_symbol()", {})
+    vim.api.nvim_create_user_command("LspCodeLensRefresh", "lua vim.lsp.codelens.refresh()", {})
+    vim.api.nvim_create_user_command("LspCodeLensRun", "lua vim.lsp.codelens.run()", {})
+    vim.api.nvim_create_user_command("LspAddToWorkspaceFolder", "lua vim.lsp.buf.add_workspace_folder()", {})
+    vim.api.nvim_create_user_command("LspRemoveWorkspaceFolder", "lua vim.lsp.buf.remove_workspace_folder()", {})
+    vim.api.nvim_create_user_command("LspListWorkspaceFolders", "lua vim.lsp.buf.list_workspace_folders()", {})
     vim.api.nvim_create_user_command("LspIncomingCalls", "lua vim.lsp.buf.incoming_calls()", {})
     vim.api.nvim_create_user_command("LspOutgoingCalls", "lua vim.lsp.buf.outgoing_calls()", {})
-    vim.api.nvim_create_user_command("LspFormat", "lua vim.lsp.buf.format {async = true}", {})
-    vim.api.nvim_create_user_command("LspRename", "lua vim.lsp.buf.rename()", {})
-    vim.api.nvim_create_user_command("LspSignatureHelp", "lua vim.lsp.buf.signature_help()", {})
+    vim.api.nvim_create_user_command("LspClearReferences", "lua vim.lsp.buf.clear_references()", {})
+    vim.api.nvim_create_user_command("LspDocumentHighlight", "lua vim.lsp.buf.document_highlight()", {})
     vim.api.nvim_create_user_command(
         "LspShowDiagnosticCurrent",
         "lua require('languages.base.utils.show_diagnostic').line()",
@@ -65,11 +81,7 @@ config.mason_nvim = function()
     end
     mason.setup({
         ui = {
-            icons = {
-                package_installed = " ",
-                package_pending = " ",
-                package_uninstalled = " ",
-            },
+            icons = icons.mason,
         },
     })
     require("languages.base.utils").setup_diagnostic()
@@ -137,18 +149,27 @@ config.neotest = function()
             }),
         },
     })
-    vim.api.nvim_create_user_command("NeotestRun", require("neotest").run.run, {})
-    vim.api.nvim_create_user_command("NeotestOutput", require("neotest").output.open, {})
-    vim.api.nvim_create_user_command("NeotestSummary", require("neotest").summary.toggle, {})
-    vim.keymap.set("n", "<leader>nr", function()
+    vim.api.nvim_create_user_command("NeotestRun", function()
         require("neotest").run.run()
-    end, { noremap = true, desc = "NeotestRun" })
-    vim.keymap.set("n", "<leader>no", function()
+    end, {})
+    vim.api.nvim_create_user_command("NeotestRunCurrent", function()
+        require("neotest").run.run(vim.fn.expand("%"))
+    end, {})
+    vim.api.nvim_create_user_command("NeotestRunDap", function()
+        require("neotest").run.run({ strategy = "dap" })
+    end, {})
+    vim.api.nvim_create_user_command("NeotestStop", function()
+        require("neotest").run.stop()
+    end, {})
+    vim.api.nvim_create_user_command("NeotestAttach", function()
+        require("neotest").run.attach()
+    end, {})
+    vim.api.nvim_create_user_command("NeotestOutput", function()
         require("neotest").output.open()
-    end, { noremap = true, desc = "NeotestOutput" })
-    vim.keymap.set("n", "<leader>ns", function()
+    end, {})
+    vim.api.nvim_create_user_command("NeotestSummary", function()
         require("neotest").summary.toggle()
-    end, { noremap = true, desc = "NeotestSummary" })
+    end, {})
 end
 
 config.inc_rename_nvim = function()
@@ -309,7 +330,8 @@ config.flutter_tools_nvim = function()
             end,
         },
         closing_tags = {
-            prefix = " ",
+            prefix = icons.common.separator .. " ",
+            highlight = "LspInlayHint",
         },
         lsp = {
             on_attach = function(client, bufnr)
@@ -318,6 +340,7 @@ config.flutter_tools_nvim = function()
                 languages_setup.tag(client, bufnr)
                 languages_setup.document_highlight(client, bufnr)
                 languages_setup.document_formatting(client, bufnr)
+                languages_setup.inlay_hint(client, bufnr)
                 if client.server_capabilities.documentSymbolProvider then
                     navic.attach(client, bufnr)
                 end
@@ -377,7 +400,7 @@ config.nvim_treesitter = function()
                 focus_language = "f",
                 unfocus_language = "F",
                 update = "R",
-                goto_node = "<cr>",
+                goto_node = "<CR>",
                 show_help = "?",
             },
         },
@@ -409,32 +432,7 @@ config.nvim_treesitter = function()
     })
 end
 
-config.lsp_inlayhints_nvim = function()
-    local lsp_inlayhints_status_ok, lsp_inlayhints = pcall(require, "lsp-inlayhints")
-    if not lsp_inlayhints_status_ok then
-        return
-    end
-    lsp_inlayhints.setup({
-        inlay_hints = {
-            highlight = "Comment",
-        },
-    })
-    vim.api.nvim_create_augroup("LspAttachInlayHints", {})
-    vim.api.nvim_create_autocmd("LspAttach", {
-        group = "LspAttachInlayHints",
-        callback = function(args)
-            if not (args.data and args.data.client_id) then
-                return
-            end
-            local bufnr = args.buf
-            local client = vim.lsp.get_client_by_id(args.data.client_id)
-            lsp_inlayhints.on_attach(client, bufnr)
-        end,
-    })
-end
-
 config.nvim_navic = function()
-    local icons = require("configs.base.ui.icons")
     local nvim_navic_status_ok, nvim_navic = pcall(require, "nvim-navic")
     if not nvim_navic_status_ok then
         return
@@ -442,13 +440,12 @@ config.nvim_navic = function()
     nvim_navic.setup({
         icons = icons.lsp,
         highlight = true,
-        separator = " ➤ ",
+        separator = " " .. icons.common.separator,
     })
     vim.g.navic_silence = true
 end
 
 config.nvim_navbuddy = function()
-    local icons = require("configs.base.ui.icons")
     local nvim_navbuddy_status_ok, nvim_navbuddy = pcall(require, "nvim-navbuddy")
     if not nvim_navbuddy_status_ok then
         return
@@ -473,7 +470,7 @@ config.nvim_navbuddy = function()
                 },
             },
         },
-        icons = icons,
+        icons = icons.navbuddy,
         lsp = { auto_attach = true },
     })
     vim.keymap.set("n", "<C-c>v", function()
@@ -489,7 +486,6 @@ config.any_jump_nvim = function()
 end
 
 config.symbols_outline_nvim = function()
-    local icons = require("configs.base.ui.icons")
     local symbols_outline_status_ok, symbols_outline = pcall(require, "symbols-outline")
     if not symbols_outline_status_ok then
         return
@@ -514,9 +510,8 @@ config.nvim_dap_ui = function()
         return
     end
     dapui.setup({
-        icons = { expanded = "", collapsed = "", current_frame = "" },
+        icons = icons.dap_ui.base,
         mappings = {
-            -- Use a table to apply multiple mappings
             expand = { "<CR>", "<2-LeftMouse>" },
             open = "o",
             remove = "d",
@@ -558,56 +553,48 @@ config.nvim_dap_ui = function()
         controls = {
             enabled = vim.fn.exists("+winbar") == 1,
             element = "repl",
-            icons = {
-                pause = "",
-                play = "",
-                step_into = "",
-                step_over = "",
-                step_out = "",
-                step_back = "",
-                run_last = "",
-                terminate = "",
-                disconnect = "",
-            },
+            icons = icons.dap_ui.controls,
         },
         render = {
-            max_type_length = nil, -- Can be integer or nil.
-            max_value_lines = 100, -- Can be integer or nil.
+            max_type_length = nil,
+            max_value_lines = 100,
             indent = 1,
         },
     })
     vim.fn.sign_define("DapBreakpoint", {
-        text = "",
+        text = icons.dap_ui.sign.breakpoint,
         texthl = "DapBreakpoint",
         linehl = "",
         numhl = "",
     })
     vim.fn.sign_define("DapBreakpointRejected", {
-        text = "",
+        text = icons.dap_ui.sign.reject,
         texthl = "DapBreakpointRejected",
         linehl = "",
         numhl = "",
     })
     vim.fn.sign_define("DapBreakpointCondition", {
-        text = "",
+        text = icons.dap_ui.sign.condition,
         texthl = "DapBreakpointCondition",
         linehl = "",
         numhl = "",
     })
     vim.fn.sign_define("DapStopped", {
-        text = "",
+        text = icons.dap_ui.sign.stopped,
         texthl = "DapStopped",
         linehl = "",
         numhl = "",
     })
     vim.fn.sign_define("DapLogPoint", {
-        text = "▶",
+        text = icons.dap_ui.sign.log_point,
         texthl = "DapLogPoint",
         linehl = "",
         numhl = "",
     })
     vim.api.nvim_create_user_command("LuaDapLaunch", 'lua require"osv".run_this()', {})
     vim.api.nvim_create_user_command("DapToggleBreakpoint", 'lua require("dap").toggle_breakpoint()', {})
+    vim.api.nvim_create_user_command("DapClearBreakpoints", 'lua require("dap").clear_breakpoints()', {})
+    vim.api.nvim_create_user_command("DapRunToCursor", 'lua require("dap").run_to_cursor()', {})
     vim.api.nvim_create_user_command("DapContinue", 'lua require"dap".continue()', {})
     vim.api.nvim_create_user_command("DapStepInto", 'lua require"dap".step_into()', {})
     vim.api.nvim_create_user_command("DapStepOver", 'lua require"dap".step_over()', {})
@@ -677,10 +664,10 @@ config.nvim_dap_vscode_js = function()
         return
     end
     dap_vscode_js.setup({
-        node_path = "node", -- Path of node executable. Defaults to $NODE_PATH, and then "node"
-        debugger_path = global.mason_path .. "/bin/vscode-js-debug", -- Path to vscode-js-debug installation.
-        debugger_cmd = { "js-debug-adapter" }, -- Command to use to launch the debug server. Takes precedence over `node_path` and `debugger_path`.
-        adapters = { "pwa-node", "pwa-chrome", "pwa-msedge", "node-terminal", "pwa-extensionHost" }, -- which adapters to register in nvim-dap
+        node_path = "node",
+        debugger_path = global.mason_path .. "/bin/vscode-js-debug",
+        debugger_cmd = { "js-debug-adapter" },
+        adapters = { "pwa-node", "pwa-chrome", "pwa-msedge", "node-terminal", "pwa-extensionHost" },
     })
 end
 
@@ -690,6 +677,7 @@ config.vim_dadbod_ui = function()
     vim.g.db_ui_use_nerd_fonts = 1
     vim.g.db_ui_winwidth = 35
     vim.g.db_ui_auto_execute_table_helpers = true
+    vim.api.nvim_create_user_command("LspHover", "lua vim.lsp.buf.hover()", {})
 end
 
 config.package_info_nvim = function()
@@ -697,7 +685,11 @@ config.package_info_nvim = function()
     if not package_info_status_ok then
         return
     end
-    package_info.setup({})
+    package_info.setup()
+    vim.api.nvim_create_user_command("PackageInfoToggle", "lua require('package-info').toggle()", {})
+    vim.api.nvim_create_user_command("PackageInfoDelete", "lua require('package-info').delete()", {})
+    vim.api.nvim_create_user_command("PackageInfoChangeVersion", "lua require('package-info').change_version()", {})
+    vim.api.nvim_create_user_command("PackageInfoInstall", "lua require('package-info').install()", {})
 end
 
 config.crates_nvim = function()
@@ -716,9 +708,21 @@ config.crates_nvim = function()
     vim.api.nvim_create_user_command("CratesUpgradeCrate", "lua require('crates').upgrade_crate()", {})
     vim.api.nvim_create_user_command("CratesUpgradeCrates", "lua require('crates').upgrade_crates()", {})
     vim.api.nvim_create_user_command("CratesUpgradeAllCrates", "lua require('crates').upgrade_all_crates()", {})
-    vim.api.nvim_create_user_command("CratesShowPopup", "lua require('crates').show_popup()", {})
-    vim.api.nvim_create_user_command("CratesShowVersionsPopup", "lua require('crates').show_versions_popup()", {})
-    vim.api.nvim_create_user_command("CratesShowFeaturesPopup", "lua require('crates').show_features_popup()", {})
+    vim.api.nvim_create_user_command(
+        "CratesShowPopup",
+        "lua require('crates').show_popup() require('crates').focus_popup()",
+        {}
+    )
+    vim.api.nvim_create_user_command(
+        "CratesShowVersionsPopup",
+        "lua require('crates').show_versions_popup() require('crates').focus_popup()",
+        {}
+    )
+    vim.api.nvim_create_user_command(
+        "CratesShowFeaturesPopup",
+        "lua require('crates').show_features_popup() require('crates').focus_popup()",
+        {}
+    )
     vim.api.nvim_create_user_command("CratesFocusPopup", "lua require('crates').focus_popup()", {})
     vim.api.nvim_create_user_command("CratesHidePopup", "lua require('crates').hide_popup()", {})
 end
@@ -730,9 +734,9 @@ config.pubspec_assist_nvim = function()
     end
     pubspec_assist.setup({
         highlights = {
-            up_to_date = "PubspecAssistDependencyUpToDate",
-            outdated = "PubspecAssistDependencyOutdated",
-            unknown = "PubspecAssistDependencyUnknown",
+            up_to_date = "PackageInfoUpToDateVersion",
+            outdated = "PackageInfoOutdatedVersion",
+            unknown = "Include",
         },
     })
 end
@@ -744,7 +748,7 @@ config.markdown_preview_nvim = function()
 end
 
 config.vimtex = function()
-    vim.g.vimtex_mappings_prefix = ";"
+    vim.g.vimtex_mappings_prefix = "'"
     vim.g.vimtex_view_method = "zathura"
     vim.g.latex_view_general_viewer = "zathura"
     vim.g.vimtex_compiler_progname = "nvr"
@@ -760,14 +764,11 @@ config.orgmode = function()
     orgmode.setup_ts_grammar()
     orgmode.setup({
         emacs_config = {
-            config_path = "$HOME/.emacs.d/early-init.el",
+            config_path = "~/.emacs.d/early-init.el",
         },
-        org_agenda_files = { "$HOME/Org/**/*" },
-        org_default_notes_file = "$HOME/Org/refile.org",
+        org_agenda_files = { "~/Org/**/*" },
+        org_default_notes_file = "~/Org/refile.org",
     })
-    vim.keymap.set("n", "to", function()
-        vim.cmd("e ~/Org/notes/notes.org")
-    end, { noremap = true, silent = true, desc = "Open org notes" })
 end
 
 config.lvim_org_utils = function()

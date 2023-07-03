@@ -1,3 +1,5 @@
+local icons = require("configs.base.ui.icons")
+
 local config = {}
 
 config.navigator_nvim = function()
@@ -15,7 +17,7 @@ config.telescope_nvim = function()
     end
     telescope.setup({
         defaults = {
-            prompt_prefix = "   ",
+            prompt_prefix = " " .. icons.common.search .. " ",
             selection_caret = "  ",
             entry_prefix = "  ",
             initial_mode = "insert",
@@ -90,7 +92,7 @@ config.telescope_nvim = function()
     telescope.load_extension("fzf")
     telescope.load_extension("file_browser")
     telescope.load_extension("tmux")
-    vim.keymap.set("n", "tt", function()
+    vim.keymap.set("n", "<C-c>t", function()
         vim.cmd("Telescope tmux sessions")
     end, { noremap = true, silent = true, desc = "Telescope tmux sessions" })
     vim.api.nvim_create_autocmd("User", {
@@ -106,44 +108,34 @@ config.fzf_lua = function()
     if not fzf_lua_status_ok then
         return
     end
-    local actions = require("fzf-lua.actions")
     fzf_lua.setup({
+        fzf_colors = {
+            ["fg"] = { "fg", "FzfLuaLine" },
+            ["bg"] = { "bg", "FzfLuaNormal" },
+            ["hl"] = { "fg", "FzfLuaItemKindVariable" },
+            ["fg+"] = { "fg", "FzfLuaLinePlus" },
+            ["bg+"] = { "bg", "FzfLuaNormal" },
+            ["hl+"] = { "fg", "FzfLuaItemKindVariable" },
+            ["info"] = { "fg", "FzfLuaPrompt" },
+            ["prompt"] = { "fg", "FzfLuaPrompt" },
+            ["pointer"] = { "fg", "DiagnosticError" },
+            ["marker"] = { "fg", "DiagnosticError" },
+            ["spinner"] = { "fg", "FzfLuaPrompt" },
+            ["header"] = { "fg", "FzfLuaPrompt" },
+            ["gutter"] = { "bg", "FzfLuaNormal" },
+        },
         winopts = {
-            height = 0.95,
-            width = 0.95,
+            title = "FZF LUA",
+            title_pos = "center",
+            height = 0.5,
+            width = 1,
+            row = 1,
+            col = 0,
             border = { " ", " ", " ", " ", " ", " ", " ", " " },
             preview = {
                 vertical = "down:45%",
                 horizontal = "right:50%",
                 border = "noborder",
-            },
-        },
-        keymap = {
-            builtin = {
-                ["<F1>"] = "toggle-help",
-                ["<F2>"] = "toggle-fullscreen",
-                ["<F3>"] = "toggle-preview-wrap",
-                ["<F4>"] = "toggle-preview",
-                ["<F5>"] = "toggle-preview-ccw",
-                ["<C-d>"] = "preview-page-down",
-                ["<C-u>"] = "preview-page-up",
-                ["<C-r>"] = "preview-page-reset",
-            },
-        },
-        actions = {
-            files = {
-                ["default"] = actions.file_edit_or_qf,
-                ["ctrl-h"] = actions.file_split,
-                ["ctrl-v"] = actions.file_vsplit,
-                ["ctrl-t"] = actions.file_tabedit,
-                ["alt-q"] = actions.file_sel_to_qf,
-                ["alt-l"] = actions.file_sel_to_ll,
-            },
-            buffers = {
-                ["default"] = actions.buf_edit,
-                ["ctrl-h"] = actions.buf_split,
-                ["ctrl-v"] = actions.buf_vsplit,
-                ["ctrl-t"] = actions.buf_tabedit,
             },
         },
     })
@@ -201,9 +193,7 @@ config.rg_nvim = function()
     end
     rg.setup({
         default_keybindings = {
-            enable = true,
-            modes = { "v" },
-            binding = "tr",
+            enable = false,
         },
     })
 end
@@ -216,19 +206,32 @@ config.neocomposer_nvim = function()
     neocomposer.setup({
         notify = false,
         colors = {
-            bg = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].bg,
-            fg = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].teal_01,
-            red = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].red_02,
-            blue = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].blue_02,
-            green = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].green_02,
+            bg = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].bg,
+            fg = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].teal_01,
+            red = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].red_02,
+            blue = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].blue_02,
+            green = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].green_02,
         },
         keymaps = {
-            cycle_next = "<m-n>",
-            cycle_prev = "<m-p>",
+            play_macro = "<Leader>q",
+            toggle_record = "Q",
+            cycle_next = "<M-n>",
+            cycle_prev = "<M-p>",
         },
     })
 end
 
+config.nvim_peekup = function()
+    vim.api.nvim_create_autocmd("FileType", {
+        pattern = {
+            "peek",
+        },
+        callback = function()
+            vim.opt_local.clipboard = "unnamed"
+        end,
+        group = "LvimIDE",
+    })
+end
 config.nvim_hlslens = function()
     local hlslens_status_ok, hlslens = pcall(require, "hlslens")
     if not hlslens_status_ok then
@@ -241,11 +244,11 @@ config.nvim_hlslens = function()
             local indicator, text, chunks
             local absRelIdx = math.abs(relIdx)
             if absRelIdx > 1 then
-                indicator = ("%d%s"):format(absRelIdx, sfw ~= (relIdx > 1) and "" or "")
+                indicator = ("%d%s"):format(absRelIdx, sfw ~= (relIdx > 1) and icons.common.up or icons.common.down)
             elseif absRelIdx == 1 then
-                indicator = sfw ~= (relIdx == 1) and "" or ""
+                indicator = sfw ~= (relIdx == 1) and icons.common.up or icons.common.down
             else
-                indicator = ""
+                indicator = icons.common.dot
             end
 
             local lnum, col = unpack(posList[idx])
@@ -289,8 +292,10 @@ config.nvim_bqf = function()
         return
     end
     bqf.setup({
+        delay_syntax = 1,
         preview = {
-            border_chars = { "│", "│", "─", "─", "┌", "┐", "└", "┘", "█" },
+            border = "single",
+            winblend = 0,
         },
     })
 end
@@ -300,7 +305,61 @@ config.nvim_pqf = function()
     if not pqf_status_ok then
         return
     end
-    pqf.setup()
+    pqf.setup({
+        signs = {
+            error = " " .. icons.diagnostics.error,
+            warning = " " .. icons.diagnostics.warn,
+            info = " " .. icons.diagnostics.info,
+            hint = " " .. icons.diagnostics.hint,
+        },
+    })
+end
+
+config.lvim_qf_loc = function()
+    local lvim_qf_loc_status_ok, lvim_qf_loc = pcall(require, "lvim-qf-loc")
+    if not lvim_qf_loc_status_ok then
+        return
+    end
+    lvim_qf_loc.setup()
+    vim.keymap.set("n", "<C-c><C-h>", function()
+        vim.cmd("LvimDiagnostics")
+    end, { noremap = true, silent = true, desc = "LspDiagnostic QF" })
+    vim.keymap.set("n", "]m", function()
+        vim.cmd("LvimListQuickFixMenuChoice")
+    end, { noremap = true, silent = true, desc = "QfMenuChoice" })
+    vim.keymap.set("n", "]d", function()
+        vim.cmd("LvimListQuickFixMenuDelete")
+    end, { noremap = true, silent = true, desc = "QfMenuDelete" })
+    vim.keymap.set("n", "][", function()
+        vim.cmd("copen")
+    end, { noremap = true, silent = true, desc = "QfOpen" })
+    vim.keymap.set("n", "[]", function()
+        vim.cmd("cclose")
+    end, { noremap = true, silent = true, desc = "QfClose" })
+    vim.keymap.set("n", "]]", function()
+        vim.cmd("LvimListQuickFixNext")
+    end, { noremap = true, silent = true, desc = "QfNext" })
+    vim.keymap.set("n", "[[", function()
+        vim.cmd("LvimListQuickFixPrev")
+    end, { noremap = true, silent = true, desc = "QfPrev" })
+    vim.keymap.set("n", "]lm", function()
+        vim.cmd("LvimListLocMenuChoice")
+    end, { noremap = true, silent = true, desc = "LocMenuChoice" })
+    vim.keymap.set("n", "]ld", function()
+        vim.cmd("LvimListLocMenuDelete")
+    end, { noremap = true, silent = true, desc = "LocMenuDelete" })
+    vim.keymap.set("n", "]l[", function()
+        vim.cmd("lopen")
+    end, { noremap = true, silent = true, desc = "LocOpen" })
+    vim.keymap.set("n", "[l]", function()
+        vim.cmd("lclose")
+    end, { noremap = true, silent = true, desc = "LocClose" })
+    vim.keymap.set("n", "]l]", function()
+        vim.cmd("LvimListLocNext")
+    end, { noremap = true, silent = true, desc = "LocNext" })
+    vim.keymap.set("n", "[l[", function()
+        vim.cmd("LvimListLocPrev")
+    end, { noremap = true, silent = true, desc = "LocPrev" })
 end
 
 config.tabby_nvim = function()
@@ -316,12 +375,12 @@ config.tabby_nvim = function()
     if not tabby_filename_status_ok then
         return
     end
-    local theme = _G.LVIM_SETTINGS.colorschemes.theme
+    local theme = _G.LVIM_SETTINGS.theme
     local hl_tabline = {
-        color_01 = _G.LVIM_SETTINGS.colorschemes.colors[theme].bg_01,
-        color_02 = _G.LVIM_SETTINGS.colorschemes.colors[theme].bg_03,
-        color_03 = _G.LVIM_SETTINGS.colorschemes.colors[theme].green_01,
-        color_04 = _G.LVIM_SETTINGS.colorschemes.colors[theme].green_02,
+        color_01 = _G.LVIM_COLORS.colors[theme].bg_01,
+        color_02 = _G.LVIM_COLORS.colors[theme].bg_03,
+        color_03 = _G.LVIM_COLORS.colors[theme].green_01,
+        color_04 = _G.LVIM_COLORS.colors[theme].green_02,
     }
     local get_tab_label = function(tab_number)
         local s, v = pcall(function()
@@ -371,7 +430,7 @@ config.tabby_nvim = function()
             {
                 type = "text",
                 text = {
-                    "    ",
+                    " " .. icons.common.vim .. " ",
                     hl = {
                         bg = hl_tabline.color_04,
                         fg = hl_tabline.color_01,
@@ -567,74 +626,54 @@ config.nvim_treesitter_context = function()
     })
 end
 
-config.nvim_treeclimber = function()
-    local nvim_treeclimber_status_ok, nvim_treeclimber = pcall(require, "nvim-treeclimber")
-    if not nvim_treeclimber_status_ok then
+config.nvim_treesitter_textobjects = function()
+    local treesitter_configs_status_ok, treesitter_configs = pcall(require, "nvim-treesitter.configs")
+    if not treesitter_configs_status_ok then
         return
     end
-    vim.api.nvim_set_hl(
-        0,
-        "TreeClimberHighlight",
-        { background = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].bg_05 }
-    )
-    vim.api.nvim_set_hl(
-        0,
-        "TreeClimberSiblingBoundary",
-        { background = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].bg }
-    )
-    vim.api.nvim_set_hl(0, "TreeClimberSibling", {
-        background = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].bg_04,
-        bold = true,
+    treesitter_configs.setup({
+        textobjects = {
+            select = {
+                enable = true,
+                lookahead = true,
+                keymaps = {
+                    ["af"] = "@function.outer",
+                    ["if"] = "@function.inner",
+                    ["ac"] = "@class.outer",
+                    ["ic"] = "@class.inner",
+                    ["an"] = "@number.inner",
+                },
+                selection_modes = {
+                    ["@parameter.outer"] = "v",
+                    ["@function.outer"] = "V",
+                    ["@class.outer"] = "<c-v>",
+                },
+                include_surrounding_whitespace = false,
+            },
+        },
     })
-    vim.api.nvim_set_hl(
-        0,
-        "TreeClimberParent",
-        { background = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].orange_01 }
-    )
-    vim.api.nvim_set_hl(
-        0,
-        "TreeClimberParentStart",
-        { background = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].teal_01, bold = true }
-    )
-    vim.keymap.set("n", "<leader>k", nvim_treeclimber.show_control_flow, {})
-    vim.keymap.set({ "x", "o" }, "i.", nvim_treeclimber.select_current_node, { desc = "select current node" })
-    vim.keymap.set({ "x", "o" }, "a.", nvim_treeclimber.select_expand, { desc = "select parent node" })
-    vim.keymap.set(
-        { "n", "x", "o" },
-        "tle",
-        nvim_treeclimber.select_forward_end,
-        { desc = "select and move to the end of the node, or the end of the next node" }
-    )
-    vim.keymap.set(
-        { "n", "x", "o" },
-        "tlb",
-        nvim_treeclimber.select_backward,
-        { desc = "select and move to the begining of the node, or the beginning of the next node" }
-    )
-    vim.keymap.set({ "n", "x", "o" }, "tl[", nvim_treeclimber.select_siblings_backward, {})
-    vim.keymap.set({ "n", "x", "o" }, "tl]", nvim_treeclimber.select_siblings_forward, {})
-    vim.keymap.set(
-        { "n", "x", "o" },
-        "tlg",
-        nvim_treeclimber.select_top_level,
-        { desc = "select the top level node from the current position" }
-    )
-    vim.keymap.set({ "n", "x", "o" }, "tlh", nvim_treeclimber.select_backward, { desc = "select previous node" })
-    vim.keymap.set({ "n", "x", "o" }, "tlj", nvim_treeclimber.select_shrink, { desc = "select child node" })
-    vim.keymap.set({ "n", "x", "o" }, "tlk", nvim_treeclimber.select_expand, { desc = "select parent node" })
-    vim.keymap.set({ "n", "x", "o" }, "tll", nvim_treeclimber.select_forward, { desc = "select the next node" })
-    vim.keymap.set(
-        { "n", "x", "o" },
-        "tlL",
-        nvim_treeclimber.select_grow_forward,
-        { desc = "Add the next node to the selection" }
-    )
-    vim.keymap.set(
-        { "n", "x", "o" },
-        "tlH",
-        nvim_treeclimber.select_grow_backward,
-        { desc = "Add the next node to the selection" }
-    )
+end
+
+config.nvim_various_textobjs = function()
+    local nvim_various_textobjs_status_ok, nvim_various_textobjs = pcall(require, "various-textobjs")
+    if not nvim_various_textobjs_status_ok then
+        return
+    end
+    nvim_various_textobjs.setup({
+        useDefaultKeymaps = true,
+        disabledKeymaps = {
+            "i/",
+            "a/",
+            "in",
+            "an",
+            "ii",
+            "ai",
+            "iI",
+            "aI",
+        },
+    })
+    vim.keymap.set({ "o", "x" }, "ii", "<cmd>lua require('various-textobjs').indentation(true, true)<CR>")
+    vim.keymap.set({ "o", "x" }, "ai", "<cmd>lua require('various-textobjs').indentation(false, false)<CR>")
 end
 
 config.rest_nvim = function()
@@ -646,13 +685,13 @@ config.rest_nvim = function()
     vim.api.nvim_create_user_command("Rest", "lua require('rest-nvim').run()", {})
     vim.api.nvim_create_user_command("RestPreview", "lua require('rest-nvim').run(true)", {})
     vim.api.nvim_create_user_command("RestLast", "lua require('rest-nvim').last()", {})
-    vim.keymap.set("n", "trr", function()
+    vim.keymap.set("n", "rr", function()
         rest_nvim.run()
     end, { noremap = true, silent = true, desc = "Rest" })
-    vim.keymap.set("n", "trp", function()
+    vim.keymap.set("n", "rp", function()
         rest_nvim.run(true)
     end, { noremap = true, silent = true, desc = "RestPreview" })
-    vim.keymap.set("n", "trl", function()
+    vim.keymap.set("n", "rl", function()
         rest_nvim.last()
     end, { noremap = true, silent = true, desc = "RestLast" })
 end
@@ -663,7 +702,7 @@ config.sniprun = function()
         return
     end
     sniprun.setup()
-    vim.keymap.set({ "n", "v" }, "ts", ":SnipRun<CR>", { noremap = true, silent = true, desc = "SnipRun" })
+    vim.keymap.set({ "n", "v" }, "<C-c>u", ":SnipRun<CR>", { noremap = true, silent = true, desc = "SnipRun" })
     vim.keymap.set("n", "<Esc>", "<Esc>:noh<CR>:SnipClose<CR>", { noremap = true, silent = true, desc = "Escape" })
 end
 
@@ -684,94 +723,24 @@ config.nvim_spectre = function()
     if not spectre_status_ok then
         return
     end
+    spectre.setup()
     vim.api.nvim_create_user_command("Spectre", "lua require('spectre').open()", {})
-    spectre.setup({
-        color_devicons = true,
-        line_sep_start = "-----------------------------------------",
-        result_padding = "|  ",
-        line_sep = "-----------------------------------------",
-        highlight = {
-            ui = "String",
-            search = "DiffAdd",
-            replace = "DiffChange",
-        },
-        mapping = {
-            ["delete_line"] = nil,
-            ["enter_file"] = nil,
-            ["send_to_qf"] = nil,
-            ["replace_cmd"] = nil,
-            ["show_option_menu"] = nil,
-            ["run_replace"] = nil,
-            ["change_view_mode"] = nil,
-            ["toggle_ignore_case"] = nil,
-            ["toggle_ignore_hidden"] = nil,
-        },
-        find_engine = {
-            ["rg"] = {
-                cmd = "rg",
-                args = {
-                    "--color=never",
-                    "--no-heading",
-                    "--with-filename",
-                    "--line-number",
-                    "--column",
-                },
-                options = {
-                    ["ignore-case"] = {
-                        value = "--ignore-case",
-                        icon = "[I]",
-                        desc = "ignore case",
-                    },
-                    ["hidden"] = {
-                        value = "--hidden",
-                        desc = "hidden file",
-                        icon = "[H]",
-                    },
-                },
-            },
-            ["ag"] = {
-                cmd = "ag",
-                args = { "--vimgrep", "-s" },
-                options = {
-                    ["ignore-case"] = {
-                        value = "-i",
-                        icon = "[I]",
-                        desc = "ignore case",
-                    },
-                    ["hidden"] = {
-                        value = "--hidden",
-                        desc = "hidden file",
-                        icon = "[H]",
-                    },
-                },
-            },
-        },
-        replace_engine = {
-            ["sed"] = {
-                cmd = "sed",
-                args = nil,
-            },
-            options = {
-                ["ignore-case"] = {
-                    value = "--ignore-case",
-                    icon = "[I]",
-                    desc = "ignore case",
-                },
-            },
-        },
-        default = {
-            find = {
-                cmd = "rg",
-                options = { "ignore-case" },
-            },
-            replace = {
-                cmd = "sed",
-            },
-        },
-        replace_vim_cmd = "cfdo",
-        is_open_target_win = true,
-        is_insert_mode = false,
-    })
+    vim.api.nvim_create_user_command("SpectreToggleLine", "lua require('spectre').toggle_line()", {})
+    vim.api.nvim_create_user_command("SpectreSelectEntry", "lua require('spectre.actions').select_entry()", {})
+    vim.api.nvim_create_user_command(
+        "SpectreRunCurrentReplace",
+        "lua require('spectre.actions').run_current_replace()",
+        {}
+    )
+    vim.api.nvim_create_user_command("SpectreRunReplace", "lua require('spectre.actions').run_replace()", {})
+    vim.api.nvim_create_user_command("SpectreSendToQF", "lua require('spectre.actions').send_to_qf()", {})
+    vim.api.nvim_create_user_command("SpectreReplaceCommand", "lua require('spectre.actions').replace_cmd()", {})
+    vim.api.nvim_create_user_command("SpectreToggleLiveUpdate", "lua require('spectre').toggle_live_update()", {})
+    vim.api.nvim_create_user_command("SpectreChangeView", "lua require('spectre').change_view()", {})
+    vim.api.nvim_create_user_command("SpectreResumeLastSearch", "lua require('spectre').resume_last_search()", {})
+    vim.api.nvim_create_user_command("SpectreIgnoreCase", "lua require('spectre').change_options('ignore-case')", {})
+    vim.api.nvim_create_user_command("SpectreHidden", "lua require('spectre').change_options('hidden')", {})
+    vim.api.nvim_create_user_command("SpectreShowOptions", "lua require('spectre').show_options()", {})
     vim.keymap.set("n", "<A-s>", function()
         vim.cmd("Spectre")
     end, { noremap = true, silent = true, desc = "Spectre" })
@@ -816,7 +785,7 @@ config.ccc_nvim = function()
     ccc.setup({
         alpha_show = "show",
     })
-    vim.keymap.set("n", "<C-c>p", function()
+    vim.keymap.set("n", "<C-c>r", function()
         vim.cmd("CccPick")
     end, { noremap = true, silent = true, desc = "ColorPicker" })
     vim.api.nvim_create_autocmd("Filetype", {
@@ -828,12 +797,76 @@ config.suda_vim = function()
     vim.g.suda_smart_edit = 1
 end
 
-config.hop_nvim = function()
-    local hop_status_ok, hop = pcall(require, "hop")
-    if not hop_status_ok then
+config.flash_nvim = function()
+    local flash_status_ok, flash = pcall(require, "flash")
+    if not flash_status_ok then
         return
     end
-    hop.setup()
+    flash.setup({
+        search = {
+            exclude = {
+                "notify",
+                "noice",
+                "cmp_menu",
+                function(win)
+                    return not vim.api.nvim_win_get_config(win).focusable
+                end,
+            },
+        },
+        modes = {
+            char = {
+                enabled = true,
+            },
+        },
+    })
+    local Config = require("flash.config")
+    local Char = require("flash.plugins.char")
+    for _, motion in ipairs({ "f", "t", "F", "T" }) do
+        vim.keymap.set({ "n", "x", "o" }, motion, function()
+            flash.jump(Config.get({
+                mode = "char",
+                search = {
+                    mode = Char.mode(motion),
+                    max_length = 1,
+                },
+            }, Char.motions[motion]))
+        end)
+    end
+    vim.keymap.set({ "n", "x", "o" }, "<C-c>.", function()
+        flash.jump()
+    end)
+    vim.keymap.set({ "n", "x", "o" }, "<C-c>,", function()
+        flash.treesitter()
+    end)
+    vim.keymap.set({ "o" }, "r", function()
+        require("flash").remote()
+    end)
+    vim.keymap.set({ "n", "x", "o" }, "<C-c>;", function()
+        flash.jump({
+            search = { mode = "search" },
+            label = { after = false, before = { 0, 0 }, uppercase = false },
+            pattern = [[\<\|\>]],
+            action = function(match, state)
+                state:hide()
+                flash.jump({
+                    search = { max_length = 0 },
+                    label = { distance = false },
+                    highlight = { matches = false },
+                    matcher = function(win)
+                        return vim.tbl_filter(function(m)
+                            return m.label == match.label and m.win == win
+                        end, state.results)
+                    end,
+                })
+            end,
+            labeler = function(matches, state)
+                local labels = state:labels()
+                for m, match in ipairs(matches) do
+                    match.label = labels[math.floor((m - 1) / #labels) + 1]
+                end
+            end,
+        })
+    end)
 end
 
 config.todo_comments_nvim = function()
@@ -843,13 +876,13 @@ config.todo_comments_nvim = function()
     end
     todo_comments.setup({
         keywords = {
-            FIX = { icon = " ", color = "error", alt = { "FIX", "FIXME" } },
-            TODO = { icon = " ", color = "info", alt = { "TODO" } },
-            HACK = { icon = " ", color = "error", alt = { "HACK" } },
-            WARN = { icon = " ", color = "warning", alt = { "WARNING", "XXX" } },
-            PERF = { icon = "神", color = "warning", alt = { "OPTIM", "PERFORMANCE", "OPTIMIZE" } },
-            NOTE = { icon = " ", color = "hint", alt = { "INFO" } },
-            TEST = { icon = " ", color = "test", alt = { "TEST", "TESTING", "PASSED", "FAILED" } },
+            FIX = { icon = icons.common.fix, color = "error", alt = { "FIX", "FIXME" } },
+            TODO = { icon = icons.common.todo, color = "info", alt = { "TODO" } },
+            HACK = { icon = icons.common.hack, color = "error", alt = { "HACK" } },
+            WARN = { icon = icons.common.warning, color = "warning", alt = { "WARNING", "XXX" } },
+            PERF = { icon = icons.common.performance, color = "warning", alt = { "OPTIM", "PERFORMANCE", "OPTIMIZE" } },
+            NOTE = { icon = icons.common.note, color = "hint", alt = { "INFO" } },
+            TEST = { icon = icons.common.test, color = "test", alt = { "TEST", "TESTING", "PASSED", "FAILED" } },
         },
         highlight = {
             before = "fg",
@@ -909,9 +942,6 @@ config.calendar_vim = function()
     vim.g.calendar_diary_path_pattern = "{YYYY}-{MM}-{DD}{EXT}"
     vim.g.calendar_monday = 1
     vim.g.calendar_weeknm = 1
-    vim.keymap.set("n", "tc", function()
-        vim.cmd("CalendarVR")
-    end, { noremap = true, silent = true, desc = "Calendar" })
 end
 
 return config

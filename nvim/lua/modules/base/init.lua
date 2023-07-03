@@ -14,8 +14,8 @@ end
 -- DEPENDENCIES -------------------------------------------------
 -- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-modules[_G.LVIM_SETTINGS.colorschemes.theme_plugin] = {
-    commit = funcs.get_commit(_G.LVIM_SETTINGS.colorschemes.theme_name, plugins_snapshot),
+modules["lvim-tech/lvim-colorscheme"] = {
+    commit = funcs.get_commit("lvim-tech/lvim-colorscheme", plugins_snapshot),
     priority = 100,
     config = ui_config.lvim_colorscheme,
 }
@@ -240,10 +240,6 @@ modules["sindrets/winshift.nvim"] = {
 
 modules["stevearc/oil.nvim"] = {
     commit = funcs.get_commit("oil.nvim", plugins_snapshot),
-    keys = {
-        { "<C-c><C-c>o", "<Cmd>Oil<CR>", desc = "Oil" },
-    },
-    cmd = "Oil",
     config = ui_config.oil_nvim,
 }
 
@@ -256,12 +252,13 @@ modules["nvim-neo-tree/neo-tree.nvim"] = {
     commit = funcs.get_commit("neo-tree.nvim", plugins_snapshot),
     cmd = "Neotree",
     keys = {
-        { "<S-x>", "<cmd>Neotree filesystem left toggle<cr>", desc = "NeoTree filesystem" },
-        { "<C-c><C-f>", "<cmd>Neotree filesystem left toggle<cr>", desc = "NeoTree filesystem" },
-        { "<C-c><C-b>", "<cmd>Neotree buffers left toggle<cr>", desc = "NeoTree buffers" },
-        { "<C-c><C-g>", "<cmd>Neotree git_status left toggle<cr>", desc = "NeoTree git status" },
-        { "<C-c><C-d>", "<cmd>Neotree diagnostics left toggle<cr>", desc = "NeoTree diagnostics" },
-        { "<A-e>", "<cmd>Neotree diagnostics reveal bottom toggle<cr>", desc = "NeoTree diagnostics" },
+        { "<S-x>", "<cmd>Neotree filesystem left<CR>", desc = "NeoTree filesystem" },
+        { "<C-c><C-f>", "<cmd>Neotree filesystem left<CR>", desc = "NeoTree filesystem" },
+        { "<C-c><C-b>", "<cmd>Neotree buffers left<CR>", desc = "NeoTree buffers" },
+        { "<C-c><C-g>", "<cmd>Neotree git_status left<CR>", desc = "NeoTree git status" },
+        { "<C-c><C-d>", "<cmd>Neotree diagnostics left<CR>", desc = "NeoTree diagnostics" },
+        { "<A-e>", "<cmd>Neotree diagnostics reveal bottom<CR>", desc = "NeoTree diagnostics" },
+        { "<S-q>", "<cmd>Neotree close<CR>", desc = "NeoTree close" },
     },
     dependencies = {
         "nvim-lua/plenary.nvim",
@@ -278,10 +275,9 @@ modules["elihunter173/dirbuf.nvim"] = {
     config = ui_config.dirbuf_nvim,
 }
 
-modules["folke/which-key.nvim"] = {
-    commit = funcs.get_commit("which-key.nvim", plugins_snapshot),
-    keys = { "<space>", "d", "g", "t", "<C-c>" },
-    config = ui_config.which_key_nvim,
+modules["anuvyklack/hydra.nvim"] = {
+    commit = funcs.get_commit("hydra.nvim", plugins_snapshot),
+    config = ui_config.hydra_nvim,
 }
 
 modules["rebelot/heirline.nvim"] = {
@@ -355,7 +351,7 @@ local editor_config = require("modules.base.configs.editor")
 modules["vim-ctrlspace/vim-ctrlspace"] = {
     commit = funcs.get_commit("vim-ctrlspace", plugins_snapshot),
     keys = {
-        { "<space><space>", "<Cmd>CtrlSpace<CR>", desc = "CtrlSpace" },
+        { "<Leader><Leader>", "<Cmd>CtrlSpace<CR>", desc = "CtrlSpace" },
     },
     cmd = "CtrlSpace",
 }
@@ -373,7 +369,7 @@ modules["nvim-telescope/telescope.nvim"] = {
         { "<A-.>", "<Cmd>Telescope live_grep<CR>", desc = "Telescope live grep" },
         { "<A-/>", "<Cmd>Telescope file_browser<CR>", desc = "Telescope file browser" },
         { "<A-b>", "<Cmd>Telescope buffers<CR>", desc = "Telescope buffers" },
-        { "tt", "<Cmd>Telescope tmux session<CR>", desc = "Telescope tmux session" },
+        { "<C-c>t", "<Cmd>Telescope tmux session<CR>", desc = "Telescope tmux session" },
     },
     dependencies = {
         "nvim-telescope/telescope-fzf-native.nvim",
@@ -386,6 +382,36 @@ modules["nvim-telescope/telescope.nvim"] = {
 modules["ibhagwan/fzf-lua"] = {
     commit = funcs.get_commit("fzf-lua", plugins_snapshot),
     cmd = "FzfLua",
+    keys = {
+        {
+            "<Leader>f",
+            function()
+                vim.cmd("FzfLua files")
+            end,
+            desc = "FzfLua files",
+        },
+        {
+            "<Leader>s",
+            function()
+                vim.cmd("FzfLua live_grep")
+            end,
+            desc = "FzfLua search",
+        },
+        {
+            "<Leader>m",
+            function()
+                vim.cmd("FzfLua marks")
+            end,
+            desc = "FzfLua marks",
+        },
+        {
+            "<Leader>b",
+            function()
+                vim.cmd("FzfLua buffers")
+            end,
+            desc = "FzfLua buffers",
+        },
+    },
     config = editor_config.fzf_lua,
 }
 
@@ -416,6 +442,14 @@ modules["ecthelionvi/NeoComposer.nvim"] = {
     config = editor_config.neocomposer_nvim,
 }
 
+modules["gennaro-tedesco/nvim-peekup"] = {
+    commit = funcs.get_commit("nvim-peekup", plugins_snapshot),
+    event = {
+        "BufRead",
+    },
+    config = editor_config.nvim_peekup,
+}
+
 modules["kevinhwang91/nvim-hlslens"] = {
     commit = funcs.get_commit("nvim-hlslens", plugins_snapshot),
     event = {
@@ -433,9 +467,18 @@ modules["kevinhwang91/nvim-bqf"] = {
 }
 
 modules["yorickpeterse/nvim-pqf"] = {
-    url = "https://gitlab.com/yorickpeterse/nvim-pqf",
     commit = funcs.get_commit("nvim-pqf", plugins_snapshot),
     config = editor_config.nvim_pqf,
+}
+
+modules["lvim-tech/lvim-qf-loc"] = {
+    commit = funcs.get_commit("lvim-qf-loc", plugins_snapshot),
+    dependencies = {
+        "MunifTanjim/nui.nvim",
+        "rcarriga/nvim-notify",
+        "lvim-tech/lvim-ui-config",
+    },
+    config = editor_config.lvim_qf_loc,
 }
 
 modules["nanozuki/tabby.nvim"] = {
@@ -475,18 +518,32 @@ modules["lvim-tech/lvim-move"] = {
 
 modules["nvim-treesitter/nvim-treesitter-context"] = {
     commit = funcs.get_commit("nvim-treesitter-context", plugins_snapshot),
+    event = {
+        "BufRead",
+    },
     dependencies = {
         "nvim-treesitter/nvim-treesitter",
     },
     config = editor_config.nvim_treesitter_context,
 }
 
-modules["Dkendal/nvim-treeclimber"] = {
-    commit = funcs.get_commit("nvim-treeclimber", plugins_snapshot),
+modules["nvim-treesitter/nvim-treesitter-textobjects"] = {
+    commit = funcs.get_commit("nvim-treesitter-textobjects", plugins_snapshot),
+    event = {
+        "BufRead",
+    },
     dependencies = {
         "nvim-treesitter/nvim-treesitter",
     },
-    config = editor_config.nvim_treeclimber,
+    config = editor_config.nvim_treesitter_textobjects,
+}
+
+modules["chrisgrieser/nvim-various-textobjs"] = {
+    commit = funcs.get_commit("nvim-various-textobjs", plugins_snapshot),
+    event = {
+        "BufRead",
+    },
+    config = editor_config.nvim_various_textobjs,
 }
 
 modules["NTBBloodbath/rest.nvim"] = {
@@ -562,12 +619,12 @@ modules["uga-rosa/ccc.nvim"] = {
     config = editor_config.ccc_nvim,
 }
 
-modules["phaazon/hop.nvim"] = {
-    commit = funcs.get_commit("hop.nvim", plugins_snapshot),
+modules["folke/flash.nvim"] = {
+    commit = funcs.get_commit("flash.nvim", plugins_snapshot),
     event = {
         "BufRead",
     },
-    config = editor_config.hop_nvim,
+    config = editor_config.flash_nvim,
 }
 
 modules["folke/todo-comments.nvim"] = {
@@ -613,7 +670,7 @@ modules["wintermute-cell/gitignore.nvim"] = {
     },
 }
 
-modules["TimUntersberger/neogit"] = {
+modules["NeogitOrg/neogit"] = {
     commit = funcs.get_commit("neogit", plugins_snapshot),
     dependencies = {
         "nvim-lua/plenary.nvim",
@@ -631,14 +688,6 @@ modules["lewis6991/gitsigns.nvim"] = {
         "BufRead",
     },
     config = version_control_config.gitsigns_nvim,
-}
-
-modules["f-person/git-blame.nvim"] = {
-    commit = funcs.get_commit("git-blame.nvim", plugins_snapshot),
-    event = {
-        "BufRead",
-    },
-    config = version_control_config.git_blame_nvim,
 }
 
 modules["sindrets/diffview.nvim"] = {
@@ -669,12 +718,15 @@ modules["pwntester/octo.nvim"] = {
 
 modules["mbbill/undotree"] = {
     commit = funcs.get_commit("undotree", plugins_snapshot),
+    keys = {
+        { "<F5>", "<Cmd>UndotreeToggle<CR>", desc = "Undotree" },
+    },
     cmd = "UndotreeToggle",
     config = version_control_config.undotree,
 }
 
 -- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
--- Languages ----------------------------------------------------
+-- LANGUAGES ----------------------------------------------------
 -- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 local languages_config = require("modules.base.configs.languages")
@@ -751,9 +803,7 @@ modules["simrat39/rust-tools.nvim"] = {
     ft = "rust",
     dependencies = {
         "neovim/nvim-lspconfig",
-        "nvim-lua/popup.nvim",
         "nvim-lua/plenary.nvim",
-        "nvim-telescope/telescope.nvim",
         "mfussenegger/nvim-dap",
     },
 }
@@ -799,14 +849,6 @@ modules["nvim-treesitter/nvim-treesitter"] = {
         "nvim-treesitter/playground",
     },
     config = languages_config.nvim_treesitter,
-}
-
-modules["lvimuser/lsp-inlayhints.nvim"] = {
-    commit = funcs.get_commit("lsp-inlayhints.nvim", plugins_snapshot),
-    dependencies = {
-        "neovim/nvim-lspconfig",
-    },
-    config = languages_config.lsp_inlayhints_nvim,
 }
 
 modules["SmiteshP/nvim-navic"] = {
@@ -921,12 +963,12 @@ modules["dhruvasagar/vim-table-mode"] = {
 modules["nvim-orgmode/orgmode"] = {
     commit = funcs.get_commit("orgmode", plugins_snapshot),
     ft = "org",
+    dependencies = { "lvim-tech/lvim-org-utils" },
     config = languages_config.orgmode,
 }
 
 modules["lvim-tech/lvim-org-utils"] = {
     commit = funcs.get_commit("lvim-org-utils", plugins_snapshot),
-    ft = "org",
     config = languages_config.lvim_org_utils,
 }
 

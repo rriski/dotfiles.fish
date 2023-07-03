@@ -53,7 +53,6 @@ local function make_floating_popup_size(contents, opts)
         width = math.min(width, max_width)
         wrap_at = math.min(wrap_at or max_width, max_width)
     end
-
     if not height then
         height = #contents
         if wrap_at and width >= wrap_at then
@@ -73,7 +72,6 @@ local function make_floating_popup_size(contents, opts)
     if max_height then
         height = math.min(height, max_height)
     end
-
     return width, height
 end
 
@@ -96,11 +94,14 @@ local function open_floating_preview(contents, syntax)
     api.nvim_buf_set_lines(floating_bufnr, 0, -1, true, contents)
     api.nvim_buf_set_option(floating_bufnr, "modifiable", false)
     api.nvim_buf_set_option(floating_bufnr, "bufhidden", "wipe")
-    api.nvim_command(
-        "autocmd CursorMoved,CursorMovedI,BufHidden,InsertCharPre <buffer> ++once lua pcall(vim.api.nvim_win_close, "
-            .. floating_winnr
-            .. ", true)"
-    )
+    vim.defer_fn(function()
+        api.nvim_command(
+            "autocmd CursorMoved,CursorMovedI,BufHidden,InsertCharPre <buffer> lua pcall(vim.api.nvim_win_close, "
+                .. floating_winnr
+                .. ", true)"
+        )
+    end, 50)
+
     return floating_bufnr, floating_winnr
 end
 
@@ -177,9 +178,7 @@ M.line = function(opts)
     }, opts or {})
     vim.diagnostic.open_float(opts)
     local win_id = opts.win_id or vim.api.nvim_get_current_win()
-    vim.schedule(function()
-        M.show_line_diagnostics(vim.api.nvim_win_get_buf(win_id))
-    end)
+    M.show_line_diagnostics(vim.api.nvim_win_get_buf(win_id))
 end
 
 return M

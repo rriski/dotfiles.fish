@@ -1,3 +1,5 @@
+local funcs = require("core.funcs")
+
 local config = {}
 
 config.neogit = function()
@@ -9,20 +11,6 @@ config.neogit = function()
         disable_signs = false,
         disable_context_highlighting = false,
         disable_commit_confirmation = false,
-        signs = {
-            section = {
-                "",
-                "",
-            },
-            item = {
-                "",
-                "",
-            },
-            hunk = {
-                "",
-                "",
-            },
-        },
         integrations = {
             diffview = true,
         },
@@ -35,6 +23,11 @@ config.gitsigns_nvim = function()
         return
     end
     gitsigns.setup({
+        current_line_blame_formatter = "➤ <author> ➤ <author_time:%Y-%m-%d> ➤ <summary>",
+        current_line_blame_formatter_nc = "➤ Not Committed Yet",
+        current_line_blame_opts = {
+            delay = 10,
+        },
         numhl = false,
         signcolumn = true,
         signs = {
@@ -76,10 +69,6 @@ config.gitsigns_nvim = function()
             },
         },
         linehl = false,
-        keymaps = {
-            noremap = true,
-            buffer = true,
-        },
     })
     vim.api.nvim_create_user_command("GitSignsPreviewHunk", "lua require('gitsigns').preview_hunk()", {})
     vim.api.nvim_create_user_command("GitSignsNextHunk", "lua require('gitsigns').next_hunk()", {})
@@ -89,6 +78,13 @@ config.gitsigns_nvim = function()
     vim.api.nvim_create_user_command("GitSignsResetHunk", "lua require('gitsigns').reset_hunk()", {})
     vim.api.nvim_create_user_command("GitSignsResetBuffer", "lua require('gitsigns').reset_buffer()", {})
     vim.api.nvim_create_user_command("GitSignsBlameLine", "lua require('gitsigns').blame_line()", {})
+    vim.api.nvim_create_user_command("GitSignsBlameFull", "lua require('gitsigns').blame_line(full=true)", {})
+    vim.api.nvim_create_user_command("GitSignsToggleLinehl", "lua require('gitsigns').toggle_linehl()", {})
+    vim.api.nvim_create_user_command(
+        "GitSignsToggleLineBlame",
+        "lua require('gitsigns').toggle_current_line_blame()",
+        {}
+    )
     vim.keymap.set("n", "<A-]>", function()
         vim.cmd("GitSignsNextHunk")
     end, { noremap = true, silent = true, desc = "GitSignsNextHunk" })
@@ -98,26 +94,9 @@ config.gitsigns_nvim = function()
     vim.keymap.set("n", "<A-;>", function()
         vim.cmd("GitSignsPreviewHunk")
     end, { noremap = true, silent = true, desc = "GitSignsPreviewHunk" })
-end
-
-config.git_blame_nvim = function()
-    vim.g.gitblame_message_when_not_committed = "➤ Not committed yet"
-    vim.g.gitblame_date_format = "%r"
-    vim.g.gitblame_message_template = "➤ <summary> ➤ <date> ➤ <author>"
-    vim.g.gitblame_ignored_filetypes = {
-        "help",
-        "Outline",
-        "git",
-        "dapui_scopes",
-        "dapui_breakpoints",
-        "dapui_stacks",
-        "dapui_watches",
-        "NeogitStatus",
-        "dashboard",
-    }
     vim.keymap.set("n", "<C-c>b", function()
-        vim.cmd("GitBlameToggle")
-    end, { noremap = true, silent = true, desc = "GitBlameToggle" })
+        vim.cmd("GitSignsToggleLineBlame")
+    end, { noremap = true, silent = true, desc = "GitSignsToggleLineBlame" })
 end
 
 config.diffview_nvim = function()
@@ -148,7 +127,72 @@ config.lvim_forgit = function()
     if not lvim_forgit_status_ok then
         return
     end
-    lvim_forgit.setup()
+    local colors = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme]
+    local bg = funcs.darken(colors.bg_01, 0.7, colors.corection)
+    lvim_forgit.setup({
+        ui = {
+            float = {
+                float_hl = "NormalFloat",
+                height = 0.5,
+                width = 1,
+                x = 0,
+                y = 1,
+                border_hl = "FloatBorder",
+            },
+        },
+        env = {
+            FORGIT_FZF_DEFAULT_OPTS = "--height='100%' --preview-window='right:50%' --reverse --color='"
+                .. "fg:"
+                .. colors.fg_07
+                .. ",bg:"
+                .. bg
+                .. ",hl:"
+                .. colors.red_03
+                .. ",fg+:"
+                .. colors.fg_07
+                .. ",bg+:"
+                .. bg
+                .. ",hl+:"
+                .. colors.red_03
+                .. ",pointer:"
+                .. colors.red_03
+                .. ",info:"
+                .. colors.orange_03
+                .. ",spinner:"
+                .. colors.orange_03
+                .. ",header:"
+                .. colors.red_03
+                .. ",prompt:"
+                .. colors.green_03
+                .. ",marker:"
+                .. colors.red_03
+                .. "'",
+            COLORS = "fg:"
+                .. colors.fg_07
+                .. ",bg:"
+                .. bg
+                .. ",hl:"
+                .. colors.red_03
+                .. ",fg+:"
+                .. colors.fg_07
+                .. ",bg+:"
+                .. bg
+                .. ",hl+:"
+                .. colors.red_03
+                .. ",pointer:"
+                .. colors.red_03
+                .. ",info:"
+                .. colors.orange_03
+                .. ",spinner:"
+                .. colors.orange_03
+                .. ",header:"
+                .. colors.red_03
+                .. ",prompt:"
+                .. colors.green_03
+                .. ",marker:"
+                .. colors.red_03,
+        },
+    })
     vim.keymap.set("n", "<C-c>fg", function()
         vim.cmd("LvimForgit")
     end, { noremap = true, silent = true, desc = "LvimForgit" })

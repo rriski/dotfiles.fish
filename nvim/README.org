@@ -8,9 +8,9 @@
 
   * Debug support for c, cpp, cs, dart, elixir, go, haskell, java, javascript/typescript, lua, php, python, ruby, rust, scala
 
-  Current version - 3.1.00 (2023-05-10)
+  Current version - 3.3.61 (2023-07-03)
 
-  127 plugins
+  128 plugins
 
 **  SCREENSHOTS
 
@@ -60,7 +60,40 @@
     * Autoinstall the LSP servers, DAP servers, linters, and formatters
     * Custom settings for projects
 
-    For keybindings - press F11
+*** Icons
+
+    Now LvimIDE support Nerd fonts v3
+
+    All icons are predefined - `configs/base/ui/icons.lua`
+
+***  For keybindings - press `F11` or `<C-c>h`
+
+***  Hydra
+
+    - `;;` - All hydra keys
+
+    - `;l` - LVIM IDE
+    - `;a` - Common
+    - `;n` - Navigation
+    - `;r` - Replace
+    - `;h` - Hop
+    - `;e` - Explorer
+    - `;c` - Comment, annotation, fold
+    - `;u` - Linguistics
+    - `;t` - Telescope
+    - `;z` - FZF
+    - `;g` - GIT
+    - `;q` - Quickfix
+    - `;o` - Location
+    - `;d` - Diagnostics
+    - `;s` - Glance
+    - `;p` - DAP
+    - `;'` - Neotest
+    - `;m` - Terminal
+    - `;w` - Dependencies
+      * package.json (npm / yarn)
+      * Cargo.toml (rust)
+      * pubspec.yaml (dart)
 
 **  REQUIREMENTS
 
@@ -94,7 +127,7 @@
 
     #+end_src
 
-    - Theme - Dark (default), DarkSoft and Light
+    - Theme - Lvim Dark (default), Lvim Dark Soft, Lvim Light, Lvim Everforest Dark, Lvim Everforest Dark Soft, Lvim Gruvbox Dark, Lvim Gruvbox Dark Soft, Lvim Catppuccin Dark, Lvim Catppuccin Dark Soft, Lvim Solarized Dark
 
     #+begin_src lua
 
@@ -107,6 +140,22 @@
     #+begin_src lua
 
     :LvimAutoFormat
+
+    #+end_src
+
+    - VirtualDiagnostic - true, false (default)
+
+    #+begin_src lua
+
+    :LvimVirtualDiagnostic
+
+    #+end_src
+
+    - InlayHint - true (default), false
+
+    #+begin_src lua
+
+    :LvimInlayHint
 
     #+end_src
 
@@ -131,7 +180,7 @@
 
     #+end_src
 
-**  SNAPSHOTS 
+**  SNAPSHOTS
 
     + Snap folder: *~/.config/nvim/.snapshots/*
 
@@ -146,7 +195,7 @@
     #+end_src
 
 
-    + Choice file to rollback: 
+    + Choice file to rollback:
 
     #+begin_src lua
 
@@ -324,7 +373,7 @@
 
 
 
-****  LSP SUPPORT 
+****  LSP SUPPORT
 
       + bib
       + c
@@ -393,7 +442,7 @@
       + zig
       + zir
 
-****  DEBUG SUPPORT 
+****  DEBUG SUPPORT
 
       + c
       + cpp

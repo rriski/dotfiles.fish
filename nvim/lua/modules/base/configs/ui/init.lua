@@ -1,3 +1,6 @@
+local funcs = require("core.funcs")
+local icons = require("configs.base.ui.icons")
+
 local config = {}
 
 config.lvim_colorscheme = function()
@@ -15,7 +18,7 @@ config.lvim_colorscheme = function()
             "neo-tree",
         },
     })
-    vim.cmd("colorscheme lvim-" .. _G.LVIM_SETTINGS.colorschemes.theme)
+    vim.cmd("colorscheme " .. _G.LVIM_SETTINGS.theme)
 end
 
 config.nvim_web_devicons = function()
@@ -32,6 +35,7 @@ config.nui_nvim = function()
     end
     local Input = require("nui.input")
     local Menu = require("nui.menu")
+    local Text = require("nui.text")
     local event = require("nui.utils.autocmd").event
     local function override_ui_input()
         local calculate_popup_width = function(default, prompt)
@@ -65,10 +69,10 @@ config.nui_nvim = function()
                     width = calculate_popup_width(default_value, border_top_text),
                 },
                 border = {
-                    highlight = "NormalFloat:LvimInputBorder",
+                    highlight = "FloatBorder:LvimInputBorder",
                     style = { " ", " ", " ", " ", " ", " ", " ", " " },
                     text = {
-                        top = border_top_text,
+                        top = Text(border_top_text, "LvimInputBorder"),
                         top_align = "center",
                     },
                 },
@@ -76,7 +80,7 @@ config.nui_nvim = function()
                     winhighlight = "Normal:LvimInputNormal",
                 },
             }, {
-                prompt = "➤ ",
+                prompt = icons.common.separator .. " ",
                 default_value = default_value,
                 on_close = function()
                     on_done(nil)
@@ -123,10 +127,10 @@ config.nui_nvim = function()
                 relative = "editor",
                 position = "50%",
                 border = {
-                    highlight = "NormalFloat:LvimSelectBorder",
+                    highlight = "FloatBorder:LvimSelectBorder",
                     style = { " ", " ", " ", " ", " ", " ", " ", " " },
                     text = {
-                        top = border_top_text,
+                        top = Text(border_top_text, "LvimSelectBorder"),
                         top_align = "center",
                     },
                 },
@@ -205,13 +209,13 @@ config.nvim_notify = function()
     end
     notify.setup({
         minimum_width = 80,
-        background_colour = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].bg,
+        background_colour = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].bg,
         icons = {
-            DEBUG = " ",
-            ERROR = " ",
-            INFO = " ",
-            TRACE = " ",
-            WARN = " ",
+            DEBUG = icons.common.fix,
+            ERROR = icons.diagnostics.error,
+            WARN = icons.diagnostics.warn,
+            INFO = icons.diagnostics.info,
+            TRACE = icons.common.trace,
         },
         stages = "fade",
         on_open = function(win)
@@ -255,15 +259,14 @@ config.noice_nvim = function()
         cmdline = {
             enabled = true,
             view = "cmdline",
-            opts = { buf_options = { filetype = "vim" } },
             format = {
-                cmdline = { pattern = "^:", icon = "", lang = "vim" },
-                search_down = { kind = "search", pattern = "^/", icon = "  ", lang = "regex" },
-                search_up = { kind = "search", pattern = "^%?", icon = "  ", lang = "regex" },
-                filter = { pattern = "^:%s*!", icon = "$ ", lang = "bash" },
-                lua = { pattern = "^:%s*lua%s+", icon = " ", lang = "lua" },
-                help = { pattern = "^:%s*h%s+", icon = " " },
-                calculator = { pattern = "^=", icon = " ", lang = "vimnormal" },
+                cmdline = { pattern = "^:", icon = "" },
+                search_down = { kind = "search", pattern = "^/", icon = " ", lang = "regex" },
+                search_up = { kind = "search", pattern = "^%?", icon = " ", lang = "regex" },
+                filter = { pattern = "^:%s*!", icon = "$", lang = "bash" },
+                lua = { pattern = "^:%s*lua%s+", icon = "", lang = "lua" },
+                help = { pattern = "^:%s*h%s+", icon = "󰋖" },
+                calculator = { pattern = "^:=", icon = "󰃬", lang = "vimnormal" },
                 input = {},
             },
         },
@@ -423,7 +426,7 @@ config.noice_nvim = function()
                 position = "bottom",
                 size = "20%",
                 close = {
-                    keys = { "q", "<esc>" },
+                    keys = { "q", "<ESC>" },
                 },
                 win_options = {
                     winhighlight = { Normal = "NoiceBody", FloatBorder = "NoiceBorder" },
@@ -437,7 +440,7 @@ config.noice_nvim = function()
                 position = "right",
                 size = "20%",
                 close = {
-                    keys = { "q", "<esc>" },
+                    keys = { "q", "<ESC>" },
                 },
                 win_options = {
                     winhighlight = { Normal = "NoiceBody", FloatBorder = "NoiceBorder" },
@@ -611,16 +614,16 @@ config.noice_nvim = function()
                     },
                 },
             },
-            {
-                view = "notify",
-                filter = {
-                    any = {
-                        { event = { "msg_showmode", "msg_showcmd", "msg_ruler" } },
-                        { event = "msg_show", kind = "search_count" },
-                    },
-                },
-                opts = { skip = true },
-            },
+            -- {
+            --     view = "notify",
+            --     filter = {
+            --         any = {
+            --             { event = { "msg_showmode", "msg_showcmd", "msg_ruler" } },
+            --             { event = "msg_show", kind = "" },
+            --         },
+            --     },
+            --     opts = { skip = true },
+            -- },
             {
                 view = "notify",
                 filter = {
@@ -726,7 +729,12 @@ config.alpha_nvim = function()
             platform = ""
         end
         return string.format(
-            "  %d plugins   %d ms   v%d.%d.%d  %s  %s",
+            icons.common.plugins
+                .. " %d plugins  "
+                .. icons.common.time
+                .. "%d ms  "
+                .. icons.common.vim
+                .. "v%d.%d.%d  %s  %s",
             plugins,
             startup_time,
             v.major,
@@ -746,12 +754,12 @@ config.alpha_nvim = function()
     }
     alpha_themes_dashboard.section.header.opts.hl = "AlphaHeader"
     alpha_themes_dashboard.section.buttons.val = {
-        button("SPC SPC b", "  Projects", ":CtrlSpace b<CR>"),
-        button("A-/", "  File explorer", ":Telescope file_browser<CR>"),
-        button("A-,", "  Search file", ":Telescope find_files<CR>"),
-        button("A-.", "  Search in files", ":Telescope live_grep<CR>"),
-        button("F11", "  Help", ":LvimHelper<CR>"),
-        button("q", "  Quit", "<Cmd>qa<CR>"),
+        button("SPC SPC b", icons.common.project .. " Projects", ":CtrlSpace b<CR>"),
+        button("A-/", icons.common.explorer .. " File explorer", ":Telescope file_browser<CR>"),
+        button("A-,", icons.common.file .. " Search file", ":Telescope find_files<CR>"),
+        button("A-.", icons.common.search_in_files .. " Search in files", ":Telescope live_grep<CR>"),
+        button("F11", icons.common.help .. "Help", ":LvimHelper<CR>"),
+        button("q", icons.common.quit .. "Quit", "<Cmd>qa<CR>"),
     }
     alpha_themes_dashboard.section.footer.val = footer()
     alpha_themes_dashboard.section.footer.opts.hl = "AlphaFooter"
@@ -801,19 +809,43 @@ config.nvim_window_picker = function()
         return windows
     end
     window_picker.setup({
+        hint = "statusline-winbar",
         show_prompt = false,
-        autoselect_one = false,
-        include_current_win = true,
         filter_func = special_autoselect,
         filter_rules = {
+            autoselect_one = false,
+            include_current_win = true,
             bo = {
                 filetype = {},
                 buftype = {},
             },
         },
-        fg_color = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].bg,
-        current_win_hl_color = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].bg,
-        other_win_hl_color = _G.LVIM_SETTINGS.colorschemes.colors[_G.LVIM_SETTINGS.colorschemes.theme].green_01,
+        highlights = {
+            statusline = {
+                focused = {
+                    fg = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].red_03,
+                    bg = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].bg,
+                    bold = true,
+                },
+                unfocused = {
+                    fg = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].bg,
+                    bg = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].red_03,
+                    bold = true,
+                },
+            },
+            winbar = {
+                focused = {
+                    fg = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].bg,
+                    bg = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].bg,
+                    bold = true,
+                },
+                unfocused = {
+                    fg = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].bg,
+                    bg = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].red_03,
+                    bold = true,
+                },
+            },
+        },
     })
     vim.api.nvim_create_user_command("WindowPicker", focus_window, {})
     vim.keymap.set("n", "gw", function()
@@ -835,6 +867,10 @@ end
 config.oil_nvim = function()
     local oil_nvim_status_ok, oil_nvim = pcall(require, "oil")
     if not oil_nvim_status_ok then
+        return
+    end
+    local oil_actions_status_ok, oil_actions = pcall(require, "oil.actions")
+    if not oil_actions_status_ok then
         return
     end
     oil_nvim.setup({
@@ -865,8 +901,27 @@ config.oil_nvim = function()
                 winblend = 0,
             },
         },
+        use_default_keymaps = false,
+        keymaps = {
+            ["g?"] = oil_actions.show_help,
+            ["<CR>"] = oil_actions.select,
+            ["<C-s>"] = oil_actions.select_vsplit,
+            ["<C-h>"] = oil_actions.select_split,
+            ["<C-t>"] = oil_actions.select_tab,
+            ["<C-p>"] = oil_actions.preview,
+            ["<C-x>"] = oil_actions.close,
+            ["<C-r>"] = oil_actions.refresh,
+            ["-"] = oil_actions.parent,
+            ["_"] = oil_actions.open_cwd,
+            ["`"] = oil_actions.cd,
+            ["~"] = oil_actions.tcd,
+            ["g."] = oil_actions.toggle_hidden,
+        },
         silence_netrw_warning = true,
     })
+    vim.keymap.set("n", "<C-c>i", function()
+        vim.cmd("Oil")
+    end, { noremap = true, silent = true, desc = "Oil" })
 end
 
 config.netrw_nvim = function()
@@ -900,19 +955,19 @@ config.neo_tree_nvim = function()
             sources = {
                 {
                     source = "filesystem",
-                    display_name = "  DIR  ",
+                    display_name = icons.common.folder .. " DIR  ",
                 },
                 {
                     source = "buffers",
-                    display_name = "  BUF  ",
+                    display_name = icons.common.buffer .. " BUF  ",
                 },
                 {
                     source = "git_status",
-                    display_name = " GIT  ",
+                    display_name = icons.common.git .. " GIT  ",
                 },
                 {
                     source = "diagnostics",
-                    display_name = "  LSP  ",
+                    display_name = icons.common.lsp .. " LSP  ",
                 },
             },
         },
@@ -925,26 +980,16 @@ config.neo_tree_nvim = function()
                 with_expanders = true,
             },
             icon = {
-                folder_closed = "",
-                folder_open = "",
-                folder_empty = "",
+                folder_closed = icons.common.folder_close,
+                folder_open = icons.common.folder_open,
+                folder_empty = icons.common.folder_empty,
                 highlight = "NeoTreeFileIcon",
             },
             modified = {
-                symbol = "",
+                symbol = icons.common.dot,
             },
             git_status = {
-                symbols = {
-                    added = "",
-                    deleted = "",
-                    modified = "",
-                    renamed = "",
-                    untracked = "",
-                    ignored = "",
-                    unstaged = "",
-                    staged = "",
-                    conflict = "",
-                },
+                symbols = icons.git_status,
                 align = "right",
             },
         },
@@ -953,7 +998,7 @@ config.neo_tree_nvim = function()
             width = 40,
             mappings = {
                 ["Z"] = "expand_all_nodes",
-                ["<space>"] = false,
+                ["<Leader>"] = false,
             },
         },
         filesystem = {
@@ -987,288 +1032,43 @@ config.dirbuf_nvim = function()
     dirbuf.setup({})
 end
 
-config.which_key_nvim = function()
-    local which_key_status_ok, which_key = pcall(require, "which-key")
-    if not which_key_status_ok then
-        return
+config.hydra_nvim = function()
+    local global = require("core.global")
+    local all_hydras = global.modules_path .. "/base/configs/ui/hydra/"
+    local path_list = vim.split(vim.fn.glob(all_hydras .. "*.lua", true), "\n")
+    for _, path in ipairs(path_list) do
+        local name = vim.fn.fnamemodify(path, ":t:r")
+        local f = "modules.base.configs.ui.hydra." .. name
+        require(f)
     end
-    local options = {
-        plugins = {
-            marks = true,
-            registers = true,
-            presets = {
-                operators = false,
-                motions = false,
-                text_objects = false,
-                windows = false,
-                nav = false,
-                z = false,
-                g = false,
-            },
-            spelling = {
-                enabled = true,
-                suggestions = 20,
-            },
-        },
-        icons = {
-            breadcrumb = "»",
-            separator = "➜",
-            group = "+",
-        },
-        window = {
-            border = { " ", " ", " ", " ", " ", " ", " ", " " },
-            position = "bottom",
-            margin = {
-                0,
-                0,
-                0,
-                0,
-            },
-            padding = {
-                2,
-                2,
-                2,
-                2,
-            },
-        },
-        layout = {
-            height = {
-                min = 4,
-                max = 25,
-            },
-            width = {
-                min = 20,
-                max = 50,
-            },
-            spacing = 10,
-        },
-        hidden = {
-            "<silent>",
-            "<cmd>",
-            "<Cmd>",
-            "<CR>",
-            "call",
-            "lua",
-            "^:",
-            "^ ",
-        },
-        show_help = false,
-        show_keys = false,
-    }
-    local nopts = {
-        mode = "n",
-        prefix = "<leader>",
-        buffer = nil,
-        silent = true,
-        noremap = true,
-        nowait = true,
-    }
-    local nmappings = {
-        a = { ":e $HOME/.config/nvim/README.org<CR>", "Open README file" },
-        b = {
-            name = "Buffers",
-            n = { "<Cmd>BufSurfForward<CR>", "Next buffer" },
-            p = { "<Cmd>BufSurfBack<CR>", "Prev buffer" },
-            l = { "<Cmd>Telescope buffers<CR>", "List buffers" },
-        },
-        d = {
-            name = "Database",
-            u = { "<Cmd>DBUIToggle<CR>", "DB UI toggle" },
-            f = { "<Cmd>DBUIFindBuffer<CR>", "DB find buffer" },
-            r = { "<Cmd>DBUIRenameBuffer<CR>", "DB rename buffer" },
-            l = { "<Cmd>DBUILastQueryInfo<CR>", "DB last query" },
-        },
-        e = {
-            name = "Explorer",
-            e = { "<Cmd>Lexplore<CR>", "Neotree left" },
-            c = { "<Cmd>Lexplore %:p:h<CR>", "Neotree left" },
-            l = { "<Cmd>Neotree left<CR>", "Neotree left" },
-            f = { "<Cmd>Neotree float<CR>", "Neotree float" },
-            b = { "<Cmd>Neotree buffers float<CR>", "Neotree buffers" },
-            g = { "<Cmd>Neotree git_status float<CR>", "Neotree git_status" },
-        },
-        f = {
-            name = "Find & Fold",
-            f = { "<Cmd>HopWord<CR>", "Hop Word" },
-            ["]"] = { "<Cmd>HopChar1<CR>", "Hop Char1" },
-            ["["] = { "<Cmd>HopChar2<CR>", "Hop Char2" },
-            l = { "<Cmd>HopLine<CR>", "Hop Line" },
-            s = { "<Cmd>HopLineStart<CR>", "Hop Line Start" },
-            m = { "<Cmd>:set foldmethod=manual<CR>", "Manual (default)" },
-            i = { "<Cmd>:set foldmethod=indent<CR>", "Indent" },
-            e = { "<Cmd>:set foldmethod=expr<CR>", "Expr" },
-            d = { "<Cmd>:set foldmethod=diff<CR>", "Diff" },
-            M = { "<Cmd>:set foldmethod=marker<CR>", "Marker" },
-        },
-        g = {
-            name = "GIT",
-            b = { "<Cmd>GitSignsBlameLine<CR>", "Blame" },
-            ["]"] = { "<Cmd>GitSignsNextHunk<CR>", "Next hunk" },
-            ["["] = { "<Cmd>GitSignsPrevHunk<CR>", "Prev hunk" },
-            P = { "<Cmd>GitSignsPreviewHunk<CR>", "Preview hunk" },
-            r = { "<Cmd>GitSignsResetHunk<CR>", "Reset stage hunk" },
-            s = { "<Cmd>GitSignsStageHunk<CR>", "Stage hunk" },
-            u = { "<Cmd>GitSignsUndoStageHunk<CR>", "Undo stage hunk" },
-            R = { "<Cmd>GitSignsResetBuffer<CR>", "Reset buffer" },
-            n = { "<Cmd>Neogit<CR>", "Neogit" },
-            l = { "<Cmd>Lazygit<CR>", "Lazygit" },
-        },
-        n = {
-            name = "Neogen",
-            l = { "<Cmd>NeogenFile<CR>", "File" },
-            c = { "<Cmd>NeogenClass<CR>", "Class" },
-            f = { "<Cmd>NeogenFunction<CR>", "Function" },
-            t = { "<Cmd>NeogenType<CR>", "Type" },
-        },
-        l = {
-            name = "LSP",
-            r = { "<Cmd>LspRename<CR>", "Rename" },
-            f = { "<Cmd>LspFormat<CR>", "Format" },
-            h = { "<Cmd>LspHover<CR>", "Hover" },
-            a = { "<Cmd>LspCodeAction<CR>", "Code action" },
-            d = { "<Cmd>LspDefinition<CR>", "Definition" },
-            t = { "<Cmd>LspTypeDefinition<CR>", "Type definition" },
-            R = { "<Cmd>LspReferences<CR>", "References" },
-            i = { "<Cmd>LspImplementation<CR>", "Implementation" },
-            s = { "<Cmd>LspSignatureHelp<CR>", "Signature help" },
-            S = {
-                name = "Symbol",
-                d = { "<Cmd>LspDocumentSymbol<CR>", "Document symbol" },
-                w = { "<Cmd>LspWorkspaceSymbol<CR>", "Workspace symbol" },
-            },
-            w = {
-                "<Cmd>LspAddToWorkspaceFolder<CR>",
-                "Add to workspace folder",
-            },
-        },
-        p = {
-            name = "Path",
-            g = { "<Cmd>SetGlobalPath<CR>", "Set global path" },
-            w = { "<Cmd>SetWindowPath<CR>", "Set window path" },
-        },
-        s = {
-            name = "Spectre",
-            s = {
-                "<Cmd>Spectre<CR>",
-                "Open Spectre",
-            },
-            t = {
-                '<Cmd>lua require("spectre").toggle_line()<CR>',
-                "Toggle current line",
-            },
-            g = {
-                '<Cmd>lua require("spectre.actions").select_entry()<CR>',
-                "Goto current file",
-            },
-            q = {
-                '<Cmd>lua require("spectre.actions").send_to_qf()<CR>',
-                "Send all item to quickfix",
-            },
-            m = {
-                '<Cmd>lua require("spectre.actions").replace_cmd()<CR>',
-                "Input replace vim command",
-            },
-            o = {
-                '<Cmd>lua require("spectre").show_options()<CR>',
-                "Show option",
-            },
-            r = {
-                '<Cmd>lua require("spectre.actions").run_current_replace()<CR>',
-                "Replace current line",
-            },
-            R = {
-                '<Cmd>lua require("spectre.actions").run_replace()<CR>',
-                "Replace all",
-            },
-            u = {
-                '<Cmd>lua require("spectre").toggle_live_update()<CR>',
-                "Update change when vim write file",
-            },
-            v = {
-                '<Cmd>lua require("spectre").change_view()<CR>',
-                "Change result view mode",
-            },
-            c = {
-                '<Cmd>lua require("spectre").change_options("ignore-case")<CR>',
-                "Toggle ignore case",
-            },
-            h = {
-                '<Cmd>lua require("spectre").change_options("hidden")<CR>',
-                "Toggle search hidden",
-            },
-            l = {
-                '<Cmd>lua require("spectre").resume_last_search()<CR>',
-                "Resume last search before close",
-            },
-        },
-        t = {
-            name = "Telescope",
-            b = { "<Cmd>Telescope file_browser<CR>", "File browser" },
-            f = { "<Cmd>Telescope find_files<CR>", "Find files" },
-            w = { "<Cmd>Telescope live_grep<CR>", "Live grep" },
-            u = { "<Cmd>Telescope buffers<CR>", "Buffers" },
-            m = { "<Cmd>Telescope marks<CR>", "Marks" },
-            o = { "<Cmd>Telescope commands<CR>", "Commands" },
-            t = { "<Cmd>Telescope tmux sessions<CR>", "Tmux" },
-            y = { "<Cmd>Telescope symbols<CR>", "Symbols" },
-            q = { "<Cmd>Telescope quickfix<CR>", "Quickfix" },
-            g = {
-                name = "Git",
-                c = { "<Cmd>Telescope git_commits<CR>", "Git commits" },
-                C = { "<Cmd>Telescope git_bcommits<CR>", "Git bcommits" },
-                b = { "<Cmd>Telescope git_branches<CR>", "Git branches" },
-                s = { "<Cmd>Telescope git_status<CR>", "Git status" },
-                t = { "<Cmd>Telescope git_stash<CR>", "Git stash" },
-                f = { "<Cmd>Telescope git_files<CR>", "Git files" },
-            },
-        },
-        z = {
-            name = "Fzf",
-            b = { "<Cmd>FzfLua buffers<CR>", "Buffer" },
-            t = { "<Cmd>FzfLua tabs<CR>", "Tabs" },
-            m = { "<Cmd>FzfLua marks<CR>", "Marks" },
-            j = { "<Cmd>FzfLua jumps<CR>", "Jumps" },
-            r = { "<Cmd>FzfLua registers<CR>", "Registers" },
-            f = { "<Cmd>FzfLua files<CR>", "Files" },
-            q = { "<Cmd>FzfLua quickfix<CR>", "Quickfix" },
-            s = { "<Cmd>FzfLua quickfix_stack<CR>", "Quickfix stack" },
-            l = { "<Cmd>FzfLua loclist<CR>", "Locklist" },
-            w = { "<Cmd>FzfLua live_grep<CR>", "Live grep" },
-            k = { "<Cmd>FzfLua keymaps<CR>", "Key maps" },
-            g = {
-                name = "Git",
-                c = { "<Cmd>FzfLua git_commits<CR>", "Git commits" },
-                C = { "<Cmd>FzfLua git_bcommits<CR>", "Git bcommits" },
-                b = { "<Cmd>FzfLua git_branches<CR>", "Git branches" },
-                s = { "<Cmd>FzfLua git_status<CR>", "Git status" },
-                t = { "<Cmd>FzfLua git_stash<CR>", "Git stash" },
-                f = { "<Cmd>FzfLua git_files<CR>", "Git files" },
-            },
-        },
-    }
-    which_key.setup(options)
-    which_key.register(nmappings, nopts)
 end
 
 config.heirline_nvim = function()
-    local common = require("modules.base.configs.ui.heirline.common")
-    local statusline = require("modules.base.configs.ui.heirline.statusline")
-    local winbar = require("modules.base.configs.ui.heirline.winbar")
-    local statuscolumn = require("modules.base.configs.ui.heirline.statuscolumn")
+    local statusline = require("modules.base.configs.ui.heirline.statusline").get_statusline()
+    local statuscolumn = require("modules.base.configs.ui.heirline.statuscolumn").get_statuscolumn()
+    local winbar = require("modules.base.configs.ui.heirline.winbar").get_winbar()
+    local buf_types = require("modules.base.configs.ui.heirline.buf_types")
+    local file_types = require("modules.base.configs.ui.heirline.file_types")
     local heirline_status_ok, heirline = pcall(require, "heirline")
     if not heirline_status_ok then
         return
     end
+    local file_types_winbar = {}
+    for i, v in ipairs(file_types) do
+        file_types_winbar[i] = v
+    end
+    table.insert(file_types_winbar, "qf")
+    table.insert(file_types_winbar, "fzf")
+    table.insert(file_types_winbar, "lvim_shell")
     heirline.setup({
         statusline = statusline,
-        winbar = winbar,
         statuscolumn = statuscolumn,
+        winbar = winbar,
         opts = {
-            colors = common.theme_colors,
             disable_winbar_cb = function(args)
                 local buf = args.buf
-                local buftype = vim.tbl_contains(common.buftype, vim.bo[buf].buftype)
-                local filetype = vim.tbl_contains(common.filetype, vim.bo[buf].filetype)
+                local buftype = vim.tbl_contains(buf_types, vim.bo[buf].buftype)
+                local filetype = vim.tbl_contains(file_types_winbar, vim.bo[buf].filetype)
                 return buftype or filetype
             end,
         },
@@ -1308,30 +1108,72 @@ config.lvim_fm = function()
     if not lvim_fm_status_ok then
         return
     end
+    local colors = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme]
+    local bg = funcs.darken(colors.bg_01, 0.7, colors.corection)
     lvim_fm.setup({
         ui = {
             float = {
                 float_hl = "NormalFloat",
+                height = 0.5,
+                width = 1,
+                x = 0,
+                y = 1,
                 border_hl = "FloatBorder",
             },
+        },
+        env = {
+            COLORS = "fg:"
+                .. colors.fg_07
+                .. ",bg:"
+                .. bg
+                .. ",hl:"
+                .. colors.red_03
+                .. ",fg+:"
+                .. colors.fg_07
+                .. ",bg+:"
+                .. bg
+                .. ",hl+:"
+                .. colors.red_03
+                .. ",pointer:"
+                .. colors.red_03
+                .. ",info:"
+                .. colors.orange_03
+                .. ",spinner:"
+                .. colors.orange_03
+                .. ",header:"
+                .. colors.red_03
+                .. ",prompt:"
+                .. colors.green_03
+                .. ",marker:"
+                .. colors.red_03,
         },
     })
     vim.keymap.set(
         "n",
-        "<leader>r",
+        "<leader>=",
         ":LvimFileManager<CR>",
         { noremap = true, silent = true, desc = "LvimFileManager" }
     )
 end
 
 config.toggleterm_nvim = function()
+    local toggleterm_status_ok, toggleterm = pcall(require, "toggleterm")
+    if not toggleterm_status_ok then
+        return
+    end
     local toggleterm_terminal_status_ok, toggleterm_terminal = pcall(require, "toggleterm.terminal")
     if not toggleterm_terminal_status_ok then
         return
     end
-    local terminal_one = toggleterm_terminal.Terminal:new({
-        count = 1,
-        direction = "horizontal",
+    toggleterm.setup({
+        size = function(term)
+            if term.direction == "horizontal" then
+                return 20
+            elseif term.direction == "vertical" then
+                return vim.o.columns * 0.4
+            end
+        end,
+        start_in_insert = false,
         on_open = function()
             vim.keymap.set("n", "<C-q>", "<cmd>close<CR>", { buffer = true, noremap = true, silent = true })
             vim.keymap.set(
@@ -1343,55 +1185,19 @@ config.toggleterm_nvim = function()
             vim.keymap.set("t", "<C-x>", "<C-\\><C-n>", { buffer = true, noremap = true, silent = true })
             vim.wo.cursorcolumn = false
             vim.wo.cursorline = false
-            vim.cmd("startinsert!")
+            vim.cmd("wincmd=")
         end,
-        on_close = function()
-            vim.cmd("quit!")
-        end,
-    })
-    local terminal_two = toggleterm_terminal.Terminal:new({
-        count = 2,
-        direction = "horizontal",
-        on_open = function()
-            vim.keymap.set("n", "<C-q>", "<cmd>close<CR>", { buffer = true, noremap = true, silent = true })
-            vim.keymap.set(
-                "t",
-                "<C-q>",
-                "<C-\\><C-n><cmd>close<CR><C-w><C-p>",
-                { buffer = true, noremap = true, silent = true }
-            )
-            vim.keymap.set("t", "<C-x>", "<C-\\><C-n>", { buffer = true, noremap = true, silent = true })
-            vim.wo.cursorcolumn = false
-            vim.wo.cursorline = false
-            vim.cmd("startinsert!")
-        end,
-        on_close = function()
-            vim.cmd("quit!")
-        end,
-    })
-    local terminal_three = toggleterm_terminal.Terminal:new({
-        count = 3,
-        direction = "horizontal",
-        on_open = function()
-            vim.keymap.set("n", "<C-q>", "<cmd>close<CR>", { buffer = true, noremap = true, silent = true })
-            vim.keymap.set(
-                "t",
-                "<C-q>",
-                "<C-\\><C-n><cmd>close<CR><C-w><C-p>",
-                { buffer = true, noremap = true, silent = true }
-            )
-            vim.keymap.set("t", "<C-x>", "<C-\\><C-n>", { buffer = true, noremap = true, silent = true })
-            vim.wo.cursorcolumn = false
-            vim.wo.cursorline = false
-            vim.cmd("startinsert!")
-        end,
-        on_close = function()
-            vim.cmd("quit!")
-        end,
-    })
-    local terminal_float = toggleterm_terminal.Terminal:new({
-        count = 4,
-        direction = "float",
+        highlights = {
+            Normal = {
+                link = "NormalFloat",
+            },
+            NormalFloat = {
+                link = "NormalFloat",
+            },
+            FloatBorder = {
+                link = "FloatBorder",
+            },
+        },
         float_opts = {
             border = { " ", " ", " ", " ", " ", " ", " ", " " },
             winblend = 0,
@@ -1402,46 +1208,84 @@ config.toggleterm_nvim = function()
                 background = "NormalFloat",
             },
         },
-        on_open = function()
-            vim.keymap.set("n", "<C-q>", "<cmd>close<CR>", { buffer = true, noremap = true, silent = true })
-            vim.keymap.set(
-                "t",
-                "<C-q>",
-                "<C-\\><C-n><cmd>close<CR><C-w><C-p>",
-                { buffer = true, noremap = true, silent = true }
-            )
-            vim.keymap.set("t", "<C-x>", "<C-\\><C-n>", { buffer = true, noremap = true, silent = true })
-            vim.wo.cursorcolumn = false
-            vim.wo.cursorline = false
-            vim.cmd("startinsert!")
-        end,
-        on_close = function()
-            vim.cmd("quit!")
-        end,
     })
-    vim.api.nvim_create_user_command("TermOne", function()
-        terminal_one:toggle()
+    local terminal_1 = toggleterm_terminal.Terminal:new({
+        count = 1,
+        direction = "horizontal",
+    })
+    local terminal_2 = toggleterm_terminal.Terminal:new({
+        count = 2,
+        direction = "horizontal",
+    })
+    local terminal_3 = toggleterm_terminal.Terminal:new({
+        count = 3,
+        direction = "horizontal",
+    })
+    local terminal_4 = toggleterm_terminal.Terminal:new({
+        count = 4,
+        direction = "horizontal",
+    })
+    local terminal_5 = toggleterm_terminal.Terminal:new({
+        count = 5,
+        direction = "vertical",
+    })
+    local terminal_6 = toggleterm_terminal.Terminal:new({
+        count = 6,
+        direction = "vertical",
+    })
+    local terminal_7 = toggleterm_terminal.Terminal:new({
+        count = 7,
+        direction = "vertical",
+    })
+    local terminal_8 = toggleterm_terminal.Terminal:new({
+        count = 8,
+        direction = "vertical",
+    })
+    local terminal_9 = toggleterm_terminal.Terminal:new({
+        count = 9,
+        direction = "float",
+    })
+    vim.api.nvim_create_user_command("TerminalHorizontal1", function()
+        terminal_1:toggle()
     end, {})
-    vim.api.nvim_create_user_command("TermTwo", function()
-        terminal_two:toggle()
+    vim.api.nvim_create_user_command("TerminalHorizontal2", function()
+        terminal_2:toggle()
     end, {})
-    vim.api.nvim_create_user_command("TermThree", function()
-        terminal_three:toggle()
+    vim.api.nvim_create_user_command("TerminalHorizontal3", function()
+        terminal_3:toggle()
     end, {})
-    vim.api.nvim_create_user_command("TermFloat", function()
-        terminal_float:toggle()
+    vim.api.nvim_create_user_command("TerminalHorizontal4", function()
+        terminal_4:toggle()
+    end, {})
+    vim.api.nvim_create_user_command("TerminalVertical1", function()
+        terminal_5:toggle()
+    end, {})
+    vim.api.nvim_create_user_command("TerminalVertical2", function()
+        terminal_6:toggle()
+    end, {})
+    vim.api.nvim_create_user_command("TerminalVertical3", function()
+        terminal_7:toggle()
+    end, {})
+    vim.api.nvim_create_user_command("TerminalVertical4", function()
+        terminal_8:toggle()
+    end, {})
+    vim.api.nvim_create_user_command("TerminalVertical4", function()
+        terminal_8:toggle()
+    end, {})
+    vim.api.nvim_create_user_command("TerminalFloat", function()
+        terminal_9:toggle()
     end, {})
     vim.keymap.set("n", "<F1>", function()
-        terminal_one:toggle()
+        terminal_1:toggle()
     end, { noremap = true, silent = true, desc = "Terminal One" })
     vim.keymap.set("n", "<F2>", function()
-        terminal_two:toggle()
+        terminal_2:toggle()
     end, { noremap = true, silent = true, desc = "Terminal Two" })
     vim.keymap.set("n", "<F3>", function()
-        terminal_three:toggle()
+        terminal_3:toggle()
     end, { noremap = true, silent = true, desc = "Terminal Three" })
     vim.keymap.set("n", "<F4>", function()
-        terminal_float:toggle()
+        terminal_9:toggle()
     end, { noremap = true, silent = true, desc = "Terminal Float" })
 end
 
@@ -1490,7 +1334,7 @@ config.neozoom_lua = function()
         border = "none",
         scrolloff_on_zoom = 0,
     })
-    vim.keymap.set("n", "<C-space>", require("neo-zoom").neo_zoom, { silent = true, nowait = true, desc = "NeoZoom" })
+    vim.keymap.set("n", "<C-c>z", ":NeoZoomToggle<CR>", { silent = true, nowait = true, desc = "NeoZoom" })
 end
 
 config.stay_in_place = function()
@@ -1546,6 +1390,7 @@ config.indent_blankline_nvim = function()
             "undotree",
             "org",
             "flutterToolsOutline",
+            "qf",
         },
         buftype_exclude = {
             "terminal",

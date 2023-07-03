@@ -2,6 +2,7 @@ local global = require("core.global")
 local funcs = require("core.funcs")
 local options = require("configs.base.options")
 local keymaps = require("configs.base.keymaps")
+local icons = require("configs.base.ui.icons")
 local group = vim.api.nvim_create_augroup("LvimIDE", {
     clear = true,
 })
@@ -16,52 +17,85 @@ configs["base_lvim"] = function()
         group = group,
     })
     local function lvim_theme()
-        local select = require("lvim-ui-config.select")
         local status
-        if _G.LVIM_SETTINGS.colorschemes.theme == "dark" then
-            status = "Dark"
-        elseif _G.LVIM_SETTINGS.colorschemes.theme == "darksoft" then
-            status = "DarkSoft"
-        elseif _G.LVIM_SETTINGS.colorschemes.theme == "light" then
-            status = "Light"
+        if _G.LVIM_SETTINGS.theme == "lvim-dark" then
+            status = "Lvim Dark"
+        elseif _G.LVIM_SETTINGS.theme == "lvim-dark-soft" then
+            status = "Lvim Dark Soft"
+        elseif _G.LVIM_SETTINGS.theme == "lvim-light" then
+            status = "Lvim Light"
+        elseif _G.LVIM_SETTINGS.theme == "lvim-gruvbox-dark" then
+            status = "Lvim Gruvbox Dark"
+        elseif _G.LVIM_SETTINGS.theme == "lvim-gruvbox-dark-soft" then
+            status = "Lvim Gruvbox Dark Soft"
+        elseif _G.LVIM_SETTINGS.theme == "lvim-everforest-dark" then
+            status = "Lvim Everforest Dark"
+        elseif _G.LVIM_SETTINGS.theme == "lvim-everforest-dark-soft" then
+            status = "Lvim Everforest Dark Soft"
+        elseif _G.LVIM_SETTINGS.theme == "lvim-solarized-dark" then
+            status = "Lvim Solarized Dark"
+        elseif _G.LVIM_SETTINGS.theme == "lvim-catppuccin-dark" then
+            status = "Lvim Catppuccin Dark"
+        elseif _G.LVIM_SETTINGS.theme == "lvim-catppuccin-dark-soft" then
+            status = "Lvim Catppuccin Dark Soft"
         end
-        select({
-            "Dark",
-            "DarkSoft",
-            "Light",
+        local ui_config = require("lvim-ui-config.config")
+        local select = require("lvim-ui-config.select")
+        local notify = require("lvim-ui-config.notify")
+        local opts = ui_config.select({
+            "Lvim Dark",
+            "Lvim Dark Soft",
+            "Lvim Light",
+            "Lvim Everforest Dark",
+            "Lvim Everforest Dark Soft",
+            "Lvim Gruvbox Dark",
+            "Lvim Gruvbox Dark Soft",
+            "Lvim Catppuccin Dark",
+            "Lvim Catppuccin Dark Soft",
+            "Lvim Solarized Dark",
             "Cancel",
-        }, { prompt = "Theme (" .. status .. ")" }, function(choice)
+        }, { prompt = "Theme (" .. status .. ")" }, {})
+        select(opts, function(choice)
             if choice == "Cancel" then
             else
                 local user_choice = string.lower(choice)
-                _G.LVIM_SETTINGS.colorschemes.theme = user_choice
+                user_choice = string.gsub(user_choice, " ", "-")
+                _G.LVIM_SETTINGS.theme = user_choice
+                vim.cmd("colorscheme " .. user_choice)
                 funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
-                local ui_config = require("modules.base.configs.ui")
-                ui_config.heirline_nvim()
-                ui_config.nvim_notify()
-                ui_config.nvim_window_picker()
-                ui_config.neo_tree_nvim()
+                local lvim_ui_config = require("modules.base.configs.ui")
+                lvim_ui_config.heirline_nvim()
+                lvim_ui_config.nvim_notify()
+                lvim_ui_config.nvim_window_picker()
+                lvim_ui_config.neo_tree_nvim()
+                lvim_ui_config.lvim_fm()
                 local editor_config = require("modules.base.configs.editor")
                 editor_config.tabby_nvim()
                 editor_config.neocomposer_nvim()
-                vim.cmd("colorscheme lvim-" .. user_choice)
+                local version_control_config = require("modules.base.configs.version_control")
+                version_control_config.lvim_forgit()
+                notify.info("Theme: " .. choice, {
+                    title = "LVIM IDE",
+                })
             end
-        end, "editor")
+        end)
     end
     vim.api.nvim_create_user_command("LvimTheme", lvim_theme, {})
     local function lvim_auto_format()
-        local select = require("lvim-ui-config.select")
         local status
         if _G.LVIM_SETTINGS.autoformat == true then
             status = "Enabled"
         else
             status = "Disabled"
         end
-        select({
+        local ui_config = require("lvim-ui-config.config")
+        local select = require("lvim-ui-config.select")
+        local opts = ui_config.select({
             "Enable",
             "Disable",
             "Cancel",
-        }, { prompt = "AutoFormat (" .. status .. ")" }, function(choice)
+        }, { prompt = "AutoFormat (" .. status .. ")" }, {})
+        select(opts, function(choice)
             if choice == "Enable" then
                 _G.LVIM_SETTINGS.autoformat = true
                 funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
@@ -69,9 +103,60 @@ configs["base_lvim"] = function()
                 _G.LVIM_SETTINGS.autoformat = false
                 funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
             end
-        end, "editor")
+        end)
     end
     vim.api.nvim_create_user_command("LvimAutoFormat", lvim_auto_format, {})
+    local function lvim_inlay_hint()
+        local status
+        if _G.LVIM_SETTINGS.inlayhint == true then
+            status = "Enabled"
+        else
+            status = "Disabled"
+        end
+        local ui_config = require("lvim-ui-config.config")
+        local select = require("lvim-ui-config.select")
+        local opts = ui_config.select({
+            "Enable",
+            "Disable",
+            "Cancel",
+        }, { prompt = "InlayHint (" .. status .. ")" }, {})
+        select(opts, function(choice)
+            if choice == "Enable" then
+                local buffers = vim.api.nvim_list_bufs()
+                for _, bufnr in ipairs(buffers) do
+                    local clients = vim.lsp.buf_get_clients(bufnr)
+                    if #clients > 0 then
+                        for _, client in ipairs(clients) do
+                            if client.server_capabilities.inlayHintProvider then
+                                vim.lsp.inlay_hint(bufnr, true)
+                            end
+                        end
+                    else
+                        print("No LSP client associated with the buffer")
+                    end
+                end
+                _G.LVIM_SETTINGS.inlayhint = true
+                funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
+            elseif choice == "Disable" then
+                local buffers = vim.api.nvim_list_bufs()
+                for _, bufnr in ipairs(buffers) do
+                    local clients = vim.lsp.buf_get_clients(bufnr)
+                    if #clients > 0 then
+                        for _, client in ipairs(clients) do
+                            if client.server_capabilities.inlayHintProvider then
+                                vim.lsp.inlay_hint(bufnr, false)
+                            end
+                        end
+                    else
+                        print("No LSP client associated with the buffer")
+                    end
+                end
+                _G.LVIM_SETTINGS.inlayhint = false
+                funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
+            end
+        end)
+    end
+    vim.api.nvim_create_user_command("LvimInlayHint", lvim_inlay_hint, {})
     vim.api.nvim_create_user_command(
         "EditorConfigCreate",
         "lua require'core.funcs'.copy_file(require'core.global'.lvim_path .. '/.configs/templates/.editorconfig', vim.fn.getcwd() .. '/.editorconfig')",
@@ -208,6 +293,11 @@ end
 configs["base_keymaps"] = function()
     funcs.keymaps("n", { noremap = true, silent = true }, keymaps.normal)
     funcs.keymaps("x", { noremap = true, silent = true }, keymaps.visual)
+    vim.cmd([[inoremap <silent><expr><A-BS>
+    \ (&indentexpr isnot '' ? &indentkeys : &cinkeys) =~? '!\^F' &&
+    \ &backspace =~? '.*eol\&.*start\&.*indent\&' &&
+    \ !search('\S','nbW',line('.')) ? (col('.') != 1 ? "\<C-U>" : "") .
+    \ "\<bs>" . (getline(line('.')-1) =~ '\S' ? "" : "\<C-F>") : "\<bs>"]])
 end
 
 configs["base_ctrlspace_pre_config"] = function()
@@ -221,27 +311,8 @@ configs["base_ctrlspace_pre_config"] = function()
     vim.g.CtrlSpaceGlobCommand = "rg --files --follow --hidden -g '!{.git/*,node_modules/*,target/*,vendor/*}'"
     vim.g.CtrlSpaceIgnoredFiles = "\v(tmp|temp)[\\/]"
     vim.g.CtrlSpaceSearchTiming = 10
-    vim.g.CtrlSpaceSymbols = {
-        CS = "",
-        Sin = "",
-        All = "",
-        Vis = "★",
-        File = "",
-        Tabs = "ﱡ",
-        CTab = "ﱢ",
-        NTM = "⁺",
-        WLoad = "ﰬ",
-        WSave = "ﰵ",
-        Zoom = "",
-        SLeft = "",
-        SRight = "",
-        BM = "",
-        Help = "",
-        IV = "",
-        IA = "",
-        IM = " ",
-        Dots = "ﳁ",
-    }
+    vim.g.CtrlSpaceEnableFilesCache = 1
+    vim.g.CtrlSpaceSymbols = icons.ctrlspace
 end
 
 configs["base_ask_packages"] = function()

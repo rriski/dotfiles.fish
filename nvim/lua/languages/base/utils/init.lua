@@ -2,7 +2,9 @@ local global = require("core.global")
 local funcs = require("core.funcs")
 local lspconfig = require("lspconfig")
 local mason_registry = require("mason-registry")
+local ui_config = require("lvim-ui-config.config")
 local select = require("lvim-ui-config.select")
+local icons = require("configs.base.ui.icons")
 
 local M = {}
 
@@ -23,9 +25,7 @@ local null_ls_builtins = {
     cpplint = diagnostics.cpplint,
     flake8 = diagnostics.flake8,
     golangci_lint = diagnostics.golangci_lint,
-    luacheck = diagnostics.luacheck,
     rubocop = diagnostics.rubocop,
-    shellcheck = diagnostics.shellcheck,
     vint = diagnostics.vint,
     yamllint = diagnostics.yamllint,
     black = formatting.black,
@@ -164,12 +164,13 @@ M.setup_languages = function(packages_data)
         if next(M.packages_to_install) ~= nil then
             if global.lvim_packages == false then
                 vim.defer_fn(function()
-                    select({
+                    local opts = ui_config.select({
                         "Install packages for " .. M.current_language,
                         "Install packages for all languages",
                         "Don't ask me again",
                         "Cancel",
-                    }, { prompt = "LVIM IDE need to install some packages" }, function(choice)
+                    }, { prompt = "LVIM IDE need to install some packages" }, {})
+                    select(opts, function(choice)
                         if choice == "Install packages for " .. M.current_language then
                             vim.defer_fn(function()
                                 for i = 1, #M.packages_to_install do
@@ -187,10 +188,13 @@ M.setup_languages = function(packages_data)
                         elseif choice == "Don't ask me again" then
                             local notify = require("lvim-ui-config.notify")
                             funcs.write_file(global.cache_path .. "/.lvim_packages", "")
-                            notify.error("To enable ask again run command:\n:AskForPackagesFile\nand restart LVIM IDE", {
-                                timeout = 10000,
-                                title = "LVIM IDE",
-                            })
+                            notify.error(
+                                "To enable ask again run command:\n:AskForPackagesFile\nand restart LVIM IDE",
+                                {
+                                    timeout = 10000,
+                                    title = "LVIM IDE",
+                                }
+                            )
                         elseif choice == "Cancel" then
                             local notify = require("lvim-ui-config.notify")
                             notify.error("Need restart LVIM IDE to install packages for this filetype", {
@@ -198,7 +202,7 @@ M.setup_languages = function(packages_data)
                                 title = "LVIM IDE",
                             })
                         end
-                    end, "editor")
+                    end)
                 end, 100)
             end
         end
@@ -267,36 +271,140 @@ M.setup_languages = function(packages_data)
     init(packages_data)
 end
 
+local function get_vt()
+    local vt
+    if _G.LVIM_SETTINGS.virtualdiagnostic then
+        vt = {
+            prefix = icons.common.dot,
+        }
+    else
+        vt = false
+    end
+    return vt
+end
+
 M.config_diagnostic = {
-    virtual_text = false,
+    virtual_text = get_vt(),
     update_in_insert = true,
     underline = true,
     severity_sort = true,
 }
 
-M.icons = {
-    error = " ",
-    warn = " ",
-    hint = " ",
-    info = " ",
-}
-
 M.setup_diagnostic = function()
+    local function lvim_auto_format()
+        local status
+        if _G.LVIM_SETTINGS.autoformat == true then
+            status = "Enabled"
+        else
+            status = "Disabled"
+        end
+        local opts = ui_config.select({
+            "Enable",
+            "Disable",
+            "Cancel",
+        }, { prompt = "AutoFormat (" .. status .. ")" }, {})
+        select(opts, function(choice)
+            if choice == "Enable" then
+                _G.LVIM_SETTINGS.autoformat = true
+                funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
+            elseif choice == "Disable" then
+                _G.LVIM_SETTINGS.autoformat = false
+                funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
+            end
+        end)
+    end
+    vim.api.nvim_create_user_command("LvimAutoFormat", lvim_auto_format, {})
+    local function lvim_inlay_hint()
+        local status
+        if _G.LVIM_SETTINGS.inlayhint == true then
+            status = "Enabled"
+        else
+            status = "Disabled"
+        end
+        local opts = ui_config.select({
+            "Enable",
+            "Disable",
+            "Cancel",
+        }, { prompt = "InlayHint (" .. status .. ")" }, {})
+        select(opts, function(choice)
+            if choice == "Enable" then
+                local buffers = vim.api.nvim_list_bufs()
+                for _, bufnr in ipairs(buffers) do
+                    local clients = vim.lsp.buf_get_clients(bufnr)
+                    if #clients > 0 then
+                        for _, client in ipairs(clients) do
+                            if client.server_capabilities.inlayHintProvider then
+                                vim.lsp.inlay_hint(bufnr, true)
+                            end
+                        end
+                    else
+                        print("No LSP client associated with the buffer")
+                    end
+                end
+                _G.LVIM_SETTINGS.inlayhint = true
+                funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
+            elseif choice == "Disable" then
+                local buffers = vim.api.nvim_list_bufs()
+                for _, bufnr in ipairs(buffers) do
+                    local clients = vim.lsp.buf_get_clients(bufnr)
+                    if #clients > 0 then
+                        for _, client in ipairs(clients) do
+                            if client.server_capabilities.inlayHintProvider then
+                                vim.lsp.inlay_hint(bufnr, false)
+                            end
+                        end
+                    else
+                        print("No LSP client associated with the buffer")
+                    end
+                end
+                _G.LVIM_SETTINGS.inlayhint = false
+                funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
+            end
+        end)
+    end
+    vim.api.nvim_create_user_command("LvimInlayHint", lvim_inlay_hint, {})
     vim.diagnostic.config(M.config_diagnostic)
+    local function lvim_virtual_diagnostic()
+        local status
+        if _G.LVIM_SETTINGS.virtualdiagnostic == true then
+            status = "Enabled"
+        else
+            status = "Disabled"
+        end
+        local opts = ui_config.select({
+            "Enable",
+            "Disable",
+            "Cancel",
+        }, { prompt = "VirtualDiagnostic (" .. status .. ")" }, {})
+        select(opts, function(choice)
+            if choice == "Enable" then
+                _G.LVIM_SETTINGS.virtualdiagnostic = true
+                funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
+            elseif choice == "Disable" then
+                _G.LVIM_SETTINGS.virtualdiagnostic = false
+                funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
+            end
+            local config = vim.diagnostic.config
+            config({
+                virtual_text = get_vt(),
+            })
+        end)
+    end
+    vim.api.nvim_create_user_command("LvimVirtualDiagnostic", lvim_virtual_diagnostic, {})
     vim.fn.sign_define("DiagnosticSignError", {
-        text = M.icons.error,
+        text = icons.diagnostics.error,
         texthl = "DiagnosticError",
     })
     vim.fn.sign_define("DiagnosticSignWarn", {
-        text = M.icons.warn,
+        text = icons.diagnostics.warn,
         texthl = "DiagnosticWarn",
     })
     vim.fn.sign_define("DiagnosticSignHint", {
-        text = M.icons.hint,
+        text = icons.diagnostics.hint,
         texthl = "DiagnosticHint",
     })
     vim.fn.sign_define("DiagnosticSignInfo", {
-        text = M.icons.info,
+        text = icons.diagnostics.info,
         texthl = "DiagnosticInfo",
     })
 end
@@ -342,6 +450,12 @@ M.document_formatting = function(client, bufnr)
     end
 end
 
+M.inlay_hint = function(client, bufnr)
+    if client.server_capabilities.inlayHintProvider and _G.LVIM_SETTINGS.inlayhint == true then
+        vim.lsp.inlay_hint(bufnr, true)
+    end
+end
+
 M.get_capabilities = function()
     local capabilities = vim.lsp.protocol.make_client_capabilities()
     capabilities.textDocument.completion.completionItem.snippetSupport = true
@@ -377,57 +491,88 @@ M.get_cpp_capabilities = function()
     return capabilities
 end
 
-M.keymaps = function(_, bufnr)
+M.keymaps = function(client, bufnr)
     vim.keymap.set("n", "gd", function()
-        vim.lsp.buf.definition()
+        if client.server_capabilities.definitionProvider then
+            vim.lsp.buf.definition()
+        end
     end, { noremap = true, silent = true, buffer = bufnr, desc = "LspDefinition" })
     vim.keymap.set("n", "gD", function()
-        vim.lsp.buf.definition()
+        if client.server_capabilities.declarationProvider then
+            vim.lsp.buf.declaration()
+        end
     end, { noremap = true, silent = true, buffer = bufnr, desc = "LspDeclaration" })
     vim.keymap.set("n", "gt", function()
-        vim.lsp.buf.type_definition()
+        if client.server_capabilities.typeDefinitionProvider then
+            vim.lsp.buf.type_definition()
+        end
     end, { noremap = true, silent = true, buffer = bufnr, desc = "LspTypeDefinition" })
     vim.keymap.set("n", "gr", function()
-        vim.lsp.buf.references()
+        if client.server_capabilities.referencesProvider then
+            vim.lsp.buf.references()
+        end
     end, { noremap = true, silent = true, buffer = bufnr, desc = "LspReferences" })
     vim.keymap.set("n", "gi", function()
-        vim.lsp.buf.implementation()
+        if client.server_capabilities.implementationProvider then
+            vim.lsp.buf.implementation()
+        end
     end, { noremap = true, silent = true, buffer = bufnr, desc = "LspImplementation" })
     vim.keymap.set("n", "ge", function()
-        vim.lsp.buf.rename()
+        if client.server_capabilities.renameProvider then
+            vim.lsp.buf.rename()
+        end
     end, { noremap = true, silent = true, buffer = bufnr, desc = "LspRename" })
     vim.keymap.set("n", "gf", function()
-        vim.lsp.buf.format({ async = true })
+        if client.server_capabilities.formatProvider then
+            vim.lsp.buf.format({ async = true })
+        end
     end, { noremap = true, silent = true, buffer = bufnr, desc = "LspFormat" })
     vim.keymap.set("v", "g;", function()
-        local start_row, _ = unpack(vim.api.nvim_buf_get_mark(0, "<"))
-        local end_row, _ = unpack(vim.api.nvim_buf_get_mark(0, ">"))
-        vim.lsp.buf.format({
-            range = {
-                ["start"] = { start_row, 0 },
-                ["end"] = { end_row, 0 },
-            },
-            async = true,
-        })
+        if client.server_capabilities.formatProvider then
+            local start_row, _ = unpack(vim.api.nvim_buf_get_mark(0, "<"))
+            local end_row, _ = unpack(vim.api.nvim_buf_get_mark(0, ">"))
+            vim.lsp.buf.format({
+                range = {
+                    ["start"] = { start_row, 0 },
+                    ["end"] = { end_row, 0 },
+                },
+                async = true,
+            })
+        end
     end, { noremap = true, silent = true, buffer = bufnr, desc = "LspRangeFormat" })
     vim.keymap.set("n", "ga", function()
-        vim.lsp.buf.code_action()
+        if client.server_capabilities.codeActionProvider then
+            vim.lsp.buf.code_action()
+        end
     end, { noremap = true, silent = true, buffer = bufnr, desc = "LspCodeAction" })
     vim.keymap.set("n", "gs", function()
-        vim.lsp.buf.signature_help()
+        if client.server_capabilities.signatureHelpProvider then
+            vim.lsp.buf.signature_help()
+        end
     end, { noremap = true, silent = true, buffer = bufnr, desc = "LspSignatureHelp" })
     vim.keymap.set("n", "gL", function()
-        vim.lsp.codelens.refresh()
+        if client.server_capabilities.codeLensProvider then
+            vim.lsp.codelens.refresh()
+        end
     end, { noremap = true, silent = true, buffer = bufnr, desc = "LspCodeLensRefresh" })
     vim.keymap.set("n", "gl", function()
-        vim.lsp.codelens.run()
+        if client.server_capabilities.codeLensProvider then
+            vim.lsp.codelens.run()
+        end
     end, { noremap = true, silent = true, buffer = bufnr, desc = "LspCodeLensRun" })
     vim.keymap.set("n", "gh", function()
-        vim.lsp.buf.hover()
+        if client.server_capabilities.hoverProvider then
+            vim.lsp.buf.hover()
+        end
     end, { noremap = true, silent = true, buffer = bufnr, desc = "LspHover" })
     vim.keymap.set("n", "K", function()
-        vim.lsp.buf.hover()
+        if client.server_capabilities.hoverProvider then
+            vim.lsp.buf.hover()
+        end
     end, { noremap = true, silent = true, buffer = bufnr, desc = "LspHover" })
+    vim.keymap.set("n", "gt", function()
+        vim.cmd("LspVirtualTextToggle")
+    end, { noremap = true, silent = true, buffer = bufnr, desc = "LspVirtualTextToggle" })
 end
 
 M.dap_local = function()
@@ -468,4 +613,5 @@ M.dap_local = function()
     end)()
     vim.cmd(":luafile " .. project_config)
 end
+
 return M

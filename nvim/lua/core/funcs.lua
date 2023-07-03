@@ -1,4 +1,5 @@
 local global = require("core.global")
+local icons = require("configs.base.ui.icons")
 
 local M = {}
 
@@ -92,6 +93,7 @@ M.sudo_write = function(tmpfile, filepath)
         return
     end
     local cmd = string.format("dd if=%s of=%s bs=1048576", vim.fn.shellescape(tmpfile), vim.fn.shellescape(filepath))
+    ---@diagnostic disable-next-line: undefined-field
     vim.api.nvim_exec(string.format("write! %s", tmpfile), true)
     if M.sudo_exec(cmd) then
         notify.info(string.format('"%s" written!', filepath), {
@@ -298,7 +300,6 @@ M.close_float_windows = function()
 end
 
 M.quit = function()
-    local select = require("lvim-ui-config.select")
     local status = true
     for _, v in ipairs(vim.api.nvim_list_bufs()) do
         if vim.bo[v].modified then
@@ -306,21 +307,48 @@ M.quit = function()
         end
     end
     if not status then
-        select({
+        local ui_config = require("lvim-ui-config.config")
+        local select = require("lvim-ui-config.select")
+        local opts = ui_config.select({
             "Save all and Quit",
             "Don't save and Quit",
             "Cancel",
-        }, { prompt = "  Unsaved files" }, function(choice)
+        }, { prompt = icons.common.warning .. " Unsaved files" }, {})
+        select(opts, function(choice)
             if choice == "Save all and Quit" then
                 vim.cmd("wa")
                 vim.cmd("qa")
             elseif choice == "Don't save and Quit" then
                 vim.cmd("qa!")
             end
-        end, "editor")
+        end)
     else
         vim.cmd("qa")
     end
+end
+
+M.hexToRgb = function(c)
+    c = string.lower(c)
+    return { tonumber(c:sub(2, 3), 16), tonumber(c:sub(4, 5), 16), tonumber(c:sub(6, 7), 16) }
+end
+
+M.blend = function(foreground, background, alpha)
+    alpha = type(alpha) == "string" and (tonumber(alpha, 16) / 0xff) or alpha
+    local bg = M.hexToRgb(background)
+    local fg = M.hexToRgb(foreground)
+    local blendChannel = function(i)
+        local ret = (alpha * fg[i] + ((1 - alpha) * bg[i]))
+        return math.floor(math.min(math.max(0, ret), 255) + 0.5)
+    end
+    return string.format("#%02x%02x%02x", blendChannel(1), blendChannel(2), blendChannel(3))
+end
+
+M.darken = function(hex, amount, bg)
+    return M.blend(hex, bg or M.bg, amount)
+end
+
+M.lighten = function(hex, amount, fg)
+    return M.blend(hex, fg or M.fg, amount)
 end
 
 return M
