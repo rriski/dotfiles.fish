@@ -7,9 +7,6 @@ tap 'homebrew/cask-versions'
 # CLI
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# core
-brew 'coreutils'
-
 # window manager
 brew 'yabai'
 
@@ -42,9 +39,6 @@ brew 'exa'
 
 # better cat
 brew 'bat'
-
-# sed
-brew 'gnu-sed'
 
 # ag
 brew 'the_silver_searcher'
@@ -101,7 +95,6 @@ brew 'grc'
 brew 'zoxide'
 brew 'gnupg'
 brew 'htop'
-brew 'wget'
 brew 'ykman'
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

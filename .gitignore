@@ -1,3 +1,4 @@
 *~
 dist
 nvim/lazy-lock.json
+Brewfile.*.json
