@@ -48,9 +48,6 @@
 	defaultBranch = main
 	templateDir = ~/.git-templates
 
-[credential]
-	helper = osxkeychain
-
 [merge]
 	conflictstyle = diff3
 	tool = vscode
