@@ -1,6 +1,0 @@
-{
-    "theme": "lvim-dark",
-    "autoformat": true,
-    "inlayhint": true,
-    "virtualdiagnostic": false
-}
