@@ -1,3 +1,4 @@
+local funcs = require("core.funcs")
 local icons = require("configs.base.ui.icons")
 
 local config = {}
@@ -250,7 +251,6 @@ config.nvim_hlslens = function()
             else
                 indicator = icons.common.dot
             end
-
             local lnum, col = unpack(posList[idx])
             if nearest then
                 local cnt = #posList
@@ -626,34 +626,6 @@ config.nvim_treesitter_context = function()
     })
 end
 
-config.nvim_treesitter_textobjects = function()
-    local treesitter_configs_status_ok, treesitter_configs = pcall(require, "nvim-treesitter.configs")
-    if not treesitter_configs_status_ok then
-        return
-    end
-    treesitter_configs.setup({
-        textobjects = {
-            select = {
-                enable = true,
-                lookahead = true,
-                keymaps = {
-                    ["af"] = "@function.outer",
-                    ["if"] = "@function.inner",
-                    ["ac"] = "@class.outer",
-                    ["ic"] = "@class.inner",
-                    ["an"] = "@number.inner",
-                },
-                selection_modes = {
-                    ["@parameter.outer"] = "v",
-                    ["@function.outer"] = "V",
-                    ["@class.outer"] = "<c-v>",
-                },
-                include_surrounding_whitespace = false,
-            },
-        },
-    })
-end
-
 config.nvim_various_textobjs = function()
     local nvim_various_textobjs_status_ok, nvim_various_textobjs = pcall(require, "various-textobjs")
     if not nvim_various_textobjs_status_ok then
@@ -782,6 +754,8 @@ config.ccc_nvim = function()
     if not ccc_status_ok then
         return
     end
+    local ft_exclude = require("modules.base.configs.ui.heirline.file_types")
+    local bt_exclude = require("modules.base.configs.ui.heirline.buf_types")
     ccc.setup({
         alpha_show = "show",
     })
@@ -789,7 +763,17 @@ config.ccc_nvim = function()
         vim.cmd("CccPick")
     end, { noremap = true, silent = true, desc = "ColorPicker" })
     vim.api.nvim_create_autocmd("Filetype", {
-        command = "CccHighlighterEnable",
+        callback = function()
+            if
+                not funcs.buffer_matches({
+                    buftype = bt_exclude,
+                    filetype = ft_exclude,
+                })
+            then
+                vim.cmd("CccHighlighterEnable")
+            end
+        end,
+        -- command = "CccHighlighterEnable",
     })
 end
 

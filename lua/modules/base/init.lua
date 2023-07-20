@@ -238,9 +238,18 @@ modules["sindrets/winshift.nvim"] = {
     config = ui_config.winshift_nvim,
 }
 
-modules["stevearc/oil.nvim"] = {
-    commit = funcs.get_commit("oil.nvim", plugins_snapshot),
-    config = ui_config.oil_nvim,
+modules["echasnovski/mini.files"] = {
+    commit = funcs.get_commit("mini.files", plugins_snapshot),
+    keys = {
+        {
+            "<Leader>i",
+            function()
+                require("mini.files").open()
+            end,
+            desc = "Mini files",
+        },
+    },
+    config = ui_config.mini_files,
 }
 
 modules["prichrd/netrw.nvim"] = {
@@ -249,6 +258,7 @@ modules["prichrd/netrw.nvim"] = {
 }
 
 modules["nvim-neo-tree/neo-tree.nvim"] = {
+    branch = "v3.x",
     commit = funcs.get_commit("neo-tree.nvim", plugins_snapshot),
     cmd = "Neotree",
     keys = {
@@ -436,9 +446,6 @@ modules["winston0410/rg.nvim"] = {
 modules["ecthelionvi/NeoComposer.nvim"] = {
     commit = funcs.get_commit("NeoComposer.nvim", plugins_snapshot),
     dependencies = { "kkharji/sqlite.lua" },
-    event = {
-        "BufRead",
-    },
     config = editor_config.neocomposer_nvim,
 }
 
@@ -525,17 +532,6 @@ modules["nvim-treesitter/nvim-treesitter-context"] = {
         "nvim-treesitter/nvim-treesitter",
     },
     config = editor_config.nvim_treesitter_context,
-}
-
-modules["nvim-treesitter/nvim-treesitter-textobjects"] = {
-    commit = funcs.get_commit("nvim-treesitter-textobjects", plugins_snapshot),
-    event = {
-        "BufRead",
-    },
-    dependencies = {
-        "nvim-treesitter/nvim-treesitter",
-    },
-    config = editor_config.nvim_treesitter_textobjects,
 }
 
 modules["chrisgrieser/nvim-various-textobjs"] = {
@@ -733,19 +729,20 @@ local languages_config = require("modules.base.configs.languages")
 
 modules["folke/neoconf.nvim"] = {
     commit = funcs.get_commit("neoconf.nvim", plugins_snapshot),
-}
-
-modules["williamboman/mason.nvim"] = {
-    commit = funcs.get_commit("mason.nvim", plugins_snapshot),
     dependencies = {
         "neovim/nvim-lspconfig",
     },
-    config = languages_config.mason_nvim,
+    config = languages_config.neoconf_nvim,
 }
 
-modules["jose-elias-alvarez/null-ls.nvim"] = {
-    commit = funcs.get_commit("null-ls.nvim", plugins_snapshot),
-    config = languages_config.null_ls_nvim,
+modules["williamboman/mason.nvim"] = {
+    build = ":MasonUpdate",
+    commit = funcs.get_commit("mason.nvim", plugins_snapshot),
+    dependencies = {
+        "neovim/nvim-lspconfig",
+        "folke/neoconf.nvim",
+    },
+    config = languages_config.mason_nvim,
 }
 
 modules["nvim-neotest/neotest"] = {
@@ -824,15 +821,6 @@ modules["akinsho/flutter-tools.nvim"] = {
         "nvim-lua/plenary.nvim",
     },
     config = languages_config.flutter_tools_nvim,
-}
-
-modules["jose-elias-alvarez/typescript.nvim"] = {
-    commit = funcs.get_commit("nvim-lsp-ts-utils", plugins_snapshot),
-    ft = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
-    dependencies = {
-        "neovim/nvim-lspconfig",
-        "nvim-lua/plenary.nvim",
-    },
 }
 
 modules["kosayoda/nvim-lightbulb"] = {

@@ -74,89 +74,11 @@ configs["base_lvim"] = function()
                 editor_config.neocomposer_nvim()
                 local version_control_config = require("modules.base.configs.version_control")
                 version_control_config.lvim_forgit()
-                notify.info("Theme: " .. choice, {
-                    title = "LVIM IDE",
-                })
+                notify.info("Theme: " .. choice, { title = "LVIM IDE" })
             end
         end)
     end
     vim.api.nvim_create_user_command("LvimTheme", lvim_theme, {})
-    local function lvim_auto_format()
-        local status
-        if _G.LVIM_SETTINGS.autoformat == true then
-            status = "Enabled"
-        else
-            status = "Disabled"
-        end
-        local ui_config = require("lvim-ui-config.config")
-        local select = require("lvim-ui-config.select")
-        local opts = ui_config.select({
-            "Enable",
-            "Disable",
-            "Cancel",
-        }, { prompt = "AutoFormat (" .. status .. ")" }, {})
-        select(opts, function(choice)
-            if choice == "Enable" then
-                _G.LVIM_SETTINGS.autoformat = true
-                funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
-            elseif choice == "Disable" then
-                _G.LVIM_SETTINGS.autoformat = false
-                funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
-            end
-        end)
-    end
-    vim.api.nvim_create_user_command("LvimAutoFormat", lvim_auto_format, {})
-    local function lvim_inlay_hint()
-        local status
-        if _G.LVIM_SETTINGS.inlayhint == true then
-            status = "Enabled"
-        else
-            status = "Disabled"
-        end
-        local ui_config = require("lvim-ui-config.config")
-        local select = require("lvim-ui-config.select")
-        local opts = ui_config.select({
-            "Enable",
-            "Disable",
-            "Cancel",
-        }, { prompt = "InlayHint (" .. status .. ")" }, {})
-        select(opts, function(choice)
-            if choice == "Enable" then
-                local buffers = vim.api.nvim_list_bufs()
-                for _, bufnr in ipairs(buffers) do
-                    local clients = vim.lsp.buf_get_clients(bufnr)
-                    if #clients > 0 then
-                        for _, client in ipairs(clients) do
-                            if client.server_capabilities.inlayHintProvider then
-                                vim.lsp.inlay_hint(bufnr, true)
-                            end
-                        end
-                    else
-                        print("No LSP client associated with the buffer")
-                    end
-                end
-                _G.LVIM_SETTINGS.inlayhint = true
-                funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
-            elseif choice == "Disable" then
-                local buffers = vim.api.nvim_list_bufs()
-                for _, bufnr in ipairs(buffers) do
-                    local clients = vim.lsp.buf_get_clients(bufnr)
-                    if #clients > 0 then
-                        for _, client in ipairs(clients) do
-                            if client.server_capabilities.inlayHintProvider then
-                                vim.lsp.inlay_hint(bufnr, false)
-                            end
-                        end
-                    else
-                        print("No LSP client associated with the buffer")
-                    end
-                end
-                _G.LVIM_SETTINGS.inlayhint = false
-                funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
-            end
-        end)
-    end
-    vim.api.nvim_create_user_command("LvimInlayHint", lvim_inlay_hint, {})
     vim.api.nvim_create_user_command(
         "EditorConfigCreate",
         "lua require'core.funcs'.copy_file(require'core.global'.lvim_path .. '/.configs/templates/.editorconfig', vim.fn.getcwd() .. '/.editorconfig')",
@@ -182,9 +104,7 @@ configs["base_options"] = function()
     vim.g.netrw_list_hide = "(^|ss)\zs.S+"
     vim.g.netrw_localcopydircmd = "cp -r"
     vim.api.nvim_create_autocmd("FileType", {
-        pattern = {
-            "netrw",
-        },
+        pattern = { "netrw" },
         callback = function()
             vim.opt_local.statuscolumn = ""
             vim.api.nvim_set_keymap("n", "<Esc>", "<Cmd>:bd<CR>", {})
@@ -223,12 +143,22 @@ configs["base_events"] = function()
             "objcpp",
             "ruby",
         },
-        command = "setlocal ts=2 sw=2",
+        callback = function()
+            vim.schedule(function()
+                vim.opt_local.tabstop = 2
+                vim.opt_local.shiftwidth = 2
+            end)
+        end,
         group = group,
     })
     vim.api.nvim_create_autocmd({ "BufWinEnter", "BufWinLeave" }, {
         callback = function()
-            local buftype = vim.tbl_contains({ "prompt", "nofile", "help", "quickfix" }, vim.bo.buftype)
+            local buftype = vim.tbl_contains({
+                "prompt",
+                "nofile",
+                "help",
+                "quickfix",
+            }, vim.bo.buftype)
             local filetype = vim.tbl_contains({
                 "NeogitStatus",
                 "Outline",
@@ -244,22 +174,24 @@ configs["base_events"] = function()
                 "toggleterm",
             }, vim.bo.filetype)
             if buftype or filetype then
-                vim.opt_local.number = false
-                vim.opt_local.relativenumber = false
-                vim.opt_local.cursorcolumn = false
-                vim.opt_local.colorcolumn = "0"
+                vim.schedule(function()
+                    vim.opt_local.number = false
+                    vim.opt_local.relativenumber = false
+                    vim.opt_local.cursorcolumn = false
+                    vim.opt_local.colorcolumn = "0"
+                end)
             end
         end,
         group = group,
     })
     vim.api.nvim_create_autocmd({ "BufWinEnter", "BufWinLeave" }, {
         callback = function()
-            local filetype = vim.tbl_contains({
-                "tex",
-            }, vim.bo.filetype)
+            local filetype = vim.tbl_contains({ "tex" }, vim.bo.filetype)
             if filetype then
-                vim.opt_local.cursorcolumn = false
-                vim.opt_local.colorcolumn = "0"
+                vim.schedule(function()
+                    vim.opt_local.cursorcolumn = false
+                    vim.opt_local.colorcolumn = "0"
+                end)
             end
         end,
         group = group,
@@ -267,9 +199,9 @@ configs["base_events"] = function()
 end
 
 configs["base_languages"] = function()
-    vim.api.nvim_create_autocmd("BufWinEnter", {
+    vim.api.nvim_create_autocmd({ "BufWinEnter" }, {
         callback = function()
-            require("languages.base").setup()
+            require("languages").setup()
         end,
         group = group,
     })
@@ -293,11 +225,6 @@ end
 configs["base_keymaps"] = function()
     funcs.keymaps("n", { noremap = true, silent = true }, keymaps.normal)
     funcs.keymaps("x", { noremap = true, silent = true }, keymaps.visual)
-    vim.cmd([[inoremap <silent><expr><A-BS>
-    \ (&indentexpr isnot '' ? &indentkeys : &cinkeys) =~? '!\^F' &&
-    \ &backspace =~? '.*eol\&.*start\&.*indent\&' &&
-    \ !search('\S','nbW',line('.')) ? (col('.') != 1 ? "\<C-U>" : "") .
-    \ "\<bs>" . (getline(line('.')-1) =~ '\S' ? "" : "\<C-F>") : "\<bs>"]])
 end
 
 configs["base_ctrlspace_pre_config"] = function()
