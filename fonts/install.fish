@@ -1,18 +1,23 @@
 #!/usr/bin/env fish
-if test -e ~/.local/share/fonts/Inconsolata[wdth,wght].ttf ||
-	test -e ~/Library/Fonts/Inconsolata[wdth,wght].ttf
+
+if count ~/.local/share/fonts/Iosevka*.ttf > /dev/null ||
+	count ~/Library/Fonts/Iosevka*.ttf > /dev/null
 	exit 0
 end
 
 function install
-	curl -Lso $argv[1]/Inconsolata[wdth,wght].ttf https://github.com/google/fonts/raw/master/ofl/inconsolata/Inconsolata%5Bwdth%2Cwght%5D.ttf
+    for font in Iosevka FiraCode
+        curl -Lso /tmp/$font.tar.xz https://github.com/ryanoasis/nerd-fonts/releases/latest/download/$font.tar.xz
+
+        tar -xvf /tmp/$font.tar.xz -C $argv[1]
+        rm /tmp/$font.tar.xz
+    end
 end
 
 switch (uname)
 case Darwin
 	if command -qs brew
-		brew tap -q homebrew/cask-fonts
-			and brew install --cask font-inconsolata font-inconsolata-nerd-font
+		brew bundle --file=$DOTFILES/fonts/Brewfile.fonts || true
 	else
 		install ~/Library/Fonts
 	end

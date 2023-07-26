@@ -1,6 +1,5 @@
 # tap
 tap 'koekeishiya/formulae'
-tap 'homebrew/cask-fonts'
 tap 'homebrew/cask-versions'
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -98,15 +97,6 @@ brew 'zoxide'
 brew 'gnupg'
 brew 'htop'
 brew 'ykman'
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Fonts
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-cask 'font-jetbrains-mono-nerd-font'
-cask 'font-meslo-lg-nerd-font'
-cask 'font-fira-code-nerd-font'
-cask 'font-fontawesome' # spacbar icons
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Applications
