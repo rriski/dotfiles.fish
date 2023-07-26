@@ -67,9 +67,6 @@ brew 'postgresql@14'
 # redis
 brew 'redis'
 
-# ansible
-brew 'ansible'
-
 # terraform
 brew 'tflint'
 brew 'tfsec'
@@ -97,6 +94,7 @@ brew 'zoxide'
 brew 'gnupg'
 brew 'htop'
 brew 'ykman'
+brew' pass'
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Applications
