@@ -75,6 +75,7 @@ brew 'tfsec'
 brew 'restic'
 
 # misc
+brew 'ast-grep'
 brew 'asciinema'
 brew 'openssl'
 brew 'howdoi'
