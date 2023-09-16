@@ -3,13 +3,14 @@
 # See https://github.com/koekeishiya/yabai/wiki/Installing-yabai-(from-HEAD)
 # to understand why the following two lines are needed on Big Sur.
 
-sudo yabai --load-sa
 yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
+sudo yabai --load-sa
 
 yabai -m config \
   mouse_follows_focus on \
   focus_follows_mouse off \
   window_animation_duration 0.0 \
+  window_animation_frame_rate 120 \
   window_opacity_duration 0.5 \
   window_border_blur off \
   window_border_hidpi on \
