@@ -11,6 +11,7 @@
 #
 if ! test -f ~/.asdf/asdf.fish
 	git clone https://github.com/asdf-vm/asdf.git ~/.asdf
+    source ~/.asdf/asdf.fish
 end
 
 for plugin in nodejs lua golang terraform python rust java
