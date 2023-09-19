@@ -8,7 +8,11 @@ set -Ux TERM xterm-kitty
 set -Ux DOTFILES $HOME/.dotfiles.fish
 set -Ux PROJECTS $HOME/code
 
-fish_add_path -pm $DOTFILES/bin $HOME/.bin $HOME/.local/bin (brew --prefix)/bin
+fish_add_path -pm $DOTFILES/bin $HOME/.bin $HOME/.local/bin
+
+if test (uname) = Darwin
+	fish_add_path -pm (brew --prefix)/bin
+end
 
 for f in $DOTFILES/*/functions
 	set -Up fish_function_path $f
