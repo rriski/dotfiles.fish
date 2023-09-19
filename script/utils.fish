@@ -70,9 +70,17 @@ function link_file -d "links a file keeping a backup"
 end
 
 function install_dotfiles
-	for src in $DOTFILES_ROOT/*/*.symlink
-		link_file $src $HOME/.(basename $src .symlink) backup
-			or abort 'failed to link config file'
+    set --local targetfile
+    for src in $DOTFILES_ROOT/*/*.symlink*
+        if test (path extension $src) = .macos
+            if test (uname) = Darwin
+                set targetfile $HOME/.(basename $src .symlink.macos)
+            end
+        else
+            set targetfile $HOME/.(basename $src .symlink)
+        end
+        link_file $src $targetfile backup
+            or abort 'failed to link config file'
 	end
 	link_file $DOTFILES_ROOT/fisher/plugins $__fish_config_dir/fish_plugins backup
 		or abort plugins
