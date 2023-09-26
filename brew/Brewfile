@@ -102,7 +102,7 @@ brew 'zoxide'
 brew 'gnupg'
 brew 'htop'
 brew 'ykman'
-brew' pass'
+brew 'pass'
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Applications
