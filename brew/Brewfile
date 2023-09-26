@@ -74,6 +74,13 @@ brew 'tfsec'
 # backup
 brew 'restic'
 
+# rust based cli tools
+brew 'dust' # du replacement
+brew 'dua-cli'
+brew 'dog'
+brew 'just'
+brew 'procs' # ps replacement
+
 # misc
 brew 'ast-grep'
 brew 'asciinema'
