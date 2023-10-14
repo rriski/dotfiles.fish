@@ -84,6 +84,11 @@ end
 
 M.keymaps = function(mode, opts, keymaps)
     for _, keymap in ipairs(keymaps) do
+        if keymap[3] ~= nil then
+            opts.desc = keymap[3]
+        else
+            opts.desc = nil
+        end
         vim.keymap.set(mode, keymap[1], keymap[2], opts)
     end
 end
@@ -427,7 +432,7 @@ local buf_matchers = {
     end,
 }
 
-function M.buffer_matches(patterns, bufnr)
+M.buffer_matches = function(patterns, bufnr)
     bufnr = bufnr or 0
     for kind, pattern_list in pairs(patterns) do
         if pattern_list_matches(buf_matchers[kind](bufnr), pattern_list) then
@@ -435,6 +440,77 @@ function M.buffer_matches(patterns, bufnr)
         end
     end
     return false
+end
+
+M.tm_autocmd = function(action)
+    if action == "start" then
+        local buftypes = {
+            "prompt",
+            "help",
+            "quickfix",
+            "nofile",
+        }
+        local filetypes = {
+            "neo-tree",
+            "spectre_panel",
+            "Outline",
+            "Trouble",
+            "NeogitStatus",
+            "NeogitPopup",
+            "calendar",
+            "dapui_breakpoints",
+            "dapui_scopes",
+            "dapui_stacks",
+            "dapui_watches",
+            "git",
+            "netrw",
+            "octo",
+            "undotree",
+            "diff",
+            "DiffviewFiles",
+            "flutterToolsOutline",
+            "log",
+            "toggleterm",
+            "netrw",
+            "noice",
+            "lazy",
+            "mason",
+            "LvimHelper",
+        }
+        local buftype = vim.tbl_contains(buftypes, vim.bo.buftype)
+        local filetype = vim.tbl_contains(filetypes, vim.bo.filetype)
+        if buftype or filetype then
+            vim.opt.timeoutlen = 1000
+        else
+            vim.opt.timeoutlen = 0
+        end
+        vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter" }, {
+            callback = function()
+                vim.schedule(function()
+                    buftype = vim.tbl_contains(buftypes, vim.bo.buftype)
+                    filetype = vim.tbl_contains(filetypes, vim.bo.filetype)
+                    if buftype or filetype then
+                        vim.opt.timeoutlen = 1000
+                    else
+                        vim.opt.timeoutlen = 0
+                    end
+                end)
+            end,
+            group = global.tm_augroup,
+        })
+    elseif action == "stop" then
+        local autocommands = vim.api.nvim_get_autocmds({
+            group = global.tm_augroup,
+        })
+
+        if next(autocommands) == nil then
+        else
+            vim.schedule(function()
+                vim.api.nvim_del_autocmd(autocommands[1]["id"])
+                vim.opt.timeoutlen = 1000
+            end)
+        end
+    end
 end
 
 return M

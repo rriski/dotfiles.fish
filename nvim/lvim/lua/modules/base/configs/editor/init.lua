@@ -24,19 +24,11 @@ config.telescope_nvim = function()
             initial_mode = "insert",
             selection_strategy = "reset",
             sorting_strategy = "ascending",
-            layout_strategy = "horizontal",
+            layout_strategy = "bottom_pane",
             layout_config = {
-                horizontal = {
-                    prompt_position = "top",
-                    preview_width = 0.5,
-                    results_width = 0.5,
-                },
-                vertical = {
-                    mirror = false,
-                },
-                width = 0.95,
-                height = 0.95,
-                preview_cutoff = 120,
+                height = function()
+                    return math.ceil((vim.api.nvim_get_option("lines") + 5) * _G.LVIM_SETTINGS.floatheight)
+                end,
             },
             vimgrep_arguments = {
                 "rg",
@@ -55,7 +47,7 @@ config.telescope_nvim = function()
                 "target",
                 "vendor",
             },
-            generic_sorter = require("telescope.sorters").get_generic_fuzzy_sorter,
+            -- generic_sorter = require("telescope.sorters").get_generic_fuzzy_sorter,
             path_display = { shorten = 5 },
             winblend = 0,
             border = {},
@@ -93,9 +85,6 @@ config.telescope_nvim = function()
     telescope.load_extension("fzf")
     telescope.load_extension("file_browser")
     telescope.load_extension("tmux")
-    vim.keymap.set("n", "<C-c>t", function()
-        vim.cmd("Telescope tmux sessions")
-    end, { noremap = true, silent = true, desc = "Telescope tmux sessions" })
     vim.api.nvim_create_autocmd("User", {
         pattern = "TelescopePreviewerLoaded",
         callback = function()
@@ -125,20 +114,26 @@ config.fzf_lua = function()
             ["header"] = { "fg", "FzfLuaPrompt" },
             ["gutter"] = { "bg", "FzfLuaNormal" },
         },
-        winopts = {
-            title = "FZF LUA",
-            title_pos = "center",
-            height = 0.5,
-            width = 1,
-            row = 1,
-            col = 0,
-            border = { " ", " ", " ", " ", " ", " ", " ", " " },
-            preview = {
-                vertical = "down:45%",
-                horizontal = "right:50%",
-                border = "noborder",
-            },
-        },
+        winopts_fn = function()
+            local win_height = math.ceil(vim.api.nvim_get_option("lines") * _G.LVIM_SETTINGS.floatheight)
+            local win_width = math.ceil(vim.api.nvim_get_option("columns") * 1)
+            local col = math.ceil((vim.api.nvim_get_option("columns") - win_width) * 1)
+            local row = math.ceil((vim.api.nvim_get_option("lines") - win_height) * 1 - 3)
+            return {
+                title = "FZF LUA",
+                title_pos = "center",
+                width = win_width,
+                height = win_height,
+                row = row,
+                col = col,
+                border = { " ", " ", " ", " ", " ", " ", " ", " " },
+                preview = {
+                    vertical = "down:45%",
+                    horizontal = "right:50%",
+                    border = "noborder",
+                },
+            }
+        end,
     })
 end
 
@@ -187,15 +182,17 @@ config.lvim_linguistics = function()
     end, { noremap = true, silent = true, desc = "LvimLinguisticsTOGGLESpelling" })
 end
 
-config.rg_nvim = function()
-    local rg_status_ok, rg = pcall(require, "rg")
-    if not rg_status_ok then
+config.rgflow_nvim = function()
+    local rgflow_status_ok, rgflow = pcall(require, "rgflow")
+    if not rgflow_status_ok then
         return
     end
-    rg.setup({
-        default_keybindings = {
-            enable = false,
-        },
+    rgflow.setup({
+        cmd_flags = "--smart-case --fixed-strings --ignore --max-columns 200",
+        default_trigger_mappings = false,
+        default_ui_mappings = true,
+        default_quickfix_mappings = true,
+        ui_top_line_char = "",
     })
 end
 
@@ -207,19 +204,85 @@ config.neocomposer_nvim = function()
     neocomposer.setup({
         notify = false,
         colors = {
-            bg = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].bg,
-            fg = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].teal_01,
-            red = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].red_02,
-            blue = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].blue_02,
-            green = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].green_02,
+            bg = _G.LVIM_COLORS["colors"][_G.LVIM_SETTINGS.theme].bg,
+            fg = _G.LVIM_COLORS["colors"][_G.LVIM_SETTINGS.theme].teal_01,
+            red = _G.LVIM_COLORS["colors"][_G.LVIM_SETTINGS.theme].red_02,
+            blue = _G.LVIM_COLORS["colors"][_G.LVIM_SETTINGS.theme].blue_02,
+            green = _G.LVIM_COLORS["colors"][_G.LVIM_SETTINGS.theme].green_02,
         },
         keymaps = {
-            play_macro = "<Leader>q",
-            toggle_record = "Q",
-            cycle_next = "<M-n>",
-            cycle_prev = "<M-p>",
+            toggle_record = "<Leader>qr",
+            play_macro = "<Leader>qq",
+            yank_macro = "<Leader>qy",
+            stop_macro = "<Leader>qs",
+            cycle_next = "<Leader>qn",
+            cycle_prev = "<Leader>qp",
+            toggle_macro_menu = "<Leader>qm",
         },
     })
+    local state = require("NeoComposer.state")
+    vim.keymap.set("n", "<Leader>qr", function()
+        require("NeoComposer.macro").toggle_record()
+        if state.recording == true and _G.LVIM_SETTINGS.keyshelper == true then
+            funcs.tm_autocmd("stop")
+        else
+            funcs.tm_autocmd("start")
+        end
+    end, { noremap = true, silent = true, desc = "Macro Record Start/Stop" })
+    vim.keymap.set(
+        { "n", "x" },
+        "<Leader>qq",
+        "<cmd>lua require('NeoComposer.macro').toggle_play_macro()<cr>",
+        { noremap = true, silent = true, desc = "Macro Play" }
+    )
+    vim.keymap.set(
+        "n",
+        "<Leader>qy",
+        "<cmd>lua require('NeoComposer.macro').yank_macro()<cr>",
+        { noremap = true, silent = true, desc = "Macro yank" }
+    )
+    vim.keymap.set(
+        "n",
+        "<Leader>qs",
+        "<cmd>lua require('NeoComposer.macro').halt_macro()<cr>",
+        { noremap = true, silent = true, desc = "Macro stop" }
+    )
+    vim.keymap.set(
+        "n",
+        "<Leader>qn",
+        "<cmd>lua require('NeoComposer.ui').cycle_next()<cr>",
+        { noremap = true, silent = true, desc = "Macro next" }
+    )
+    vim.keymap.set(
+        "n",
+        "<Leader>qp",
+        "<cmd>lua require('NeoComposer.ui').cycle_prev()<cr>",
+        { noremap = true, silent = true, desc = "Macro prev" }
+    )
+    vim.keymap.set(
+        "n",
+        "<Leader>qm",
+        "<cmd>lua require('NeoComposer.ui').toggle_macro_menu()<cr>",
+        { noremap = true, silent = true, desc = "Macro menu" }
+    )
+    vim.keymap.set(
+        "n",
+        "<Leader>qe",
+        "<cmd>lua require('NeoComposer.ui').edit_macros()<cr>",
+        { noremap = true, silent = true, desc = "Macro edit" }
+    )
+    vim.keymap.set(
+        "n",
+        "<Leader>qt",
+        "<cmd>lua require('NeoComposer.macro').toggle_delay()<cr>",
+        { noremap = true, silent = true, desc = "Macro delay toggle" }
+    )
+    vim.keymap.set(
+        "n",
+        "<Leader>qd",
+        "<cmd>lua require('NeoComposer.store').clear_macros()<cr>",
+        { noremap = true, silent = true, desc = "Macro delete all" }
+    )
 end
 
 config.nvim_peekup = function()
@@ -233,6 +296,7 @@ config.nvim_peekup = function()
         group = "LvimIDE",
     })
 end
+
 config.nvim_hlslens = function()
     local hlslens_status_ok, hlslens = pcall(require, "hlslens")
     if not hlslens_status_ok then
@@ -324,42 +388,56 @@ config.lvim_qf_loc = function()
     vim.keymap.set("n", "<C-c><C-h>", function()
         vim.cmd("LvimDiagnostics")
     end, { noremap = true, silent = true, desc = "LspDiagnostic QF" })
-    vim.keymap.set("n", "]m", function()
+
+    vim.keymap.set("n", "]]", function()
+        vim.cmd("LvimListQuickFixNext")
+    end, { noremap = true, silent = true, desc = "QfNext" })
+    vim.keymap.set("n", "][", function()
+        vim.cmd("LvimListQuickFixPrev")
+    end, { noremap = true, silent = true, desc = "QfPrev" })
+    vim.keymap.set("n", "]o", function()
+        vim.cmd("copen")
+    end, { noremap = true, silent = true, desc = "QfOpen" })
+    vim.keymap.set("n", "]q", function()
+        vim.cmd("cclose")
+    end, { noremap = true, silent = true, desc = "QfClose" })
+    vim.keymap.set("n", "]c", function()
         vim.cmd("LvimListQuickFixMenuChoice")
     end, { noremap = true, silent = true, desc = "QfMenuChoice" })
     vim.keymap.set("n", "]d", function()
         vim.cmd("LvimListQuickFixMenuDelete")
     end, { noremap = true, silent = true, desc = "QfMenuDelete" })
-    vim.keymap.set("n", "][", function()
-        vim.cmd("copen")
-    end, { noremap = true, silent = true, desc = "QfOpen" })
+    vim.keymap.set("n", "]l", function()
+        vim.cmd("LvimListQuickFixMenuLoad")
+    end, { noremap = true, silent = true, desc = "QfMenuLoad" })
+    vim.keymap.set("n", "]s", function()
+        vim.cmd("LvimListQuickFixMenuSave")
+    end, { noremap = true, silent = true, desc = "QfMenuSave" })
+
     vim.keymap.set("n", "[]", function()
-        vim.cmd("cclose")
-    end, { noremap = true, silent = true, desc = "QfClose" })
-    vim.keymap.set("n", "]]", function()
-        vim.cmd("LvimListQuickFixNext")
-    end, { noremap = true, silent = true, desc = "QfNext" })
-    vim.keymap.set("n", "[[", function()
-        vim.cmd("LvimListQuickFixPrev")
-    end, { noremap = true, silent = true, desc = "QfPrev" })
-    vim.keymap.set("n", "]lm", function()
-        vim.cmd("LvimListLocMenuChoice")
-    end, { noremap = true, silent = true, desc = "LocMenuChoice" })
-    vim.keymap.set("n", "]ld", function()
-        vim.cmd("LvimListLocMenuDelete")
-    end, { noremap = true, silent = true, desc = "LocMenuDelete" })
-    vim.keymap.set("n", "]l[", function()
-        vim.cmd("lopen")
-    end, { noremap = true, silent = true, desc = "LocOpen" })
-    vim.keymap.set("n", "[l]", function()
-        vim.cmd("lclose")
-    end, { noremap = true, silent = true, desc = "LocClose" })
-    vim.keymap.set("n", "]l]", function()
         vim.cmd("LvimListLocNext")
     end, { noremap = true, silent = true, desc = "LocNext" })
-    vim.keymap.set("n", "[l[", function()
+    vim.keymap.set("n", "[[", function()
         vim.cmd("LvimListLocPrev")
     end, { noremap = true, silent = true, desc = "LocPrev" })
+    vim.keymap.set("n", "[o", function()
+        vim.cmd("lopen")
+    end, { noremap = true, silent = true, desc = "LocOpen" })
+    vim.keymap.set("n", "[q", function()
+        vim.cmd("lclose")
+    end, { noremap = true, silent = true, desc = "LocClose" })
+    vim.keymap.set("n", "[c", function()
+        vim.cmd("LvimListLocMenuChoice")
+    end, { noremap = true, silent = true, desc = "LocMenuChoice" })
+    vim.keymap.set("n", "[d", function()
+        vim.cmd("LvimListLocMenuDelete")
+    end, { noremap = true, silent = true, desc = "LocMenuDelete" })
+    vim.keymap.set("n", "[l", function()
+        vim.cmd("LvimListLocMenuLoad")
+    end, { noremap = true, silent = true, desc = "LocMenuLoad" })
+    vim.keymap.set("n", "[s", function()
+        vim.cmd("LvimListLocMenuSave")
+    end, { noremap = true, silent = true, desc = "LocMenuSave" })
 end
 
 config.tabby_nvim = function()
@@ -377,10 +455,10 @@ config.tabby_nvim = function()
     end
     local theme = _G.LVIM_SETTINGS.theme
     local hl_tabline = {
-        color_01 = _G.LVIM_COLORS.colors[theme].bg_01,
-        color_02 = _G.LVIM_COLORS.colors[theme].bg_03,
-        color_03 = _G.LVIM_COLORS.colors[theme].green_01,
-        color_04 = _G.LVIM_COLORS.colors[theme].green_02,
+        color_01 = _G.LVIM_COLORS["colors"][theme].bg_01,
+        color_02 = _G.LVIM_COLORS["colors"][theme].bg_03,
+        color_03 = _G.LVIM_COLORS["colors"][theme].green_01,
+        color_04 = _G.LVIM_COLORS["colors"][theme].green_02,
     }
     local get_tab_label = function(tab_number)
         local s, v = pcall(function()
@@ -644,8 +722,18 @@ config.nvim_various_textobjs = function()
             "aI",
         },
     })
-    vim.keymap.set({ "o", "x" }, "ii", "<cmd>lua require('various-textobjs').indentation(true, true)<CR>")
-    vim.keymap.set({ "o", "x" }, "ai", "<cmd>lua require('various-textobjs').indentation(false, false)<CR>")
+    vim.keymap.set(
+        { "o", "x" },
+        "ii",
+        "<cmd>lua require('various-textobjs').indentation(true, true)<CR>",
+        { noremap = true, silent = true, desc = "inner indentation" }
+    )
+    vim.keymap.set(
+        { "o", "x" },
+        "ai",
+        "<cmd>lua require('various-textobjs').indentation(false, false)<CR>",
+        { noremap = true, silent = true, desc = "outer indentation" }
+    )
 end
 
 config.rest_nvim = function()
@@ -668,14 +756,28 @@ config.rest_nvim = function()
     end, { noremap = true, silent = true, desc = "RestLast" })
 end
 
-config.sniprun = function()
-    local sniprun_status_ok, sniprun = pcall(require, "sniprun")
-    if not sniprun_status_ok then
+config.flow_nvim = function()
+    local flow_status_ok, flow = pcall(require, "flow")
+    if not flow_status_ok then
         return
     end
-    sniprun.setup()
-    vim.keymap.set({ "n", "v" }, "<C-c>u", ":SnipRun<CR>", { noremap = true, silent = true, desc = "SnipRun" })
-    vim.keymap.set("n", "<Esc>", "<Esc>:noh<CR>:SnipClose<CR>", { noremap = true, silent = true, desc = "Escape" })
+    flow.setup({
+        output = {
+            buffer = true,
+            split_cmd = "80vsplit",
+        },
+        filetype_cmd_map = {
+            lua = "lua <<-EOF\n%s\nEOF",
+            python = "python <<-EOF\n%s\nEOF",
+            ruby = "ruby <<-EOF\n%s\nEOF",
+            bash = "bash <<-EOF\n%s\nEOF",
+            sh = "sh <<-EOF\n%s\nEOF",
+            scheme = "scheme <<-EOF\n%s\nEOF",
+            javascript = "node <<-EOF\n%s\nEOF",
+            typescript = "node <<-EOF\n%s\nEOF",
+            go = "go run .",
+        },
+    })
 end
 
 config.code_runner_nvim = function()
@@ -687,6 +789,11 @@ config.code_runner_nvim = function()
     code_runner.setup({
         filetype_path = global.lvim_path .. "/.configs/code_runner/files.json",
         project_path = global.lvim_path .. "/.configs/code_runner/projects.json",
+        mode = "float",
+        -- Focus on runner window(only works on toggle, term and tab mode)
+        focus = true,
+        -- startinsert (see ':h inserting-ex')
+        startinsert = true,
     })
 end
 
@@ -716,6 +823,20 @@ config.nvim_spectre = function()
     vim.keymap.set("n", "<A-s>", function()
         vim.cmd("Spectre")
     end, { noremap = true, silent = true, desc = "Spectre" })
+end
+
+config.replacer_nvim = function()
+    local replacer_status_ok, replacer = pcall(require, "replacer")
+    if not replacer_status_ok then
+        return
+    end
+    local opts = { rename_files = true, save_on_write = true }
+    vim.keymap.set("n", "dr", function()
+        replacer.run(opts)
+    end, { noremap = true, silent = true, desc = "Replacer run" })
+    vim.keymap.set("n", "dR", function()
+        replacer.save(opts)
+    end, { noremap = true, silent = true, desc = "Replacer save" })
 end
 
 config.comment_nvim = function()
@@ -818,10 +939,10 @@ config.flash_nvim = function()
     end
     vim.keymap.set({ "n", "x", "o" }, "<C-c>.", function()
         flash.jump()
-    end)
+    end, { desc = "Flash jump" })
     vim.keymap.set({ "n", "x", "o" }, "<C-c>,", function()
         flash.treesitter()
-    end)
+    end, { desc = "Flash treesitter" })
     vim.keymap.set({ "o" }, "r", function()
         require("flash").remote()
     end)
@@ -850,7 +971,7 @@ config.flash_nvim = function()
                 end
             end,
         })
-    end)
+    end, { desc = "Flash search" })
 end
 
 config.todo_comments_nvim = function()
@@ -883,49 +1004,20 @@ config.todo_comments_nvim = function()
     })
 end
 
-config.pretty_fold_nvim = function()
-    local pretty_fold_status_ok, pretty_fold = pcall(require, "pretty-fold")
-    if not pretty_fold_status_ok then
-        return
-    end
-    pretty_fold.setup({
-        fill_char = "─",
-        sections = {
-            left = {
-                "content",
-            },
-            right = {
-                "┤ ",
-                "number_of_folded_lines",
-                " ├─",
-            },
-        },
-        ft_ignore = { "org" },
-    })
-    local fold_preview_status_ok, fold_preview = pcall(require, "fold-preview")
-    if not fold_preview_status_ok then
-        return
-    end
-    fold_preview.setup({
-        default_keybindings = false,
-    })
-    local map = require("fold-preview").mapping
-    function _G.fold_preview()
-        map.show_close_preview_open_fold()
-        vim.cmd("IndentBlanklineRefresh")
-    end
-    vim.api.nvim_create_user_command("FoldPreview", "lua _G.fold_preview()", {})
-    vim.keymap.set("n", "zp", function()
-        _G.fold_preview()
-    end, { noremap = true, silent = true, desc = "FoldPreview" })
-end
-
 config.calendar_vim = function()
     vim.g.calendar_diary_extension = ".org"
     vim.g.calendar_diary = "~/Org/diary/"
     vim.g.calendar_diary_path_pattern = "{YYYY}-{MM}-{DD}{EXT}"
     vim.g.calendar_monday = 1
     vim.g.calendar_weeknm = 1
+    vim.keymap.del("n", "<Leader>cal")
+    vim.keymap.del("n", "<Leader>caL")
+    vim.keymap.set("n", "<Leader>ch", function()
+        vim.cmd("CalendarH")
+    end, { noremap = true, silent = true, desc = "Calendar horizontal" })
+    vim.keymap.set("n", "<Leader>cv", function()
+        vim.cmd("CalendarVR")
+    end, { noremap = true, silent = true, desc = "Calendar vertical" })
 end
 
 return config

@@ -1,7 +1,7 @@
 local M = {}
 
 M.get_statuscolumn = function()
-    local colors = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme]
+    local colors = _G.LVIM_COLORS["colors"][_G.LVIM_SETTINGS.theme]
     local conditions = require("heirline.conditions")
     local gitsigns_avail, gitsigns = pcall(require, "gitsigns")
     local buf_types = require("modules.base.configs.ui.heirline.buf_types")
@@ -119,10 +119,7 @@ M.get_statuscolumn = function()
 
     local line_numbers = {
         provider = function()
-            if vim.bo.filetype == "qf" then
-                return ""
-            end
-            if vim.v.virtnum ~= 0 then
+            if vim.bo.filetype == "qf" or vim.bo.filetype == "replacer" or vim.v.virtnum ~= 0 then
                 return ""
             end
             if vim.v.relnum == 0 then
