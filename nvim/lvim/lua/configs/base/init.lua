@@ -55,8 +55,10 @@ configs["base_lvim"] = function()
             else
                 local user_choice = string.lower(choice)
                 user_choice = string.gsub(user_choice, " ", "-")
-                _G.LVIM_SETTINGS["theme"] = user_choice
-                vim.cmd("colorscheme " .. user_choice)
+                _G.LVIM_SETTINGS.["theme"] = user_choice
+                if not vim.g.vscode then
+                    vim.cmd("colorscheme" .. user_choice)
+                end
                 funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
                 local lvim_ui_config = require("modules.base.configs.ui")
                 lvim_ui_config.heirline_nvim()

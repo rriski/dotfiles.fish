@@ -4,21 +4,25 @@ local icons = require("configs.base.ui.icons")
 local config = {}
 
 config.lvim_colorscheme = function()
-    require("lvim-colorscheme").setup({
-        sidebars = {
-            "dbui",
-            "qf",
-            "pqf",
-            "Outline",
-            "terminal",
-            "packer",
-            "calendar",
-            "spectre_panel",
-            "ctrlspace",
-            "neo-tree",
-        },
-    })
-    vim.cmd("colorscheme " .. _G.LVIM_SETTINGS.theme)
+    if vim.g.vscode then
+        vim.cmd.colorscheme = ""
+    else
+        require("lvim-colorscheme").setup({
+            sidebars = {
+                "dbui",
+                "qf",
+                "pqf",
+                "Outline",
+                "terminal",
+                "packer",
+                "calendar",
+                "spectre_panel",
+                "ctrlspace",
+                "neo-tree",
+            },
+        })
+        vim.cmd("colorscheme " .. _G.LVIM_SETTINGS.theme)
+    end
 end
 
 config.nvim_web_devicons = function()
