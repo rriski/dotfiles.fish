@@ -65,6 +65,9 @@
 [includeIf "gitdir:~/code/personal/"]
     path = ~/.gitconfig.personal
 
+[includeIf "gitdir:~/code/3rdparty/"]
+    path = ~/.gitconfig.personal
+
 [includeIf "gitdir:~/.dotfiles.fish/"]
     path = ~/.gitconfig.personal
 
