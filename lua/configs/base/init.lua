@@ -2,6 +2,7 @@ local global = require("core.global")
 local funcs = require("core.funcs")
 local options = require("configs.base.options")
 local keymaps = require("configs.base.keymaps")
+local keymaps_ft = require("configs.base.keymaps_ft")
 local icons = require("configs.base.ui.icons")
 local group = vim.api.nvim_create_augroup("LvimIDE", {
     clear = true,
@@ -10,12 +11,6 @@ local group = vim.api.nvim_create_augroup("LvimIDE", {
 local configs = {}
 
 configs["base_lvim"] = function()
-    vim.api.nvim_create_autocmd("OptionSet", {
-        callback = function()
-            vim.opt.guicursor = "n-v-c-sm:block,i-ci-ve:ver25,r-cr-o:hor20"
-        end,
-        group = group,
-    })
     local function lvim_theme()
         local status
         if _G.LVIM_SETTINGS.theme == "lvim-dark" then
@@ -60,7 +55,7 @@ configs["base_lvim"] = function()
             else
                 local user_choice = string.lower(choice)
                 user_choice = string.gsub(user_choice, " ", "-")
-                _G.LVIM_SETTINGS.theme = user_choice
+                _G.LVIM_SETTINGS["theme"] = user_choice
                 vim.cmd("colorscheme " .. user_choice)
                 funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
                 local lvim_ui_config = require("modules.base.configs.ui")
@@ -79,6 +74,45 @@ configs["base_lvim"] = function()
         end)
     end
     vim.api.nvim_create_user_command("LvimTheme", lvim_theme, {})
+    local function lvim_float_height()
+        local status = tostring(_G.LVIM_SETTINGS.floatheight)
+        if status == "1" then
+            status = "1.0"
+        end
+        local ui_config = require("lvim-ui-config.config")
+        local select = require("lvim-ui-config.select")
+        local notify = require("lvim-ui-config.notify")
+        local opts = ui_config.select({
+            "0.1",
+            "0.2",
+            "0.3",
+            "0.4",
+            "0.5",
+            "0.6",
+            "0.7",
+            "0.8",
+            "0.9",
+            "1.0",
+            "Cancel",
+        }, { prompt = "Float height (current: " .. status .. ")" }, {})
+        select(opts, function(choice)
+            if choice == "Cancel" then
+            else
+                local user_choice = choice
+                notify.info("Float height: " .. choice, { title = "LVIM IDE" })
+                _G.LVIM_SETTINGS["floatheight"] = tonumber(user_choice) + 0.0
+                funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
+                local editor_config = require("modules.base.configs.editor")
+                editor_config.fzf_lua()
+                editor_config.telescope_nvim()
+                local lvim_ui_config = require("modules.base.configs.ui")
+                lvim_ui_config.lvim_fm()
+                local version_control_config = require("modules.base.configs.version_control")
+                version_control_config.lvim_forgit()
+            end
+        end)
+    end
+    vim.api.nvim_create_user_command("LvimFloatHeight", lvim_float_height, {})
     vim.api.nvim_create_user_command(
         "EditorConfigCreate",
         "lua require'core.funcs'.copy_file(require'core.global'.lvim_path .. '/.configs/templates/.editorconfig', vim.fn.getcwd() .. '/.editorconfig')",
@@ -103,33 +137,6 @@ configs["base_options"] = function()
     vim.g.netrw_keepdir = 1
     vim.g.netrw_list_hide = "(^|ss)\zs.S+"
     vim.g.netrw_localcopydircmd = "cp -r"
-    vim.api.nvim_create_autocmd("FileType", {
-        pattern = { "netrw" },
-        callback = function()
-            vim.opt_local.statuscolumn = ""
-            vim.api.nvim_set_keymap("n", "<Esc>", "<Cmd>:bd<CR>", {})
-            vim.api.nvim_set_keymap("n", ".", "gh", {})
-            vim.api.nvim_set_keymap("n", "P", "<C-w>z", {})
-            vim.api.nvim_set_keymap("n", ".", "gh", {})
-            vim.api.nvim_set_keymap("n", "<TAB>", "mf", {})
-            vim.api.nvim_set_keymap("n", "<S-TAB>", "mF", {})
-            vim.api.nvim_set_keymap("n", "<Leader><TAB>", "mu", {})
-            vim.api.nvim_set_keymap("n", "fc", "mc", {})
-            vim.api.nvim_set_keymap("n", "fC", "mtmc", {})
-            vim.api.nvim_set_keymap("n", "fx", "mm", {})
-            vim.api.nvim_set_keymap("n", "fX", "mtmm", {})
-            vim.api.nvim_set_keymap("n", "f;", "mx", {})
-            vim.api.nvim_set_keymap("n", "bb", "mb", {})
-            vim.api.nvim_set_keymap("n", "bd", "mB", {})
-            vim.api.nvim_set_keymap("n", "bl", "gb", {})
-            vim.api.nvim_set_keymap("n", "H", "u", {})
-            vim.api.nvim_set_keymap("n", "fa", "d", {})
-            vim.api.nvim_set_keymap("n", "ff", [[%:w<CR>]], {})
-            vim.api.nvim_set_keymap("n", "fr", "R", {})
-            vim.api.nvim_set_keymap("n", "fd", "D", {})
-        end,
-        group = group,
-    })
 end
 
 configs["base_events"] = function()
@@ -144,55 +151,32 @@ configs["base_events"] = function()
             "ruby",
         },
         callback = function()
-            vim.schedule(function()
-                vim.opt_local.tabstop = 2
-                vim.opt_local.shiftwidth = 2
-            end)
+            vim.bo.syntax = ""
+            vim.opt_local.tabstop = 2
+            vim.opt_local.shiftwidth = 2
         end,
         group = group,
     })
-    vim.api.nvim_create_autocmd({ "BufWinEnter", "BufWinLeave" }, {
+    vim.api.nvim_create_autocmd("FileType", {
+        pattern = {
+            "NeogitStatus",
+            "Outline",
+            "calendar",
+            "dapui_breakpoints",
+            "dapui_scopes",
+            "dapui_stacks",
+            "dapui_watches",
+            "git",
+            "netrw",
+            "octo",
+            "org",
+            "toggleterm",
+        },
         callback = function()
-            local buftype = vim.tbl_contains({
-                "prompt",
-                "nofile",
-                "help",
-                "quickfix",
-            }, vim.bo.buftype)
-            local filetype = vim.tbl_contains({
-                "NeogitStatus",
-                "Outline",
-                "calendar",
-                "dapui_breakpoints",
-                "dapui_scopes",
-                "dapui_stacks",
-                "dapui_watches",
-                "git",
-                "netrw",
-                "octo",
-                "org",
-                "toggleterm",
-            }, vim.bo.filetype)
-            if buftype or filetype then
-                vim.schedule(function()
-                    vim.opt_local.number = false
-                    vim.opt_local.relativenumber = false
-                    vim.opt_local.cursorcolumn = false
-                    vim.opt_local.colorcolumn = "0"
-                end)
-            end
-        end,
-        group = group,
-    })
-    vim.api.nvim_create_autocmd({ "BufWinEnter", "BufWinLeave" }, {
-        callback = function()
-            local filetype = vim.tbl_contains({ "tex" }, vim.bo.filetype)
-            if filetype then
-                vim.schedule(function()
-                    vim.opt_local.cursorcolumn = false
-                    vim.opt_local.colorcolumn = "0"
-                end)
-            end
+            vim.opt_local.number = false
+            vim.opt_local.relativenumber = false
+            vim.opt_local.cursorcolumn = false
+            vim.opt_local.colorcolumn = "0"
         end,
         group = group,
     })
@@ -225,6 +209,8 @@ end
 configs["base_keymaps"] = function()
     funcs.keymaps("n", { noremap = true, silent = true }, keymaps.normal)
     funcs.keymaps("x", { noremap = true, silent = true }, keymaps.visual)
+    funcs.keymaps("i", { noremap = true, silent = true }, keymaps.insert)
+    keymaps_ft.set_keymaps_ft()
 end
 
 configs["base_ctrlspace_pre_config"] = function()

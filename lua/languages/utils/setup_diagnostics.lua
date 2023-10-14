@@ -1,7 +1,5 @@
 local global = require("core.global")
 local funcs = require("core.funcs")
-local lspconfig = require("lspconfig")
-local mason_registry = require("mason-registry")
 local ui_config = require("lvim-ui-config.config")
 local select = require("lvim-ui-config.select")
 local icons = require("configs.base.ui.icons")
@@ -42,10 +40,10 @@ M.init_diagnostics = function()
         }, { prompt = "AutoFormat (" .. status .. ")" }, {})
         select(opts, function(choice)
             if choice == "Enable" then
-                _G.LVIM_SETTINGS.autoformat = true
+                _G.LVIM_SETTINGS["autoformat"] = true
                 funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
             elseif choice == "Disable" then
-                _G.LVIM_SETTINGS.autoformat = false
+                _G.LVIM_SETTINGS["autoformat"] = false
                 funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
             end
         end)
@@ -70,7 +68,7 @@ M.init_diagnostics = function()
                     local clients = vim.lsp.buf_get_clients(bufnr)
                     if #clients > 0 then
                         for _, client in ipairs(clients) do
-                            if client.server_capabilities.inlayHintProvider then
+                            if vim.lsp.inlay_hint ~= nil and client.server_capabilities.inlayHintProvider then
                                 vim.lsp.inlay_hint(bufnr, true)
                             end
                         end
@@ -78,7 +76,7 @@ M.init_diagnostics = function()
                         print("No LSP client associated with the buffer")
                     end
                 end
-                _G.LVIM_SETTINGS.inlayhint = true
+                _G.LVIM_SETTINGS["inlayhint"] = true
                 funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
             elseif choice == "Disable" then
                 local buffers = vim.api.nvim_list_bufs()
@@ -86,7 +84,7 @@ M.init_diagnostics = function()
                     local clients = vim.lsp.buf_get_clients(bufnr)
                     if #clients > 0 then
                         for _, client in ipairs(clients) do
-                            if client.server_capabilities.inlayHintProvider then
+                            if vim.lsp.inlay_hint ~= nil and client.server_capabilities.inlayHintProvider then
                                 vim.lsp.inlay_hint(bufnr, false)
                             end
                         end
@@ -94,7 +92,7 @@ M.init_diagnostics = function()
                         print("No LSP client associated with the buffer")
                     end
                 end
-                _G.LVIM_SETTINGS.inlayhint = false
+                _G.LVIM_SETTINGS["inlayhint"] = false
                 funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
             end
         end)
@@ -115,10 +113,10 @@ M.init_diagnostics = function()
         }, { prompt = "VirtualDiagnostic (" .. status .. ")" }, {})
         select(opts, function(choice)
             if choice == "Enable" then
-                _G.LVIM_SETTINGS.virtualdiagnostic = true
+                _G.LVIM_SETTINGS["virtualdiagnostic"] = true
                 funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
             elseif choice == "Disable" then
-                _G.LVIM_SETTINGS.virtualdiagnostic = false
+                _G.LVIM_SETTINGS["virtualdiagnostic"] = false
                 funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
             end
             local config = vim.diagnostic.config
@@ -188,15 +186,19 @@ M.document_formatting = function(client, bufnr)
 end
 
 M.inlay_hint = function(client, bufnr)
-    if client.server_capabilities.inlayHintProvider and _G.LVIM_SETTINGS.inlayhint == true then
+    if
+        vim.lsp.inlay_hint ~= nil
+        and client.server_capabilities.inlayHintProvider
+        and _G.LVIM_SETTINGS.inlayhint == true
+    then
         vim.lsp.inlay_hint(bufnr, true)
     end
 end
 
 M.get_capabilities = function()
     local capabilities = vim.lsp.protocol.make_client_capabilities()
-    capabilities.textDocument.completion.completionItem.snippetSupport = true
-    capabilities.textDocument.completion.completionItem.resolveSupport = {
+    capabilities.textDocument.completion.completionItem["snippetSupport"] = true
+    capabilities.textDocument.completion.completionItem["resolveSupport"] = {
         properties = {
             "documentation",
             "detail",
@@ -212,8 +214,8 @@ end
 
 M.get_cpp_capabilities = function()
     local capabilities = vim.lsp.protocol.make_client_capabilities()
-    capabilities.textDocument.completion.completionItem.snippetSupport = true
-    capabilities.textDocument.completion.completionItem.resolveSupport = {
+    capabilities.textDocument.completion.completionItem["snippetSupport"] = true
+    capabilities.textDocument.completion.completionItem["resolveSupport"] = {
         properties = {
             "documentation",
             "detail",
@@ -224,11 +226,11 @@ M.get_cpp_capabilities = function()
     if status_ok then
         capabilities = cmp_nvim_lsp.default_capabilities(capabilities)
     end
-    capabilities.offsetEncoding = "utf-16"
+    capabilities["offsetEncoding"] = "utf-16"
     return capabilities
 end
 
-M.keymaps = function(client, bufnr)
+M.keymaps = function(_, bufnr)
     vim.keymap.set("n", "gd", function()
         vim.lsp.buf.definition()
     end, { noremap = true, silent = true, buffer = bufnr, desc = "LspDefinition" })
@@ -248,21 +250,11 @@ M.keymaps = function(client, bufnr)
         vim.lsp.buf.rename()
     end, { noremap = true, silent = true, buffer = bufnr, desc = "LspRename" })
     vim.keymap.set("n", "gf", function()
-        -- vim.notify("lelelelelele")
-        vim.lsp.buf.format()
-        -- vim.lsp.buf.format({ async = true })
+        vim.cmd("LspFormat")
     end, { noremap = true, silent = true, buffer = bufnr, desc = "LspFormat" })
-    vim.keymap.set("v", "g;", function()
-        local start_row, _ = unpack(vim.api.nvim_buf_get_mark(0, "<"))
-        local end_row, _ = unpack(vim.api.nvim_buf_get_mark(0, ">"))
-        vim.lsp.buf.format({
-            range = {
-                ["start"] = { start_row, 0 },
-                ["end"] = { end_row, 0 },
-            },
-            -- async = true,
-        })
-    end, { noremap = true, silent = true, buffer = bufnr, desc = "LspRangeFormat" })
+    -- vim.keymap.set("x", "g;", function()
+    --     vim.cmd("LspFormatRange")
+    -- end, { noremap = true, silent = true, buffer = bufnr, desc = "LspFormatRange" })
     vim.keymap.set("n", "ga", function()
         vim.lsp.buf.code_action()
     end, { noremap = true, silent = true, buffer = bufnr, desc = "LspCodeAction" })
@@ -281,9 +273,6 @@ M.keymaps = function(client, bufnr)
     vim.keymap.set("n", "K", function()
         vim.lsp.buf.hover()
     end, { noremap = true, silent = true, buffer = bufnr, desc = "LspHover" })
-    vim.keymap.set("n", "gt", function()
-        vim.cmd("LspVirtualTextToggle")
-    end, { noremap = true, silent = true, buffer = bufnr, desc = "LspVirtualTextToggle" })
 end
 
 return M

@@ -11,7 +11,7 @@ Toggle                      _t_ │ _I_                    Install
 Change version              _v_ │ _d_                     Delete
 
 ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-                         exit _<Esc>_
+                         exit _<C-q>_
 ]]
 
 local crates_hint = [[
@@ -29,18 +29,18 @@ Upgrade crate               _g_ │ _G_             Upgrade crates
 Upgrade all crates         _eg_ │
 
 ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-                         exit _<Esc>_
+                         exit _<C-q>_
 ]]
 
 local pubspec_assist_hint = [[
                        PUBSPEC ASSIST
 
 ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-Add package                 _p_ │ _d_            Add dev package
+Add package                 _p_ │ _P_            Add dev package
 Pick version                _v_ │
 
 ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-                         exit _<Esc>_
+                         exit _<C-q>_
 ]]
 
 M.package_info = function()
@@ -79,7 +79,7 @@ M.package_info = function()
                 keymap.cmd("PackageInfoDelete"),
                 { nowait = true, silent = true, desc = "Delete" },
             },
-            { "<Esc>", nil, { exit = true, desc = false } },
+            { "<C-q>", nil, { exit = true, desc = false } },
         },
     })
 end
@@ -150,7 +150,7 @@ M.crates = function()
                 keymap.cmd("CratesUpgradeAllCrates"),
                 { nowait = true, silent = true, desc = "Upgrade all crates" },
             },
-            { "<Esc>", nil, { exit = true, desc = false } },
+            { "<C-q>", nil, { exit = true, desc = false } },
         },
     })
 end
@@ -177,7 +177,7 @@ M.pubspec_assist = function()
                 { nowait = true, silent = true, desc = "Add package" },
             },
             {
-                "d",
+                "P",
                 keymap.cmd("PubspecAssistAddDevPackage"),
                 { nowait = true, silent = true, desc = "Add dev package" },
             },
@@ -186,7 +186,7 @@ M.pubspec_assist = function()
                 keymap.cmd("PubspecAssistPickVersion"),
                 { nowait = true, silent = true, desc = "Pick version" },
             },
-            { "<Esc>", nil, { exit = true, desc = false } },
+            { "<C-q>", nil, { exit = true, desc = false } },
         },
     })
 end

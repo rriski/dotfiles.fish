@@ -56,12 +56,6 @@ modules["nvim-tree/nvim-web-devicons"] = {
     lazy = true,
 }
 
-modules["mrbjarksen/neo-tree-diagnostics.nvim"] = {
-    commit = funcs.get_commit("neo-tree-diagnostics.nvim", plugins_snapshot),
-    module = "neo-tree.sources.diagnostics",
-    lazy = true,
-}
-
 modules["folke/twilight.nvim"] = {
     commit = funcs.get_commit("twilight.nvim", plugins_snapshot),
     config = ui_config.twilight_nvim,
@@ -94,11 +88,6 @@ modules["junegunn/fzf"] = {
 
 modules["neovim/nvim-lspconfig"] = {
     commit = funcs.get_commit("nvim-lspconfig", plugins_snapshot),
-    lazy = true,
-}
-
-modules["anuvyklack/pretty-fold.nvim"] = {
-    commit = funcs.get_commit("fold-preview.nvim", plugins_snapshot),
     lazy = true,
 }
 
@@ -252,6 +241,14 @@ modules["echasnovski/mini.files"] = {
     config = ui_config.mini_files,
 }
 
+modules["echasnovski/mini.clue"] = {
+    commit = funcs.get_commit("mini.clue", plugins_snapshot),
+    event = {
+        "VimEnter",
+    },
+    config = ui_config.mini_clue,
+}
+
 modules["prichrd/netrw.nvim"] = {
     commit = funcs.get_commit("netrw.nvim", plugins_snapshot),
     config = ui_config.netrw_nvim,
@@ -262,13 +259,11 @@ modules["nvim-neo-tree/neo-tree.nvim"] = {
     commit = funcs.get_commit("neo-tree.nvim", plugins_snapshot),
     cmd = "Neotree",
     keys = {
-        { "<S-x>", "<cmd>Neotree filesystem left<CR>", desc = "NeoTree filesystem" },
-        { "<C-c><C-f>", "<cmd>Neotree filesystem left<CR>", desc = "NeoTree filesystem" },
-        { "<C-c><C-b>", "<cmd>Neotree buffers left<CR>", desc = "NeoTree buffers" },
-        { "<C-c><C-g>", "<cmd>Neotree git_status left<CR>", desc = "NeoTree git status" },
-        { "<C-c><C-d>", "<cmd>Neotree diagnostics left<CR>", desc = "NeoTree diagnostics" },
-        { "<A-e>", "<cmd>Neotree diagnostics reveal bottom<CR>", desc = "NeoTree diagnostics" },
-        { "<S-q>", "<cmd>Neotree close<CR>", desc = "NeoTree close" },
+        { "<S-x>", "<cmd>Neotree toggle filesystem left<CR>", desc = "NeoTree filesystem" },
+        { "<C-c><C-f>", "<cmd>Neotree toggle filesystem left<CR>", desc = "NeoTree filesystem" },
+        { "<C-c><C-b>", "<cmd>Neotree toggle buffers left<CR>", desc = "NeoTree buffers" },
+        { "<C-c><C-g>", "<cmd>Neotree toggle git_status left<CR>", desc = "NeoTree git status" },
+        { "<S-q>", "<cmd>Neotree toggle close<CR>", desc = "NeoTree close" },
     },
     dependencies = {
         "nvim-lua/plenary.nvim",
@@ -302,10 +297,13 @@ modules["lvim-tech/lvim-shell"] = {
 
 modules["lvim-tech/lvim-fm"] = {
     commit = funcs.get_commit("lvim-fm", plugins_snapshot),
+    cmd = "LvimFileManager",
+    keys = {
+        { "<Leader>=", "<Cmd>LvimFileManager<CR>", desc = "Lvim file manager" },
+    },
     dependencies = {
         "lvim-tech/lvim-shell",
     },
-    event = "BufRead",
     config = ui_config.lvim_fm,
 }
 
@@ -325,8 +323,8 @@ modules["folke/zen-mode.nvim"] = {
 
 modules["nyngwang/NeoZoom.lua"] = {
     commit = funcs.get_commit("NeoZoom.lua", plugins_snapshot),
-    event = {
-        "BufRead",
+    keys = {
+        { "<C-c>z", "<Cmd>NeoZoomToggle<CR>", desc = "NeoZoom" },
     },
     config = ui_config.neozoom_lua,
 }
@@ -339,8 +337,16 @@ modules["gbprod/stay-in-place.nvim"] = {
     config = ui_config.stay_in_place,
 }
 
+modules["HiPhish/rainbow-delimiters.nvim"] = {
+    commit = funcs.get_commit("rainbow-delimiters.nvim", plugins_snapshot),
+    event = {
+        "BufRead",
+    },
+    config = ui_config.rainbow_delimiters_nvim,
+}
+
 modules["lukas-reineke/indent-blankline.nvim"] = {
-    commit = funcs.get_commit("indent-blankline.nvim", plugins_snapshot),
+    commit = "9637670896b68805430e2f72cf5d16be5b97a22a",
     event = {
         "BufRead",
     },
@@ -349,6 +355,10 @@ modules["lukas-reineke/indent-blankline.nvim"] = {
 
 modules["lvim-tech/lvim-helper"] = {
     commit = funcs.get_commit("lvim-helper", plugins_snapshot),
+    keys = {
+        { "<F11>", "<Cmd>LvimHelper<CR>", desc = "LvimHelper" },
+        { "<C-c>h", "<Cmd>LvimHelper<CR>", desc = "LvimHelper" },
+    },
     config = ui_config.lvim_helper,
 }
 
@@ -435,12 +445,68 @@ modules["lvim-tech/lvim-linguistics"] = {
     config = editor_config.lvim_linguistics,
 }
 
-modules["winston0410/rg.nvim"] = {
-    commit = funcs.get_commit("rg.nvim", plugins_snapshot),
-    event = {
-        "BufRead",
+modules["mangelozzi/rgflow.nvim"] = {
+    commit = funcs.get_commit("rgflow.nvim", plugins_snapshot),
+    keys = {
+        {
+            "<Leader>rG",
+            function()
+                require("rgflow").open()
+            end,
+            desc = "Rgflow open blank",
+        },
+        {
+            "<Leader>rg",
+            function()
+                require("rgflow").open_cword()
+            end,
+            desc = "Rgflow open cword",
+        },
+        {
+            "<Leader>rp",
+            function()
+                require("rgflow").open_cword()
+            end,
+            desc = "Rgflow open and paste",
+        },
+        {
+            "<Leader>ra",
+            function()
+                require("rgflow").open_again()
+            end,
+            desc = "Rgflow open again",
+        },
+        {
+            "<Leader>rx",
+            function()
+                require("rgflow").abort()
+            end,
+            desc = "Rgflow abort",
+        },
+        {
+            "<Leader>rc",
+            function()
+                require("rgflow").print_cmd()
+            end,
+            desc = "Rgflow print cmd",
+        },
+        {
+            "<Leader>r?",
+            function()
+                require("rgflow").print_status()
+            end,
+            desc = "Rgflow print status",
+        },
+        {
+            "<Leader>rg",
+            function()
+                require("rgflow").open_visual()
+            end,
+            mode = "x",
+            desc = "Rgflow open visual",
+        },
     },
-    config = editor_config.rg_nvim,
+    config = editor_config.rgflow_nvim,
 }
 
 modules["ecthelionvi/NeoComposer.nvim"] = {
@@ -548,22 +614,49 @@ modules["NTBBloodbath/rest.nvim"] = {
     config = editor_config.rest_nvim,
 }
 
-modules["michaelb/sniprun"] = {
-    commit = funcs.get_commit("sniprun", plugins_snapshot),
-    dependencies = {
-        "neovim/nvim-lspconfig",
+modules["arjunmahishi/flow.nvim"] = {
+    keys = {
+        {
+            "<Leader>lfs",
+            ":FlowRunSelected<CR>",
+            mode = "x",
+            desc = "Flow run selected",
+        },
+        {
+            "<Leader>lff",
+            ":FlowRunFile<CR>",
+            desc = "Flow run file",
+        },
+        {
+            "<Leader>lfl",
+            ":FlowLauncher<CR>",
+            desc = "Flow launcher",
+        },
     },
-    build = "bash ./install.sh",
-    event = {
-        "BufRead",
-    },
-    config = editor_config.sniprun,
+    config = editor_config.flow_nvim,
 }
 
 modules["CRAG666/code_runner.nvim"] = {
     commit = funcs.get_commit("code_runner.nvim", plugins_snapshot),
     dependencies = {
         "nvim-lua/plenary.nvim",
+    },
+    keys = {
+        {
+            "<Leader>lrp",
+            ":RunProject<CR>",
+            desc = "Run project",
+        },
+        {
+            "<Leader>lrf",
+            ":RunFile<CR>",
+            desc = "Run file",
+        },
+        {
+            "<Leader>lrc",
+            ":RunCode<CR>",
+            desc = "Run code",
+        },
     },
     config = editor_config.code_runner_nvim,
 }
@@ -578,6 +671,14 @@ modules["windwp/nvim-spectre"] = {
         "nvim-lua/plenary.nvim",
     },
     config = editor_config.nvim_spectre,
+}
+
+modules["gabrielpoca/replacer.nvim"] = {
+    commit = funcs.get_commit("replacer.nvim", plugins_snapshot),
+    event = {
+        "BufRead",
+    },
+    config = editor_config.replacer_nvim,
 }
 
 modules["numToStr/Comment.nvim"] = {
@@ -634,17 +735,6 @@ modules["folke/todo-comments.nvim"] = {
     config = editor_config.todo_comments_nvim,
 }
 
-modules["anuvyklack/pretty-fold.nvim"] = {
-    commit = funcs.get_commit("pretty-fold.nvim", plugins_snapshot),
-    dependencies = {
-        "anuvyklack/fold-preview.nvim",
-    },
-    event = {
-        "BufRead",
-    },
-    config = editor_config.pretty_fold_nvim,
-}
-
 modules["renerocksai/calendar-vim"] = {
     commit = funcs.get_commit("calendar-vim", plugins_snapshot),
     event = {
@@ -672,6 +762,9 @@ modules["NeogitOrg/neogit"] = {
         "nvim-lua/plenary.nvim",
     },
     cmd = "Neogit",
+    keys = {
+        { "<A-n>", "<Cmd>Neogit<CR>", desc = "Neogit" },
+    },
     config = version_control_config.neogit,
 }
 
@@ -697,7 +790,10 @@ modules["lvim-tech/lvim-forgit"] = {
     dependencies = {
         "lvim-tech/lvim-shell",
     },
-    event = "BufRead",
+    cmd = "LvimForgit",
+    keys = {
+        { "<A-t>", "<Cmd>LvimForgit<CR>", desc = "Lvim forgit" },
+    },
     config = version_control_config.lvim_forgit,
 }
 
@@ -729,6 +825,9 @@ local languages_config = require("modules.base.configs.languages")
 
 modules["folke/neoconf.nvim"] = {
     commit = funcs.get_commit("neoconf.nvim", plugins_snapshot),
+    event = {
+        "BufRead",
+    },
     dependencies = {
         "neovim/nvim-lspconfig",
     },
@@ -738,6 +837,9 @@ modules["folke/neoconf.nvim"] = {
 modules["williamboman/mason.nvim"] = {
     build = ":MasonUpdate",
     commit = funcs.get_commit("mason.nvim", plugins_snapshot),
+    event = {
+        "BufRead",
+    },
     dependencies = {
         "neovim/nvim-lspconfig",
         "folke/neoconf.nvim",
@@ -746,6 +848,10 @@ modules["williamboman/mason.nvim"] = {
 }
 
 modules["nvim-neotest/neotest"] = {
+    commit = funcs.get_commit("neotest", plugins_snapshot),
+    event = {
+        "BufRead",
+    },
     dependencies = {
         "nvim-lua/plenary.nvim",
         "nvim-treesitter/nvim-treesitter",
@@ -774,6 +880,16 @@ modules["DNLHC/glance.nvim"] = {
         "BufRead",
     },
     config = languages_config.glance_nvim,
+}
+
+modules["folke/trouble.nvim"] = {
+    commit = funcs.get_commit("trouble.nvim", plugins_snapshot),
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    cmd = "Trouble",
+    keys = {
+        { "<C-c><C-v>", "<Cmd>TroubleToggle<CR>", desc = "Trouble" },
+    },
+    config = languages_config.trouble_nvim,
 }
 
 modules["folke/neodev.nvim"] = {
@@ -823,6 +939,15 @@ modules["akinsho/flutter-tools.nvim"] = {
     config = languages_config.flutter_tools_nvim,
 }
 
+modules["pmizio/typescript-tools.nvim"] = {
+    commit = funcs.get_commit("typescript-tools.nvim", plugins_snapshot),
+    ft = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
+    dependencies = {
+        "neovim/nvim-lspconfig",
+        "nvim-lua/plenary.nvim",
+    },
+}
+
 modules["kosayoda/nvim-lightbulb"] = {
     commit = funcs.get_commit("nvim-lightbulb", plugins_snapshot),
     event = {
@@ -855,14 +980,6 @@ modules["SmiteshP/nvim-navbuddy"] = {
         "MunifTanjim/nui.nvim",
     },
     config = languages_config.nvim_navbuddy,
-}
-
-modules["pechorin/any-jump.vim"] = {
-    commit = funcs.get_commit("any-jump.vim", plugins_snapshot),
-    event = {
-        "BufRead",
-    },
-    config = languages_config.any_jump_nvim,
 }
 
 modules["simrat39/symbols-outline.nvim"] = {
@@ -939,13 +1056,6 @@ modules["iamcco/markdown-preview.nvim"] = {
 modules["lervag/vimtex"] = {
     commit = funcs.get_commit("vimtex", plugins_snapshot),
     config = languages_config.vimtex,
-}
-
-modules["dhruvasagar/vim-table-mode"] = {
-    commit = funcs.get_commit("vim-table-mode", plugins_snapshot),
-    event = {
-        "BufRead",
-    },
 }
 
 modules["nvim-orgmode/orgmode"] = {

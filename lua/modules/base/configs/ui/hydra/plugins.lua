@@ -1,22 +1,22 @@
 local Hydra = require("hydra")
-local keymap = require("hydra.keymap-util")
+local vimtex = require("modules.base.configs.ui.hydra.vimtex")
+local flutter = require("modules.base.configs.ui.hydra.flutter")
 
 local M = {}
 
-local glance_hint = [[
-                                         GLANCE
+local plugins_hint = [[
+                                        PLUGINS
 
 ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-Definitions                             _gpd_ │ _gpt_                        Type definitions
-References                              _gpr_ │ _gpi_                         Implementations
+Flutter                                   _f_ │ _v_                                    Vimtex
 
 ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
                                        exit │ _<C-q>_
 ]]
 
-M.glance = Hydra({
-    name = "GLANCE",
-    hint = glance_hint,
+M.plugins = Hydra({
+    name = "PLUGINS",
+    hint = plugins_hint,
     config = {
         color = "pink",
         invoke_on_body = true,
@@ -26,27 +26,21 @@ M.glance = Hydra({
         },
     },
     mode = { "n", "x", "v" },
-    body = ";s",
+    body = ";p",
     heads = {
         {
-            "gpd",
-            keymap.cmd("Glance definitions"),
-            { nowait = true, silent = true, desc = "Definitions" },
+            "v",
+            function()
+                vimtex.vimtex:activate()
+            end,
+            { nowait = true, silent = true, desc = "Vimtex" },
         },
         {
-            "gpt",
-            keymap.cmd("Glance type_definitions"),
-            { nowait = true, silent = true, desc = "Type definitions" },
-        },
-        {
-            "gpr",
-            keymap.cmd("Glance references"),
-            { nowait = true, silent = true, desc = "References" },
-        },
-        {
-            "gpi",
-            keymap.cmd("Glance implementations"),
-            { nowait = true, silent = true, desc = "Implementations" },
+            "f",
+            function()
+                flutter.flutter:activate()
+            end,
+            { nowait = true, silent = true, desc = "Flutter" },
         },
         { "<C-q>", nil, { exit = true, desc = false } },
     },

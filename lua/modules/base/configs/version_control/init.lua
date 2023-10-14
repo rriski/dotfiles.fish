@@ -69,6 +69,7 @@ config.gitsigns_nvim = function()
             },
         },
         linehl = false,
+        _extmark_signs = false,
     })
     vim.api.nvim_create_user_command("GitSignsPreviewHunk", "lua require('gitsigns').preview_hunk()", {})
     vim.api.nvim_create_user_command("GitSignsNextHunk", "lua require('gitsigns').next_hunk()", {})
@@ -97,6 +98,9 @@ config.gitsigns_nvim = function()
     vim.keymap.set("n", "<C-c>b", function()
         vim.cmd("GitSignsToggleLineBlame")
     end, { noremap = true, silent = true, desc = "GitSignsToggleLineBlame" })
+    vim.keymap.set("n", "<C-c>m", function()
+        vim.cmd("GitSignsBlameLine")
+    end, { noremap = true, silent = true, desc = "GitSignsBlameLine" })
 end
 
 config.diffview_nvim = function()
@@ -127,18 +131,16 @@ config.lvim_forgit = function()
     if not lvim_forgit_status_ok then
         return
     end
-    local colors = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme]
+    local colors = _G.LVIM_COLORS["colors"][_G.LVIM_SETTINGS.theme]
     local bg = funcs.darken(colors.bg_01, 0.7, colors.corection)
     lvim_forgit.setup({
         ui = {
             float = {
                 float_hl = "NormalFloat",
-                height = 0.5,
-                width = 1,
-                x = 0,
-                y = 1,
+                height = _G.LVIM_SETTINGS.floatheight,
                 border_hl = "FloatBorder",
             },
+            split = "belowright " .. _G.LVIM_SETTINGS.floatheight .. " new",
         },
         env = {
             FORGIT_FZF_DEFAULT_OPTS = "--height='100%' --preview-window='right:50%' --reverse --color='"

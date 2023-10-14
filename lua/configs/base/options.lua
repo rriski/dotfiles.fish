@@ -1,4 +1,5 @@
 local global = require("core.global")
+require("configs.base.ui.fold")
 
 local M = {}
 
@@ -72,7 +73,7 @@ M.global = function()
     vim.opt.display = "lastline"
     vim.opt.showbreak = "↳  "
     vim.opt.listchars = "tab:  ,nbsp: ,trail: ,space: ,extends:→,precedes:←"
-    vim.opt.fillchars = "eob: "
+    vim.opt.fillchars = "eob: ,fold:─"
     vim.opt.pumblend = 0
     vim.opt.winblend = 0
     vim.opt.undofile = true
@@ -90,10 +91,11 @@ M.global = function()
     vim.opt.number = true
     vim.opt.relativenumber = true
     vim.opt.foldenable = true
-    vim.opt.signcolumn = "yes"
+    vim.opt.signcolumn = "no"
     vim.opt.conceallevel = 2
     vim.opt.foldmethod = "indent"
-    vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+    vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+    vim.opt.foldtext = "v:lua.fold_text()"
     vim.opt.cursorline = true
 end
 

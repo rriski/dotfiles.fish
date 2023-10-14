@@ -209,7 +209,7 @@ config.nvim_notify = function()
     end
     notify.setup({
         minimum_width = 80,
-        background_colour = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].bg,
+        background_colour = _G.LVIM_COLORS["colors"][_G.LVIM_SETTINGS.theme].bg,
         icons = {
             DEBUG = icons.common.fix,
             ERROR = icons.diagnostics.error,
@@ -272,15 +272,15 @@ config.noice_nvim = function()
         },
         messages = {
             enabled = true,
-            view = "notify",
-            view_error = "notify",
-            view_warn = "notify",
+            view = "mini",
+            view_error = "mini",
+            view_warn = "mini",
             view_history = "split",
             view_search = false,
         },
         popupmenu = {
             enabled = true,
-            backend = "nui",
+            backend = "mini",
             kind_icons = {},
         },
         commands = {
@@ -614,18 +614,8 @@ config.noice_nvim = function()
                     },
                 },
             },
-            -- {
-            --     view = "notify",
-            --     filter = {
-            --         any = {
-            --             { event = { "msg_showmode", "msg_showcmd", "msg_ruler" } },
-            --             { event = "msg_show", kind = "" },
-            --         },
-            --     },
-            --     opts = { skip = true },
-            -- },
             {
-                view = "notify",
+                view = "mini",
                 filter = {
                     event = "msg_show",
                     kind = "",
@@ -634,33 +624,33 @@ config.noice_nvim = function()
                 opts = { skip = true },
             },
             {
-                view = "notify",
+                view = "mini",
                 filter = {
                     event = "msg_show",
                     kind = { "", "echo", "echomsg" },
                 },
                 opts = {
-                    replace = true,
-                    merge = true,
+                    replace = false,
+                    merge = false,
                     title = "LVIM IDE",
                 },
             },
             {
-                view = "notify",
+                view = "mini",
                 filter = { error = true },
                 opts = {
                     skip = true,
                 },
             },
             {
-                view = "notify",
+                view = "mini",
                 filter = { warning = true },
                 opts = {
                     skip = true,
                 },
             },
             {
-                view = "notify",
+                view = "mini",
                 filter = { event = "notify" },
                 opts = {
                     title = "LVIM IDE",
@@ -674,7 +664,7 @@ config.noice_nvim = function()
                 },
                 opts = {
                     buf_options = { filetype = "lua" },
-                    replace = true,
+                    replace = false,
                     title = "LVIM IDE",
                 },
             },
@@ -823,25 +813,25 @@ config.nvim_window_picker = function()
         highlights = {
             statusline = {
                 focused = {
-                    fg = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].red_03,
-                    bg = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].bg,
+                    fg = _G.LVIM_COLORS["colors"][_G.LVIM_SETTINGS.theme].red_03,
+                    bg = _G.LVIM_COLORS["colors"][_G.LVIM_SETTINGS.theme].bg,
                     bold = true,
                 },
                 unfocused = {
-                    fg = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].bg,
-                    bg = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].red_03,
+                    fg = _G.LVIM_COLORS["colors"][_G.LVIM_SETTINGS.theme].bg,
+                    bg = _G.LVIM_COLORS["colors"][_G.LVIM_SETTINGS.theme].red_03,
                     bold = true,
                 },
             },
             winbar = {
                 focused = {
-                    fg = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].bg,
-                    bg = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].bg,
+                    fg = _G.LVIM_COLORS["colors"][_G.LVIM_SETTINGS.theme].red_03,
+                    bg = _G.LVIM_COLORS["colors"][_G.LVIM_SETTINGS.theme].bg,
                     bold = true,
                 },
                 unfocused = {
-                    fg = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].bg,
-                    bg = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme].red_03,
+                    fg = _G.LVIM_COLORS["colors"][_G.LVIM_SETTINGS.theme].bg,
+                    bg = _G.LVIM_COLORS["colors"][_G.LVIM_SETTINGS.theme].red_03,
                     bold = true,
                 },
             },
@@ -917,6 +907,142 @@ config.mini_files = function()
     })
 end
 
+config.mini_clue = function()
+    local mini_clue_status_ok, mini_clue = pcall(require, "mini.clue")
+    if not mini_clue_status_ok then
+        return
+    end
+    function clue_setup()
+        mini_clue.setup({
+            window = {
+                config = {
+                    width = "auto",
+                },
+                delay = tonumber(_G.LVIM_SETTINGS.keyshelperdelay),
+                scroll_down = "<C-d>",
+                scroll_up = "<C-u>",
+            },
+            triggers = {
+                { mode = "n", keys = "<Leader>" },
+                { mode = "x", keys = "<Leader>" },
+                { mode = "i", keys = "<C-x>" },
+                { mode = "n", keys = "g" },
+                { mode = "x", keys = "g" },
+                { mode = "n", keys = "'" },
+                { mode = "n", keys = "`" },
+                { mode = "x", keys = "'" },
+                { mode = "x", keys = "`" },
+                { mode = "n", keys = '"' },
+                { mode = "x", keys = '"' },
+                { mode = "i", keys = "<C-r>" },
+                { mode = "c", keys = "<C-r>" },
+                { mode = "n", keys = "<C-w>" },
+                { mode = "n", keys = "z" },
+                { mode = "x", keys = "z" },
+                { mode = "n", keys = ";" },
+                { mode = "n", keys = ";p" },
+                { mode = "n", keys = "<C-c>" },
+                { mode = "n", keys = "<C-c><C-c>" },
+                { mode = "n", keys = "d" },
+                { mode = "n", keys = "]" },
+                { mode = "n", keys = "[" },
+                { mode = "n", keys = "y" },
+                { mode = "x", keys = "y" },
+                { mode = "n", keys = "c" },
+                { mode = "x", keys = "c" },
+                { mode = "x", keys = "a" },
+                { mode = "x", keys = "i" },
+            },
+            clues = {
+                mini_clue.gen_clues.builtin_completion(),
+                mini_clue.gen_clues.g(),
+                mini_clue.gen_clues.marks(),
+                mini_clue.gen_clues.registers(),
+                mini_clue.gen_clues.windows(),
+                mini_clue.gen_clues.z(),
+            },
+        })
+    end
+    clue_setup()
+    function clue_enable_disable(status)
+        if status == true then
+            mini_clue.enable_all_triggers()
+            vim.g.miniclue_disable = false
+            funcs.tm_autocmd("start")
+        else
+            vim.g.miniclue_disable = true
+            mini_clue.disable_all_triggers()
+            funcs.tm_autocmd("stop")
+        end
+    end
+    if _G.LVIM_SETTINGS.keyshelper == true then
+        clue_enable_disable(true)
+    else
+        clue_enable_disable(false)
+    end
+    local global = require("core.global")
+    local ui_config = require("lvim-ui-config.config")
+    local select = require("lvim-ui-config.select")
+    local notify = require("lvim-ui-config.notify")
+    local function lvim_keys_helper()
+        local status
+        if _G.LVIM_SETTINGS.keyshelper == true then
+            status = "Enabled"
+        else
+            status = "Disabled"
+        end
+        local opts = ui_config.select({
+            "Enable",
+            "Disable",
+            "Cancel",
+        }, { prompt = "Keys helper (" .. status .. ")" }, {})
+        select(opts, function(choice)
+            if choice == "Enable" then
+                _G.LVIM_SETTINGS["keyshelper"] = true
+                funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
+                vim.g.miniclue_disable = false
+                clue_enable_disable(true)
+                notify.info("Keys helper enabled", { title = "LVIM IDE" })
+            elseif choice == "Disable" then
+                _G.LVIM_SETTINGS["keyshelper"] = false
+                funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
+                vim.g.miniclue_disable = true
+                clue_enable_disable(false)
+                notify.info("Keys helper disabled", { title = "LVIM IDE" })
+            end
+        end)
+    end
+    vim.api.nvim_create_user_command("LvimKeysHelper", lvim_keys_helper, {})
+    local function lvim_keys_helper_delay()
+        local status = _G.LVIM_SETTINGS.keyshelperdelay
+        local opts = ui_config.select({
+            0,
+            50,
+            100,
+            200,
+            300,
+            400,
+            500,
+            600,
+            700,
+            800,
+            900,
+            1000,
+            "Cancel",
+        }, { prompt = "KeysHelperDelay (" .. status .. " ms)" }, {})
+        select(opts, function(choice)
+            if choice == "Cancel" then
+            else
+                _G.LVIM_SETTINGS["keyshelperdelay"] = tonumber(choice)
+                funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
+                clue_setup()
+                notify.info("Keys helper delay: " .. choice .. "ms", { title = "LVIM IDE" })
+            end
+        end)
+    end
+    vim.api.nvim_create_user_command("LvimKeysHelperDelay", lvim_keys_helper_delay, {})
+end
+
 config.netrw_nvim = function()
     local netrw_nvim_status_ok, netrw_nvim = pcall(require, "netrw")
     if not netrw_nvim_status_ok then
@@ -939,7 +1065,6 @@ config.neo_tree_nvim = function()
             "filesystem",
             "buffers",
             "git_status",
-            "diagnostics",
         },
         source_selector = {
             winbar = true,
@@ -957,10 +1082,6 @@ config.neo_tree_nvim = function()
                 {
                     source = "git_status",
                     display_name = icons.common.git .. " GIT  ",
-                },
-                {
-                    source = "diagnostics",
-                    display_name = icons.common.lsp .. " LSP  ",
                 },
             },
         },
@@ -1054,8 +1175,7 @@ config.heirline_nvim = function()
         file_types_winbar[i] = v
     end
     table.insert(file_types_winbar, "qf")
-    table.insert(file_types_winbar, "fzf")
-    table.insert(file_types_winbar, "lvim_shell")
+    table.insert(file_types_winbar, "replacer")
     heirline.setup({
         statusline = statusline,
         statuscolumn = statuscolumn,
@@ -1085,18 +1205,21 @@ config.lvim_shell = function()
             )
         end
     end
-    if executable("lazygit") == 1 then
-        vim.cmd("command! Lazygit :lua require('modules.base.configs.ui.shell').Lazygit()(<f-args>)")
-    end
-    if executable("lazydocker") == 1 then
-        vim.cmd("command! Lazydocker :lua require('modules.base.configs.ui.shell').Lazydocker()")
-    end
-    vim.keymap.set("n", "<C-c>fr", function()
-        vim.cmd("Ranger")
+    vim.cmd("command! Lazygit :lua require('modules.base.configs.ui.shell').Lazygit()(<f-args>)")
+    vim.cmd("command! Lazydocker :lua require('modules.base.configs.ui.shell').Lazydocker()")
+    local shells = require("modules.base.configs.ui.shell")
+    vim.keymap.set("n", "<A-g>", function()
+        shells.Lazygit()
+    end, { noremap = true, silent = true, desc = "Lazygit" })
+    vim.keymap.set("n", "<A-d>", function()
+        shells.Lazydocker()
+    end, { noremap = true, silent = true, desc = "Lazydocker" })
+    vim.keymap.set("n", "<A-r>", function()
+        shells.Ranger()
     end, { noremap = true, silent = true, desc = "Ranger" })
-    vim.keymap.set("n", "<C-c>fv", function()
-        vim.cmd("Vifm")
-    end, { noremap = true, silent = true, desc = "Vifm" })
+    vim.keymap.set("n", "<A-f>", function()
+        shells.Vifm()
+    end, { noremap = true, silent = true, desc = "Ranger" })
 end
 
 config.lvim_fm = function()
@@ -1104,18 +1227,16 @@ config.lvim_fm = function()
     if not lvim_fm_status_ok then
         return
     end
-    local colors = _G.LVIM_COLORS.colors[_G.LVIM_SETTINGS.theme]
+    local colors = _G.LVIM_COLORS["colors"][_G.LVIM_SETTINGS.theme]
     local bg = funcs.darken(colors.bg_01, 0.7, colors.corection)
     lvim_fm.setup({
         ui = {
             float = {
                 float_hl = "NormalFloat",
-                height = 0.5,
-                width = 1,
-                x = 0,
-                y = 1,
+                height = _G.LVIM_SETTINGS.floatheight,
                 border_hl = "FloatBorder",
             },
+            split = "belowright " .. _G.LVIM_SETTINGS.floatheight .. " new",
         },
         env = {
             COLORS = "fg:"
@@ -1144,12 +1265,6 @@ config.lvim_fm = function()
                 .. colors.red_03,
         },
     })
-    vim.keymap.set(
-        "n",
-        "<leader>=",
-        ":LvimFileManager<CR>",
-        { noremap = true, silent = true, desc = "LvimFileManager" }
-    )
 end
 
 config.toggleterm_nvim = function()
@@ -1330,7 +1445,6 @@ config.neozoom_lua = function()
         border = "none",
         scrolloff_on_zoom = 0,
     })
-    vim.keymap.set("n", "<C-c>z", ":NeoZoomToggle<CR>", { silent = true, nowait = true, desc = "NeoZoom" })
 end
 
 config.stay_in_place = function()
@@ -1339,6 +1453,32 @@ config.stay_in_place = function()
         return
     end
     stay_in_place.setup({})
+end
+
+config.rainbow_delimiters_nvim = function()
+    local rainbow_delimiters_status_ok, rainbow_delimiters = pcall(require, "rainbow-delimiters")
+    if not rainbow_delimiters_status_ok then
+        return
+    end
+    vim.g.rainbow_delimiters = {
+        strategy = {
+            [""] = rainbow_delimiters.strategy["global"],
+            vim = rainbow_delimiters.strategy["local"],
+        },
+        query = {
+            [""] = "rainbow-delimiters",
+            lua = "rainbow-blocks",
+        },
+        highlight = {
+            "RainbowDelimiterRed",
+            "RainbowDelimiterYellow",
+            "RainbowDelimiterBlue",
+            "RainbowDelimiterOrange",
+            "RainbowDelimiterGreen",
+            "RainbowDelimiterViolet",
+            "RainbowDelimiterCyan",
+        },
+    }
 end
 
 config.indent_blankline_nvim = function()
@@ -1351,6 +1491,7 @@ config.indent_blankline_nvim = function()
         show_first_indent_level = true,
         show_trailing_blankline_indent = true,
         show_current_context = true,
+        show_current_context_start = false,
         context_patterns = {
             "class",
             "function",
@@ -1393,20 +1534,60 @@ config.indent_blankline_nvim = function()
             "nofile",
         },
     })
-    vim.keymap.set("n", "zo", "zo:IndentBlanklineRefresh<CR>", { noremap = true, silent = true })
-    vim.keymap.set("n", "zO", "zO:IndentBlanklineRefresh<CR>", { noremap = true, silent = true })
-    vim.keymap.set("n", "zc", "zc:IndentBlanklineRefresh<CR>", { noremap = true, silent = true })
-    vim.keymap.set("n", "zC", "zC:IndentBlanklineRefresh<CR>", { noremap = true, silent = true })
-    vim.keymap.set("n", "za", "za:IndentBlanklineRefresh<CR>", { noremap = true, silent = true })
-    vim.keymap.set("n", "zA", "zA:IndentBlanklineRefresh<CR>", { noremap = true, silent = true })
-    vim.keymap.set("n", "zv", "zv:IndentBlanklineRefresh<CR>", { noremap = true, silent = true })
-    vim.keymap.set("n", "zV", "zV:IndentBlanklineRefresh<CR>", { noremap = true, silent = true })
-    vim.keymap.set("n", "zx", "zx:IndentBlanklineRefresh<CR>", { noremap = true, silent = true })
-    vim.keymap.set("n", "zX", "zX:IndentBlanklineRefresh<CR>", { noremap = true, silent = true })
-    vim.keymap.set("n", "zm", "zm:IndentBlanklineRefresh<CR>", { noremap = true, silent = true })
-    vim.keymap.set("n", "zM", "zM:IndentBlanklineRefresh<CR>", { noremap = true, silent = true })
-    vim.keymap.set("n", "zr", "zr:IndentBlanklineRefresh<CR>", { noremap = true, silent = true })
-    vim.keymap.set("n", "zR", "zR:IndentBlanklineRefresh<CR>", { noremap = true, silent = true })
+    vim.keymap.set("n", "zo", "zo:IndentBlanklineRefresh<CR>", { noremap = true, silent = true, desc = "Open fold" })
+    vim.keymap.set(
+        "n",
+        "zO",
+        "zO:IndentBlanklineRefresh<CR>",
+        { noremap = true, silent = true, desc = "Open folds recursively" }
+    )
+    vim.keymap.set("n", "za", "za:IndentBlanklineRefresh<CR>", { noremap = true, silent = true, desc = "Toggle fold" })
+    vim.keymap.set(
+        "n",
+        "zA",
+        "zA:IndentBlanklineRefresh<CR>",
+        { noremap = true, silent = true, desc = "Toggle folds recursively" }
+    )
+    vim.keymap.set("n", "zc", "zc:IndentBlanklineRefresh<CR>", { noremap = true, silent = true, desc = "Close fold" })
+    vim.keymap.set(
+        "n",
+        "zC",
+        "zC:IndentBlanklineRefresh<CR>",
+        { noremap = true, silent = true, desc = "Close folds recursively" }
+    )
+    vim.keymap.set(
+        "n",
+        "zv",
+        "zv:IndentBlanklineRefresh<CR>",
+        { noremap = true, silent = true, desc = "Open enough folds" }
+    )
+    vim.keymap.set(
+        "n",
+        "zV",
+        "zV:IndentBlanklineRefresh<CR>",
+        { noremap = true, silent = true, desc = "Open enough folds recursively" }
+    )
+    vim.keymap.set(
+        "n",
+        "zx",
+        "zx:IndentBlanklineRefresh<CR>",
+        { noremap = true, silent = true, desc = "Update folds + open enough folds" }
+    )
+    vim.keymap.set("n", "zX", "zX:IndentBlanklineRefresh<CR>", { noremap = true, silent = true, desc = "Update folds" })
+    vim.keymap.set("n", "zm", "zm:IndentBlanklineRefresh<CR>", { noremap = true, silent = true, desc = "Fold more" })
+    vim.keymap.set(
+        "n",
+        "zM",
+        "zM:IndentBlanklineRefresh<CR>",
+        { noremap = true, silent = true, desc = "Close all folds" }
+    )
+    vim.keymap.set("n", "zr", "zr:IndentBlanklineRefresh<CR>", { noremap = true, silent = true, desc = "Fold less" })
+    vim.keymap.set(
+        "n",
+        "zR",
+        "zR:IndentBlanklineRefresh<CR>",
+        { noremap = true, silent = true, desc = "Open all folds" }
+    )
 end
 
 config.lvim_helper = function()
