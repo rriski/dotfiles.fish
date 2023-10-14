@@ -24,12 +24,12 @@
   {
     "key": "alt+h",
     "command": "workbench.action.focusLeftGroup",
-    "when": "neovim.mode != insert && editorTextFocus",
+    "when": "neovim.mode != insert && editorTextFocus"
   },
   {
     // "ctrl+l": Focuses on the right editor group when the text editor is focused, Vim extension is active, and Vim is not in Insert mode.
     "key": "alt+l",
-    "when": "neovim.mode != insert && editorTextFocus",
+    "when": "neovim.mode != insert && editorTextFocus"
   },
   {
     "key": "ctrl+shift+l",
@@ -73,5 +73,5 @@
     "key": "shift+alt+a",
     "command": "-editor.action.blockComment",
     "when": "editorTextFocus && !editorReadonly"
-  },
+  }
 ]
