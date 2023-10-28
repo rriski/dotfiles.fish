@@ -55,7 +55,7 @@ configs["base_lvim"] = function()
             else
                 local user_choice = string.lower(choice)
                 user_choice = string.gsub(user_choice, " ", "-")
-                _G.LVIM_SETTINGS.["theme"] = user_choice
+                _G.LVIM_SETTINGS.theme = user_choice
                 if not vim.g.vscode then
                     vim.cmd("colorscheme" .. user_choice)
                 end
