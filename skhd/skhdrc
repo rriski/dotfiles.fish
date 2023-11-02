@@ -26,15 +26,8 @@ ctrl + alt - 2  : yabai -m display --focus 2
 # Moving
 ##############################################
 
-# "Swaps" with another Window, obtaining its size and position
-# Swap: Ctrl + Alt + [DIR]
-shift + alt - h : yabai -m window --swap west
-shift + alt - j : yabai -m window --swap south
-shift + alt - k : yabai -m window --swap north
-shift + alt - l : yabai -m window --swap east
-
 # "Wraps" into another Window
-# Swap: Ctrl + Alt + [DIR]
+# Swap: Shift + Cmd + [DIR]
 shift + cmd - h : yabai -m window --warp west
 shift + cmd - j : yabai -m window --warp south
 shift + cmd - k : yabai -m window --warp north
