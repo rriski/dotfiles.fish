@@ -8,6 +8,3 @@ if command -q atuin
 
     atuin gen-completions --shell fish > ~/.config/fish/completions/atuin.fish
 end
-
-
-
