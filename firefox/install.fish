@@ -11,8 +11,8 @@ case "Darwin"
     set profile_base_dir "$HOME/Library/Application Support/Firefox/Profiles"
     set find_command 'find $profile_base_dir -maxdepth 1 -type d -name "*.dev-edition-default"'
 case "*inux"
-    set profile_base_dir "$HOME/.mozilla/firefox"
-    set find_command 'find $profile_base_dir -maxdepth 1 -type d -name "*.dev-edition-default"'
+    set profile_base_dir "$HOME/snap/firefox/common/.mozilla/firefox/"
+    set find_command 'find $profile_base_dir -maxdepth 1 -type d -name "*.default"'
 case '*'
     echo "Unsupported operating system."
     exit 1
