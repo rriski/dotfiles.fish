@@ -1,5 +1,9 @@
 #!/usr/bin/env fish
 
+if test (uname) != Darwin
+	exit
+end
+
 source $DOTFILES/script/utils.fish
 
 if command -q brew
