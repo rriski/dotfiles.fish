@@ -4,6 +4,7 @@ set -Ux EDITOR vim
 set -Ux VISUAL $EDITOR
 set -Ux WEDITOR code
 set -Ux TERM xterm-kitty
+set -Ux XDG_CONFIG_HOME $HOME/.config
 
 set -Ux DOTFILES $HOME/.dotfiles.fish
 set -Ux PROJECTS $HOME/code
