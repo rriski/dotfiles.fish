@@ -2,4 +2,4 @@
 
 source $DOTFILES/script/utils.fish
 
-ln -sf $DOTFILES/nvim/lvim/ ~/.config/nvim
+ln -sfn $DOTFILES/nvim/lvim/ ~/.config/nvim
