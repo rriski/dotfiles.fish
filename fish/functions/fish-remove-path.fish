@@ -1,4 +1,4 @@
-function fish_remove_path --description "Shows user added PATH entries and removes the selected one"
+function fish-remove-path --description "Shows user added PATH entries and removes the selected one"
     echo "User added PATH entries"
     set -l PATH_ENTRIES
     echo $fish_user_paths | tr " " "\n" | nl
