@@ -1,6 +1,7 @@
 # tap
 tap 'koekeishiya/formulae'
 tap 'homebrew/cask-versions'
+tap 'FelixKratz/formulae'
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # CLI
@@ -114,7 +115,7 @@ cask 'kitty'
 cask 'visual-studio-code'
 
 # bar
-brew 'cmacrae/formulae/spacebar'
+brew 'sketchybar'
 
 # utils
 cask 'ukelele'
