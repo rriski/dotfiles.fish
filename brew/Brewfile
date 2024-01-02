@@ -9,6 +9,7 @@ tap 'FelixKratz/formulae'
 
 # window manager
 brew 'yabai'
+brew 'borders' # from FelixKratz/formulae
 
 # hotkey daemon
 brew 'skhd'
