@@ -1,4 +1,0 @@
-[include]
-	path = ~/.gitconfig.local
-[dotfiles]
-	managed = true

@@ -1,8 +1,0 @@
-Host *
-  ServerAliveInterval 60
-  StrictHostKeyChecking no
-  Compression yes
-
-
-Host localhost
-  UserKnownHostsFile /dev/null
