@@ -3,7 +3,7 @@
 source $DOTFILES/script/utils.fish
 
 # Specify the desired Arkenfox version
-set ARKENFOX_VERSION "117.0"
+set ARKENFOX_VERSION "119.0"
 
 # Determine the operating system (macOS or Linux)
 switch (uname -s)
