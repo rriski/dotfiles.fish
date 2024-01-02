@@ -14,7 +14,7 @@ if ! test -f ~/.asdf/asdf.fish
     source ~/.asdf/asdf.fish
 end
 
-for plugin in nodejs lua golang terraform python rust
+for plugin in nodejs lua golang terraform python rust pipx
 	if ! test -d ~/.asdf/plugins/$plugin
 		asdf plugin add $plugin
 	end
