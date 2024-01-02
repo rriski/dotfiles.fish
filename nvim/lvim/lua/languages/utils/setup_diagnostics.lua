@@ -23,6 +23,14 @@ local config_diagnostic = {
     update_in_insert = true,
     underline = true,
     severity_sort = true,
+    signs = {
+        text = {
+            [vim.diagnostic.severity.ERROR] = icons.diagnostics.error,
+            [vim.diagnostic.severity.WARN] = icons.diagnostics.warn,
+            [vim.diagnostic.severity.HINT] = icons.diagnostics.hint,
+            [vim.diagnostic.severity.INFO] = icons.diagnostics.info,
+        },
+    },
 }
 
 M.init_diagnostics = function()
@@ -210,6 +218,9 @@ M.get_capabilities = function()
     if status_ok then
         capabilities = cmp_nvim_lsp.default_capabilities(capabilities)
     end
+    capabilities.experimental = {
+        workspaceWillRename = true,
+    }
     return capabilities
 end
 
@@ -228,6 +239,9 @@ M.get_cpp_capabilities = function()
         capabilities = cmp_nvim_lsp.default_capabilities(capabilities)
     end
     capabilities["offsetEncoding"] = "utf-16"
+    capabilities.experimental = {
+        workspaceWillRename = true,
+    }
     return capabilities
 end
 

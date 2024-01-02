@@ -162,6 +162,17 @@ config.neotest = function()
     end, {})
 end
 
+config.nvim_lsp_file_operations = function()
+    local lsp_file_operations_status_ok, lsp_file_operations = pcall(require, "lsp-file-operations")
+    if not lsp_file_operations_status_ok then
+        return
+    end
+    lsp_file_operations.setup({
+        debug = false,
+        timeout_ms = 100000,
+    })
+end
+
 config.inc_rename_nvim = function()
     local inc_rename_status_ok, inc_rename = pcall(require, "inc_rename")
     if not inc_rename_status_ok then
@@ -273,17 +284,6 @@ config.neodev_nvim = function()
     })
 end
 
-config.go_nvim = function()
-    local go_status_ok, go = pcall(require, "go")
-    if not go_status_ok then
-        return
-    end
-    go.setup({
-        diagnostic = false,
-        lsp_inlay_hints = {},
-    })
-end
-
 config.flutter_tools_nvim = function()
     local setup_diagnostics = require("languages.utils.setup_diagnostics")
     local navic = require("nvim-navic")
@@ -354,6 +354,9 @@ config.flutter_tools_nvim = function()
             end,
             autostart = true,
             capabilities = setup_diagnostics.get_capabilities(),
+            settings = {
+                renameFilesWithClasses = "prompt",
+            },
         },
     })
 end
@@ -409,8 +412,8 @@ config.nvim_treesitter = function()
         },
         highlight = {
             enable = true,
-            disable = { "markdown" },
-            additional_vim_regex_highlighting = { "org" },
+            -- disable = { "markdown" },
+            -- additional_vim_regex_highlighting = { "org" },
         },
         indent = {
             enable = true,
@@ -435,7 +438,26 @@ config.nvim_treesitter = function()
                 },
             },
         },
+        matchup = {
+            enable = true,
+            disable_virtual_text = true,
+        },
     })
+    local offset_first_n = function(match, _, _, pred, metadata)
+        ---@cast pred integer[]
+        local capture_id = pred[2]
+        if not metadata[capture_id] then
+            metadata[capture_id] = {}
+        end
+
+        local range = metadata[capture_id].range or { match[capture_id]:range() }
+        local offset = pred[3] or 0
+
+        range[4] = range[2] + offset
+        metadata[capture_id].range = range
+    end
+
+    vim.treesitter.query.add_directive("offset-first-n!", offset_first_n, true)
 end
 
 config.nvim_navic = function()

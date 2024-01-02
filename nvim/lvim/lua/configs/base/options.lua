@@ -96,7 +96,7 @@ M.global = function()
     vim.opt.foldmethod = "indent"
     vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
     vim.opt.foldtext = "v:lua.fold_text()"
-    vim.opt.cursorline = vim.g.vscode and false or true
+    vim.opt.cursorline = true
 end
 
 return M

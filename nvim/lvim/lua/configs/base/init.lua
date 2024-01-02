@@ -55,10 +55,8 @@ configs["base_lvim"] = function()
             else
                 local user_choice = string.lower(choice)
                 user_choice = string.gsub(user_choice, " ", "-")
-                _G.LVIM_SETTINGS.theme = user_choice
-                if not vim.g.vscode then
-                    vim.cmd("colorscheme" .. user_choice)
-                end
+                _G.LVIM_SETTINGS["theme"] = user_choice
+                vim.cmd("colorscheme " .. user_choice)
                 funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
                 local lvim_ui_config = require("modules.base.configs.ui")
                 lvim_ui_config.heirline_nvim()
@@ -134,7 +132,7 @@ configs["base_options"] = function()
     vim.g.netrw_hide = 1
     vim.g.netrw_browse_split = 0
     vim.g.netrw_altv = 1
-    vim.g.netrw_liststyle = 4
+    vim.g.netrw_liststyle = 1
     vim.g.netrw_winsize = 20
     vim.g.netrw_keepdir = 1
     vim.g.netrw_list_hide = "(^|ss)\zs.S+"
@@ -142,6 +140,17 @@ configs["base_options"] = function()
 end
 
 configs["base_events"] = function()
+    vim.api.nvim_create_autocmd("FileType", {
+        pattern = {
+            "text",
+            "markdown",
+            "org",
+        },
+        callback = function()
+            vim.opt_local.listchars = "tab:  ,nbsp: ,trail: ,space: ,extends:→,precedes:←"
+        end,
+        group = group,
+    })
     vim.api.nvim_create_autocmd("FileType", {
         pattern = {
             "c",

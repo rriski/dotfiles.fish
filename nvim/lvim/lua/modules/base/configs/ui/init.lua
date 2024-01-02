@@ -4,25 +4,21 @@ local icons = require("configs.base.ui.icons")
 local config = {}
 
 config.lvim_colorscheme = function()
-    if vim.g.vscode then
-        vim.cmd.colorscheme = ""
-    else
-        require("lvim-colorscheme").setup({
-            sidebars = {
-                "dbui",
-                "qf",
-                "pqf",
-                "Outline",
-                "terminal",
-                "packer",
-                "calendar",
-                "spectre_panel",
-                "ctrlspace",
-                "neo-tree",
-            },
-        })
-        vim.cmd("colorscheme " .. _G.LVIM_SETTINGS.theme)
-    end
+    require("lvim-colorscheme").setup({
+        sidebars = {
+            "dbui",
+            "qf",
+            "pqf",
+            "Outline",
+            "terminal",
+            "packer",
+            "calendar",
+            "spectre_panel",
+            "ctrlspace",
+            "neo-tree",
+        },
+    })
+    vim.cmd("colorscheme " .. _G.LVIM_SETTINGS.theme)
 end
 
 config.nvim_web_devicons = function()
@@ -785,27 +781,9 @@ config.nvim_window_picker = function()
         local picked_window_id = window_picker.pick_window() or vim.api.nvim_get_current_win()
         vim.api.nvim_set_current_win(picked_window_id)
     end
-    local filters = window_picker.filter_windows
-    local function special_autoselect(windows)
-        windows = filters(windows)
-        if windows == nil then
-            windows = {}
-        end
-        if #windows > 1 then
-            return windows
-        end
-        local curr_win = vim.api.nvim_get_current_win()
-        for index, window in ipairs(windows) do
-            if window == curr_win then
-                table.remove(windows, index)
-            end
-        end
-        return windows
-    end
     window_picker.setup({
         hint = "statusline-winbar",
         show_prompt = false,
-        filter_func = special_autoselect,
         filter_rules = {
             autoselect_one = false,
             include_current_win = true,
@@ -954,8 +932,6 @@ config.mini_clue = function()
                 { mode = "x", keys = "y" },
                 { mode = "n", keys = "c" },
                 { mode = "x", keys = "c" },
-                { mode = "x", keys = "a" },
-                { mode = "x", keys = "i" },
             },
             clues = {
                 mini_clue.gen_clues.builtin_completion(),
@@ -970,13 +946,18 @@ config.mini_clue = function()
     clue_setup()
     function clue_enable_disable(status)
         if status == true then
-            mini_clue.enable_all_triggers()
-            vim.g.miniclue_disable = false
             funcs.tm_autocmd("start")
+            vim.defer_fn(function()
+                mini_clue.enable_all_triggers()
+                vim.g.miniclue_disable = false
+                clue_setup()
+            end, 10)
         else
-            vim.g.miniclue_disable = true
-            mini_clue.disable_all_triggers()
             funcs.tm_autocmd("stop")
+            vim.defer_fn(function()
+                mini_clue.disable_all_triggers()
+                vim.g.miniclue_disable = true
+            end, 10)
         end
     end
     if _G.LVIM_SETTINGS.keyshelper == true then
@@ -1004,13 +985,11 @@ config.mini_clue = function()
             if choice == "Enable" then
                 _G.LVIM_SETTINGS["keyshelper"] = true
                 funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
-                vim.g.miniclue_disable = false
                 clue_enable_disable(true)
                 notify.info("Keys helper enabled", { title = "LVIM IDE" })
             elseif choice == "Disable" then
                 _G.LVIM_SETTINGS["keyshelper"] = false
                 funcs.write_file(global.lvim_path .. "/.configs/lvim/config.json", _G.LVIM_SETTINGS)
-                vim.g.miniclue_disable = true
                 clue_enable_disable(false)
                 notify.info("Keys helper disabled", { title = "LVIM IDE" })
             end
@@ -1052,7 +1031,18 @@ config.netrw_nvim = function()
     if not netrw_nvim_status_ok then
         return
     end
-    netrw_nvim.setup()
+    netrw_nvim.setup({
+        use_devicons = true,
+    })
+    vim.api.nvim_create_autocmd("FileType", {
+        pattern = {
+            "netrw",
+        },
+        callback = function()
+            vim.opt_local.signcolumn = "yes:1"
+        end,
+        group = "LvimIDE",
+    })
 end
 
 config.neo_tree_nvim = function()

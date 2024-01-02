@@ -126,12 +126,6 @@ modules["sidlatau/neotest-dart"] = {
     lazy = true,
 }
 
-modules["ray-x/guihua.lua"] = {
-    commit = funcs.get_commit("guihua.lua", plugins_snapshot),
-    build = "cd lua/fzy && make",
-    lazy = true,
-}
-
 modules["nvim-treesitter/playground"] = {
     commit = funcs.get_commit("playground", plugins_snapshot),
     lazy = true,
@@ -251,6 +245,9 @@ modules["echasnovski/mini.clue"] = {
 
 modules["prichrd/netrw.nvim"] = {
     commit = funcs.get_commit("netrw.nvim", plugins_snapshot),
+    dependencies = {
+        "nvim-tree/nvim-web-devicons",
+    },
     config = ui_config.netrw_nvim,
 }
 
@@ -431,6 +428,76 @@ modules["ibhagwan/fzf-lua"] = {
             end,
             desc = "FzfLua buffers",
         },
+        {
+            "gzd",
+            function()
+                vim.cmd("FzfLua lsp_definitions")
+            end,
+            desc = "FzfLua lsp definitions",
+        },
+        {
+            "gzD",
+            function()
+                vim.cmd("FzfLua lsp_declarations")
+            end,
+            desc = "FzfLua lsp declarations",
+        },
+        {
+            "gzt",
+            function()
+                vim.cmd("FzfLua lsp_typedefs")
+            end,
+            desc = "FzfLua lsp type definition",
+        },
+        {
+            "gzr",
+            function()
+                vim.cmd("FzfLua lsp_references")
+            end,
+            desc = "FzfLua lsp references",
+        },
+        {
+            "gzi",
+            function()
+                vim.cmd("FzfLua lsp_implementations")
+            end,
+            desc = "FzfLua lsp implementations",
+        },
+        {
+            "gzf",
+            function()
+                vim.cmd("FzfLua lsp_finder")
+            end,
+            desc = "FzfLua lsp finder",
+        },
+        {
+            "gzw",
+            function()
+                vim.cmd("FzfLua lsp_document_diagnostics")
+            end,
+            desc = "FzfLua lsp document diagnostics",
+        },
+        {
+            "gzW",
+            function()
+                vim.cmd("FzfLua lsp_workspace_diagnostics")
+            end,
+            desc = "FzfLua lsp workspace diagnostics",
+        },
+        {
+            "gzs",
+            function()
+                vim.cmd("FzfLua lsp_document_symbols")
+            end,
+            desc = "FzfLua lsp document symbols",
+        },
+        {
+            "gzS",
+            function()
+                vim.cmd("FzfLua lsp_workspace_symbols")
+            end,
+            desc = "FzfLua lsp workspace symbols",
+        },
     },
     config = editor_config.fzf_lua,
 }
@@ -507,12 +574,6 @@ modules["mangelozzi/rgflow.nvim"] = {
         },
     },
     config = editor_config.rgflow_nvim,
-}
-
-modules["ecthelionvi/NeoComposer.nvim"] = {
-    commit = funcs.get_commit("NeoComposer.nvim", plugins_snapshot),
-    dependencies = { "kkharji/sqlite.lua" },
-    config = editor_config.neocomposer_nvim,
 }
 
 modules["gennaro-tedesco/nvim-peekup"] = {
@@ -866,6 +927,18 @@ modules["nvim-neotest/neotest"] = {
     config = languages_config.neotest,
 }
 
+modules["antosha417/nvim-lsp-file-operations"] = {
+    commit = funcs.get_commit("nvim-lsp-file-operations", plugins_snapshot),
+    dependencies = {
+        "nvim-lua/plenary.nvim",
+        "nvim-neo-tree/neo-tree.nvim",
+    },
+    event = {
+        "BufRead",
+    },
+    config = languages_config.nvim_lsp_file_operations,
+}
+
 modules["smjonas/inc-rename.nvim"] = {
     commit = funcs.get_commit("inc-rename.nvim", plugins_snapshot),
     event = {
@@ -921,15 +994,6 @@ modules["simrat39/rust-tools.nvim"] = {
     },
 }
 
-modules["ray-x/go.nvim"] = {
-    commit = funcs.get_commit("go.nvim", plugins_snapshot),
-    dependencies = {
-        "ray-x/guihua.lua",
-    },
-    ft = "go",
-    config = languages_config.go_nvim,
-}
-
 modules["akinsho/flutter-tools.nvim"] = {
     commit = funcs.get_commit("flutter-tools.nvim", plugins_snapshot),
     ft = "dart",
@@ -937,15 +1001,6 @@ modules["akinsho/flutter-tools.nvim"] = {
         "nvim-lua/plenary.nvim",
     },
     config = languages_config.flutter_tools_nvim,
-}
-
-modules["pmizio/typescript-tools.nvim"] = {
-    commit = funcs.get_commit("typescript-tools.nvim", plugins_snapshot),
-    ft = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
-    dependencies = {
-        "neovim/nvim-lspconfig",
-        "nvim-lua/plenary.nvim",
-    },
 }
 
 modules["kosayoda/nvim-lightbulb"] = {
@@ -1044,6 +1099,16 @@ modules["akinsho/pubspec-assist.nvim"] = {
     },
     event = "BufReadPost pubspec.yaml",
     config = languages_config.pubspec_assist_nvim,
+}
+
+modules["dhruvasagar/vim-table-mode"] = {
+    commit = funcs.get_commit("dhruvasagar/vim-table-mode", plugins_snapshot),
+    ft = { "markdown", "text" },
+}
+
+modules["dkarter/bullets.vim"] = {
+    commit = funcs.get_commit("bullets.vim", plugins_snapshot),
+    ft = { "markdown", "text" },
 }
 
 modules["iamcco/markdown-preview.nvim"] = {
