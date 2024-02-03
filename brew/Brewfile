@@ -93,7 +93,7 @@ brew 'rclone'
 brew 'exiftool'
 brew 'imagemagick'
 brew 'jless'
-brew 'trash'
+brew 'trash' # alias for rm, see system/install.fish
 brew 'direnv'
 brew 'pre-commit'
 brew 'reattach-to-user-namespace' # copying in tmux vi-mode. See tmux.conf
