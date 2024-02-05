@@ -15,7 +15,7 @@ case "*inux"
     set find_command 'find $profile_base_dir -maxdepth 1 -type d -name "*.default"'
 case '*'
     echo "Unsupported operating system."
-    exit 1
+    exit 0
 end
 
 # Find the Firefox profile folder
@@ -23,7 +23,7 @@ set profile_folder (eval $find_command | head -n 1)
 
 if test -z "$profile_folder"
     echo "Firefox profile folder not found. Make sure Firefox is installed and has a default profile."
-    exit 1
+    exit 0
 end
 
 # GitHub release URL for the Arkenfox user.js
