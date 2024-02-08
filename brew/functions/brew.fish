@@ -1,4 +1,8 @@
 function brew -w brew
+    if ! command -qs brew
+        echo "brew is not installed"
+        return
+    end
     switch $argv[1]
     case cleanup
         # See $DOTFILES/bin/brew-cleanup
@@ -7,8 +11,6 @@ function brew -w brew
         # See $DOTFILES/bin/brew-bump
         brew-bump
     case '*'
-        if command -q brew
             command brew $argv
-        end
     end
 end
