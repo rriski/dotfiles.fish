@@ -5,7 +5,7 @@ source $DOTFILES/script/utils.fish
 if command -qs gh
 	gh config set git_protocol ssh
 
-	for ext in mislav/gh-branch vilmibm/gh-user-status dlvhdr/gh-dash
+	for ext in mislav/gh-branch vilmibm/gh-user-status dlvhdr/gh-dash github/gh-copilot
 		gh extension install $ext || true
 	end
 end
