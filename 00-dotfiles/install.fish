@@ -1,6 +1,7 @@
 #!/usr/bin/env fish
 
 set -Ux EDITOR vim
+set -Ux SYSTEMD_EDITOR $EDITOR
 set -Ux VISUAL $EDITOR
 set -Ux WEDITOR code
 set -Ux TERM xterm-kitty
