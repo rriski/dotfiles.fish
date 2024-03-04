@@ -8,6 +8,9 @@
 [pull]
 	ff = only
 
+[fetch]
+    writeCommiGraph = true
+
 [remote]
 	pushDefault = origin
 
