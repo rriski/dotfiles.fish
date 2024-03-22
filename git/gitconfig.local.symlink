@@ -9,7 +9,7 @@
 	ff = only
 
 [fetch]
-    writeCommiGraph = true
+    writeCommitGraph = true
 
 [remote]
 	pushDefault = origin
