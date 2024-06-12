@@ -24,7 +24,9 @@ M.git_menu = Hydra({
         invoke_on_body = true,
         hint = {
             position = "bottom-center",
-            border = "single",
+            float_opts = {
+                border = "single",
+            },
         },
     },
     mode = { "n", "x", "v" },
@@ -83,7 +85,9 @@ M.diff_view = Hydra({
         invoke_on_body = true,
         hint = {
             position = "bottom-center",
-            border = "single",
+            float_opts = {
+                border = "single",
+            },
         },
     },
     heads = {
@@ -163,7 +167,9 @@ M.git_signs = Hydra({
         invoke_on_body = true,
         hint = {
             position = "bottom-center",
-            border = "single",
+            float_opts = {
+                border = "single",
+            },
         },
     },
     heads = {

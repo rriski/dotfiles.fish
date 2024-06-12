@@ -24,7 +24,9 @@ M.telescope_menu = Hydra({
         invoke_on_body = true,
         hint = {
             position = "top-center",
-            border = "single",
+            float_opts = {
+                border = "single",
+            },
         },
     },
     mode = { "n", "x", "v" },
@@ -88,7 +90,9 @@ M.telescope_file = Hydra({
         invoke_on_body = true,
         hint = {
             position = "top-center",
-            border = "single",
+            float_opts = {
+                border = "single",
+            },
         },
     },
     heads = {
@@ -155,7 +159,9 @@ M.telescope_vim = Hydra({
         invoke_on_body = true,
         hint = {
             position = "top-center",
-            border = "single",
+            float_opts = {
+                border = "single",
+            },
         },
     },
     heads = {
@@ -306,7 +312,9 @@ M.telescope_lsp = Hydra({
         invoke_on_body = true,
         hint = {
             position = "top-center",
-            border = "single",
+            float_opts = {
+                border = "single",
+            },
         },
     },
     heads = {
@@ -395,7 +403,9 @@ M.telescope_git = Hydra({
         invoke_on_body = true,
         hint = {
             position = "top-center",
-            border = "single",
+            float_opts = {
+                border = "single",
+            },
         },
     },
     heads = {

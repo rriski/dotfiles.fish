@@ -52,7 +52,9 @@ M.package_info = function()
             invoke_on_body = true,
             hint = {
                 position = "bottom-center",
-                border = "single",
+                float_opts = {
+                    border = "single",
+                },
             },
             buffer = true,
         },
@@ -93,7 +95,9 @@ M.crates = function()
             invoke_on_body = true,
             hint = {
                 position = "bottom-center",
-                border = "single",
+                float_opts = {
+                    border = "single",
+                },
             },
             buffer = true,
         },
@@ -164,7 +168,9 @@ M.pubspec_assist = function()
             invoke_on_body = true,
             hint = {
                 position = "bottom-center",
-                border = "single",
+                float_opts = {
+                    border = "single",
+                },
             },
             buffer = true,
         },

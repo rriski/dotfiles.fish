@@ -278,8 +278,8 @@ config.neodev_nvim = function()
         library = {
             enabled = true,
             runtime = true,
+            plugins = { "nvim-dap-ui" },
             types = true,
-            plugins = false,
         },
     })
 end
@@ -446,8 +446,7 @@ config.nvim_treesitter = function()
         },
         highlight = {
             enable = true,
-            -- disable = { "markdown" },
-            -- additional_vim_regex_highlighting = { "org" },
+            additional_vim_regex_highlighting = { "org" },
         },
         indent = {
             enable = true,
@@ -456,9 +455,6 @@ config.nvim_treesitter = function()
             },
         },
         autopairs = {
-            enable = true,
-        },
-        autotag = {
             enable = true,
         },
         rainbow = {
@@ -536,23 +532,30 @@ config.nvim_navbuddy = function()
         lsp = { auto_attach = true },
     })
     vim.keymap.set("n", "<C-c>v", function()
-        vim.cmd("Navbuddy")
+        nvim_navbuddy.open()
     end, { noremap = true, silent = true, desc = "Navbuddy" })
 end
 
-config.symbols_outline_nvim = function()
-    local symbols_outline_status_ok, symbols_outline = pcall(require, "symbols-outline")
-    if not symbols_outline_status_ok then
+config.outline_nvim = function()
+    local outline_status_ok, outline = pcall(require, "outline")
+    if not outline_status_ok then
         return
     end
-    symbols_outline.setup({
-        symbols = icons.outline,
-        highlight_hovered_item = true,
-        show_guides = true,
+    outline.setup({
+        outline_window = {
+            winhl = "Normal:SideBar,NormalNC:SideBarNC",
+        },
+        preview_window = {
+            border = { " ", " ", " ", " ", " ", " ", " ", " " },
+            winhl = "Normal:SideBar,NormalNC:SideBarNC",
+        },
+        symbols = {
+            icons = icons.outline,
+        },
     })
     vim.keymap.set("n", "<A-v>", function()
-        vim.cmd("SymbolsOutline")
-    end, { noremap = true, silent = true, desc = "SymbolsOutline" })
+        vim.cmd("Outline")
+    end, { noremap = true, silent = true, desc = "Outline" })
 end
 
 config.nvim_dap_ui = function()
@@ -726,13 +729,12 @@ config.nvim_dap_vscode_js = function()
     })
 end
 
-config.vim_dadbod_ui = function()
-    vim.g.db_ui_show_help = 0
-    vim.g.db_ui_win_position = "left"
-    vim.g.db_ui_use_nerd_fonts = 1
-    vim.g.db_ui_winwidth = 35
-    vim.g.db_ui_auto_execute_table_helpers = true
-    vim.api.nvim_create_user_command("LspHover", "lua vim.lsp.buf.hover()", {})
+config.nvim_dbee = function()
+    local nvim_dbee_status_ok, nvim_dbee = pcall(require, "dbee")
+    if not nvim_dbee_status_ok then
+        return
+    end
+    nvim_dbee.setup()
 end
 
 config.package_info_nvim = function()
@@ -800,6 +802,14 @@ config.markdown_preview_nvim = function()
     vim.keymap.set("n", "<S-m>", function()
         vim.cmd("MarkdownPreviewToggle")
     end, { noremap = true, silent = true, desc = "MarkdownPreviewToggle" })
+end
+
+config.lvim_md_utils = function()
+    local lvim_md_utils_status_ok, lvim_md_utils = pcall(require, "lvim-md-utils")
+    if not lvim_md_utils_status_ok then
+        return
+    end
+    lvim_md_utils.setup()
 end
 
 config.vimtex = function()

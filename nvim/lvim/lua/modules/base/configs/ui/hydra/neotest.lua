@@ -24,7 +24,9 @@ M.neotest = Hydra({
         invoke_on_body = true,
         hint = {
             position = "bottom-center",
-            border = "single",
+            float_opts = {
+                border = "single",
+            },
         },
     },
     mode = { "n", "x", "v" },
