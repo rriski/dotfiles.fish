@@ -14,9 +14,11 @@ M.get_statuscolumn = function()
         file_types_statuscolumn[i] = v
     end
     table.insert(file_types_statuscolumn, "fzf")
+    table.insert(file_types_statuscolumn, "markdown")
+    table.insert(file_types_statuscolumn, "org")
 
     local static = {
-        get_extmarks_signs = function(self, bufnr, lnum)
+        get_extmarks_signs = function(_, bufnr, lnum)
             local signs = {}
             local extmarks = vim.api.nvim_buf_get_extmarks(
                 0,
@@ -43,11 +45,11 @@ M.get_statuscolumn = function()
                 end
             end
             table.sort(signs, function(a, b)
-                return (a.priority or 0) < (b.priority or 0)
+                return (a.priority or 0) > (b.priority or 0)
             end)
             return signs
         end,
-        get_extmarks_gits = function(self, bufnr, lnum)
+        get_extmarks_gits = function(_, bufnr, lnum)
             local gits = {}
             local extmarks = vim.api.nvim_buf_get_extmarks(
                 0,
@@ -75,7 +77,6 @@ M.get_statuscolumn = function()
             end
             return gits
         end,
-        -- ns_git = vim.api.nvim_create_namespace("gitsigns_extmark_signs_"),
         click_args = function(self, minwid, clicks, button, mods)
             local args = {
                 minwid = minwid,
@@ -103,20 +104,20 @@ M.get_statuscolumn = function()
         end,
         handlers = {
             Signs = {
-                ["Neotest.*"] = function(self, args)
+                ["Neotest.*"] = function(_, _)
                     require("neotest").run.run()
                 end,
-                ["Debug.*"] = function(self, args)
+                ["Debug.*"] = function(_, _)
                     require("dap").continue()
                 end,
-                ["Diagnostic.*"] = function(self, args)
+                ["Diagnostic.*"] = function(_, _)
                     vim.cmd("LspShowDiagnosticCurrent")
                 end,
             },
-            Dap = function(self, args)
+            Dap = function(_, _)
                 require("dap").toggle_breakpoint()
             end,
-            GitSigns = function(self, args)
+            GitSigns = function(_, _)
                 vim.defer_fn(function()
                     gitsigns.preview_hunk()
                 end, 100)
@@ -203,10 +204,18 @@ M.get_statuscolumn = function()
 
     local statuscolumn = {
         condition = function()
-            return not conditions.buffer_matches({
-                buftype = buf_types,
-                filetype = file_types_statuscolumn,
-            })
+            if
+                conditions.buffer_matches({
+                    buftype = buf_types,
+                    filetype = file_types_statuscolumn,
+                })
+            then
+                vim.opt.number = false
+                vim.opt.relativenumber = false
+                return false
+            else
+                return true
+            end
         end,
         static = static,
         init = init,

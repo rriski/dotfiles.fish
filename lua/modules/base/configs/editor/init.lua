@@ -98,6 +98,17 @@ config.fzf_lua = function()
         return
     end
     fzf_lua.setup({
+        defaults = {
+            multiline = 2,
+        },
+        fzf_opts = {
+            ["--highlight-line"] = true,
+            ["--border"] = "none",
+            ["--layout"] = "reverse",
+            ["--height"] = "100%",
+            ["--info"] = "inline-right",
+            ["--ansi"] = true,
+        },
         fzf_colors = {
             ["fg"] = { "fg", "FzfLuaLine" },
             ["bg"] = { "bg", "FzfLuaNormal" },
@@ -127,6 +138,7 @@ config.fzf_lua = function()
                 col = col,
                 border = { " ", " ", " ", " ", " ", " ", " ", " " },
                 preview = {
+                    layout = "horizontal",
                     vertical = "down:45%",
                     horizontal = "right:50%",
                     border = "noborder",
@@ -134,6 +146,10 @@ config.fzf_lua = function()
             }
         end,
     })
+end
+
+config.lvim_file_browser = function()
+    vim.api.nvim_create_user_command("LvimFileBrowser", "lua require('lvim-file-browser').browse()", {})
 end
 
 config.lvim_linguistics = function()
@@ -281,11 +297,25 @@ config.nvim_pqf = function()
     end
     pqf.setup({
         signs = {
-            error = " " .. icons.diagnostics.error,
-            warning = " " .. icons.diagnostics.warn,
-            info = " " .. icons.diagnostics.info,
-            hint = " " .. icons.diagnostics.hint,
+            error = {
+                text = icons.diagnostics.error,
+                hl = "DiagnosticSignError",
+            },
+            warning = {
+                text = icons.diagnostics.warn,
+                hl = "DiagnosticSignWarn",
+            },
+            info = {
+                text = icons.diagnostics.info,
+                hl = "DiagnosticSignInfo",
+            },
+            hint = {
+                text = icons.diagnostics.hint,
+                hl = "DiagnosticSignHint",
+            },
         },
+        show_multiple_lines = true,
+        max_filename_length = 0,
     })
 end
 
@@ -607,6 +637,11 @@ config.nvim_treesitter_context = function()
                 "block_mapping_pair",
             },
         },
+        on_attach = function(bufnr)
+            if vim.bo[bufnr].filetype == "markdown" or vim.bo[bufnr].filetype == "org" then
+                return false
+            end
+        end,
         exact_patterns = {},
         zindex = 20,
         mode = "cursor",
