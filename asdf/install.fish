@@ -11,11 +11,13 @@
 #
 if ! test -f ~/.asdf/asdf.fish
 	git clone https://github.com/asdf-vm/asdf.git ~/.asdf
-    source ~/.asdf/asdf.fish
+	source ~/.asdf/asdf.fish
 end
 
 for plugin in nodejs lua golang terraform python rust pipx
 	if ! test -d ~/.asdf/plugins/$plugin
 		asdf plugin add $plugin
+		asdf install $plugin latest
+		asdf global $plugin latest
 	end
 end
