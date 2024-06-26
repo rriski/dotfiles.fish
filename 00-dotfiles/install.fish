@@ -14,7 +14,9 @@ for f in $DOTFILES/*/functions
 	set -Up fish_function_path $f
 end
 
-varclear fish_function_path # Remove duplicate entries from fish_function_path
+if functions -q varclear
+    varclear fish_function_path # Remove duplicate entries from fish_function_path
+end
 
 for f in $DOTFILES/*/conf.d/*.fish
 	ln -sf $f $__fish_config_dir/conf.d/(basename $f)
