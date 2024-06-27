@@ -21,3 +21,7 @@ for plugin in nodejs lua golang terraform python rust pipx
 		asdf global $plugin latest
 	end
 end
+
+if ! test -f ~/.asdf/completions/asdf.fish
+	ln -s ~/.asdf/completions/asdf.fish ~/.config/fish/completions
+end
