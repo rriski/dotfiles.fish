@@ -141,20 +141,23 @@ ctrl - h [
     * : yabai -m window --focus west
     "Kitty" ~
     "Code" ~
+    "Zed" ~
 ]
 ctrl - j [
     * : yabai -m window --focus south
     "Kitty" ~
     "Code" ~
+    "Zed" ~
 ]
 ctrl - k [
     * : yabai -m window --focus north
     "Kitty" ~
     "Code" ~
+    "Zed" ~
 ]
 ctrl - l [
     * : yabai -m window --focus east
     "Kitty" ~
     "Code" ~
+    "Zed" ~
 ]
-
