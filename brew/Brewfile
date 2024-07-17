@@ -7,6 +7,10 @@ tap 'FelixKratz/formulae'
 # CLI
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+# ai
+brew 'ollama'
+brew 'llama.cpp'
+
 # window manager
 brew 'yabai'
 brew 'borders' # from FelixKratz/formulae
@@ -104,6 +108,7 @@ brew 'gnupg'
 brew 'htop'
 brew 'ykman'
 brew 'pass'
+cask 'macfuse'
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Applications
@@ -112,8 +117,12 @@ brew 'pass'
 # terminal emulator
 cask 'kitty'
 
+# disk space analysis
+cask 'czkawka'
+
 # editor
 cask 'visual-studio-code'
+cask 'zed'
 
 # bar
 brew 'sketchybar'
