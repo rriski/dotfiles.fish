@@ -2,9 +2,6 @@
 # General
 ##############################################
 
-# Open Kitty
-cmd - return : /Applications/kitty.app/Contents/MacOS/kitty --single-instance -d ~
-
 # Restart yabai launch agent
 ctrl + alt + cmd - r : yabai --restart-service
 
