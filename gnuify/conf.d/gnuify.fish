@@ -11,6 +11,9 @@ end
 set BREW_PREFIX (brew --prefix)
 
 for bindir in $BREW_PREFIX/opt/*/libexec/gnubin
+    if string match -q '*/libtool/*' $bindir
+        continue
+    end
     fish_add_path -pmP $bindir
 end
 
