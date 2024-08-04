@@ -318,6 +318,21 @@ config.noice_nvim = function()
                     cursorline = false,
                 },
             },
+            cmdline_input = {
+                border = {
+                    style = { " ", " ", " ", " ", " ", " ", " ", " " },
+                    padding = { 0, 1 },
+                },
+                win_options = {
+                    winhighlight = {
+                        Normal = "NoiceBody",
+                        FloatBorder = "NoiceBorder",
+                        IncSearch = "IncSearch",
+                        Search = "Search",
+                    },
+                    cursorline = false,
+                },
+            },
             confirm = {
                 backend = "popup",
                 relative = "editor",
@@ -692,6 +707,7 @@ config.mini_clue = function()
                 { mode = "x", keys = "y" },
                 { mode = "n", keys = "c" },
                 { mode = "x", keys = "c" },
+                { mode = "n", keys = "m" },
             },
             clues = {
                 mini_clue.gen_clues.builtin_completion(),
