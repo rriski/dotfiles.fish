@@ -94,10 +94,10 @@
 	fco = "!git short-recent | fzf --print0 | xargs -0 -t git checkout"
 
 # fuzzy fix staged changes into existing commit
-	ffix = !HASH=`git log --pretty=oneline | head -n 100 | fzf` && git fixit `echo ${HASH} | awk '{ print $1 }'`
+	ffix = !HASH=`git log --pretty=oneline | head -n 300 | fzf` && git fixit `echo ${HASH} | awk '{ print $1 }'`
 
 # fuzzy rebase interactive choose existing commit to start from
-	frebase = !HASH=`git log --pretty=oneline | head -n 100 | fzf` && git rebase -i `echo ${HASH} | awk '{ print $1 }'`^
+	frebase = !HASH=`git log --pretty=oneline | head -n 300 | fzf` && git rebase -i `echo ${HASH} | awk '{ print $1 }'`^
 
 # fuzzy edit untracked/modified files
 	fed = !FILES=`git status -s | awk '{ print $2 }' | fzf -x -m` && code ${FILES}
@@ -115,4 +115,7 @@
 	freset = !HASH=`git log --pretty=oneline | head -n 50 | fzf` && git reset --soft `echo ${HASH} | awk '{ print $1 }'`^
 
 # clean local branches
-    cleanbr = ! git branch -d `git branch --merged | grep -v '^*\\|main\\|master\\|staging\\|devel'`
+  cleanbr = ! git branch -d `git branch --merged | grep -v '^*\\|main\\|master\\|staging\\|devel'`
+
+# Remove files marked as "deleted by us" during a merge conflict
+  rmdu = ! git status --porcelain | grep 'DU' | cut -c4- | xargs git rm
