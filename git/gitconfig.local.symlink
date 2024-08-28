@@ -62,6 +62,9 @@
 [mergetool "vscode"]
 	cmd = code --wait $MERGED
 
+[rebase]
+  updateRefs = true
+
 [diff]
     colorMoved = default
     tool = vscode
