@@ -1,88 +1,88 @@
 [url "git@github.com:"]
-	insteadOf = http://github.com/
-	insteadOf = https://github.com/
+  insteadOf = http://github.com/
+  insteadOf = https://github.com/
 
 [push]
-	default = current
+  default = current
 
 [pull]
-	ff = only
+  ff = only
 
 [fetch]
-    writeCommitGraph = true
-    prune = true
+  writeCommitGraph = true
+  prune = true
 
 [remote]
-	pushDefault = origin
+  pushDefault = origin
 
 [commit]
-	template = ~/.gitmessage
+  template = ~/.gitmessage
 
 [apply]
-	whitespace = nowarn
+  whitespace = nowarn
 
 [help]
-	autocorrect = 1
+  autocorrect = 1
 
 [color]
-	ui = auto
+  ui = auto
 
 [submodule]
-	fetchJobs = 4
+  fetchJobs = 4
 
 [rerere]
-    enabled = true
+  enabled = true
 
 [core]
-	editor = nvim
-	excludesfile = "~/.gitignore"
-	attributesfile = "~/.gitattributes"
-	pager = delta
-	autocrlf = input
+  editor = nvim
+  excludesfile = "~/.gitignore"
+  attributesfile = "~/.gitattributes"
+  pager = delta
+  autocrlf = input
 
 [interactive]
-	diffFilter = delta --color-only
+  diffFilter = delta --color-only
 
 [delta]
-	side-by-side = true
-	line-numbers-left-format = ""
-	line-numbers-right-format = "│ "
-	syntax-theme = Dracula
-	line-numbers = true
-	decorations = true
+  side-by-side = true
+  line-numbers-left-format = ""
+  line-numbers-right-format = "│ "
+  syntax-theme = Dracula
+  line-numbers = true
+  decorations = true
 
 [init]
-	defaultBranch = main
-	templateDir = ~/.git-templates
+  defaultBranch = main
+  templateDir = ~/.git-templates
 
 [merge]
-	conflictstyle = diff3
-	tool = vscode
+  conflictstyle = diff3
+  tool = vscode
 
 [mergetool "vscode"]
-	cmd = code --wait $MERGED
+  cmd = code --wait $MERGED
 
 [rebase]
   updateRefs = true
 
 [diff]
-    colorMoved = default
-    tool = vscode
+  colorMoved = default
+  tool = vscode
 
 [difftool "vscode"]
-    cmd = code --wait --diff $LOCAL $REMOTE
+  cmd = code --wait --diff $LOCAL $REMOTE
 
 [includeIf "gitdir:~/code/personal/"]
-    path = ~/.gitconfig.personal
+  path = ~/.gitconfig.personal
 
 [includeIf "gitdir:~/code/3rdparty/"]
-    path = ~/.gitconfig.personal
+  path = ~/.gitconfig.personal
 
 [includeIf "gitdir:~/.dotfiles.fish/"]
-    path = ~/.gitconfig.personal
+  path = ~/.gitconfig.personal
 
 [includeIf "gitdir:~/code/work/"]
-    path = ~/.gitconfig.work
+  path = ~/.gitconfig.work
 
 [include]
-	path = "~/.gitalias.local"
+  path = "~/.gitalias.local"
