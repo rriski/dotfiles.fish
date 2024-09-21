@@ -9,7 +9,7 @@
 " Firefox homepage, but Tridactyl doesn't support this yet.
 set newtab about:blank
 
-# Install Dracula theme
+" Install Dracula theme
 colourscheme --url https://raw.githubusercontent.com/dracula/tridactyl/main/dracula.css dracula_custom
 
 " Ctrl-F should use the browser's native 'find' functionality.
