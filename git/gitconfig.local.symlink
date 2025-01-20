@@ -34,7 +34,7 @@
   enabled = true
 
 [core]
-  editor = nvim
+  editor = vim
   excludesfile = "~/.gitignore"
   attributesfile = "~/.gitattributes"
   pager = delta
@@ -56,7 +56,7 @@
   templateDir = ~/.git-templates
 
 [merge]
-  conflictstyle = diff3
+  conflictstyle = zdiff3
   tool = vscode
 
 [mergetool "vscode"]
