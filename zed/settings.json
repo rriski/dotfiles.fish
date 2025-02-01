@@ -7,6 +7,12 @@
 // custom settings, run the `open default settings` command
 // from the command palette or from `Zed` application menu.
 {
+  "language_models": {
+    "openai": {
+      "version": "1",
+      "api_url": "http://localhost:11434/v1"
+    }
+  },
   "base_keymap": "VSCode",
   "theme": "Dracula",
   "tab_size": 2,
@@ -48,8 +54,8 @@
 
   "terminal": {
     "alternate_scroll": "on",
-    "font_family": "Iosevka Nerd Font Mono",
-    "blinking": "off"
+    "option_as_meta": false,
+    "blinking": "on"
     // "shell": {
     //   "with_arguments": {
     //     "program": "tmux",
@@ -65,18 +71,22 @@
 
   // Local AI with Ollama, refer https://zed.dev/docs/assistant-panel#using-ollama-on-macos
   "assistant": {
-    "version": "1",
-    "provider": {
-      "name": "openai",
-      "type": "openai",
-      "default_model": "gpt-4-turbo-preview",
-      // make sure ollama is running
-      "api_url": "http://localhost:11434/v1"
-    }
+    "default_model": {
+      "provider": "zed.dev",
+      "model": "claude-3-5-sonnet-20240620"
+    },
+    "version": "2",
+    "provider": null
   },
 
   "journal": {
     "path": "~",
     "hour_format": "hour24"
+  },
+
+  "buffer_font_features": {
+    "calt": true,
+    "ss01": true,
+    "cv01": 7
   }
 }
