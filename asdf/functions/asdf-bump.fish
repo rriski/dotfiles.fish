@@ -5,7 +5,7 @@ function asdf-bump -d "bump all asdf tools to latest version"
 
         if test $status -eq 0
             asdf install $tool_name latest
-            asdf global $tool_name (asdf latest $tool_name)
+            asdf set --home $tool_name (asdf latest $tool_name)
         end
     end
 end
