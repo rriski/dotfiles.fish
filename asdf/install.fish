@@ -49,7 +49,7 @@ end
 download_asdf
 setup_asdf
 
-for plugin in nodejs lua golang terraform python rust pipx
+for plugin in nodejs lua golang terraform python rust
     if not test -d ~/.asdf/plugins/$plugin
         asdf plugin add $plugin
         asdf install $plugin latest
