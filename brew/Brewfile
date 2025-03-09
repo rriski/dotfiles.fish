@@ -116,6 +116,7 @@ cask 'macfuse'
 
 # terminal emulator
 cask 'kitty'
+cask 'ghostty'
 
 # disk space analysis
 cask 'czkawka'
