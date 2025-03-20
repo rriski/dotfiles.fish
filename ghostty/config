@@ -1,2 +1,14 @@
 font-family = Iosevka
 theme = dracula
+
+shell-integration = fish
+
+keybind = ctrl+s>h=new_split:left
+keybind = ctrl+s>j=new_split:down
+keybind = ctrl+s>k=new_split:up
+keybind = ctrl+s>l=new_split:right
+
+keybind = ctrl+h=goto_split:left
+keybind = ctrl+l=goto_split:right
+keybind = ctrl+j=goto_split:bottom
+keybind = ctrl+k=goto_split:top
