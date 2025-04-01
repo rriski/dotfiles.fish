@@ -38,7 +38,8 @@
   },
 
   "ui_font_size": 13,
-  "buffer_font_size": 13,
+  "unstable.ui_density": "compact",
+  "buffer_font_size": 12.0,
   "buffer_font_family": "Iosevka Nerd Font Mono",
 
   "inlay_hints": {
@@ -55,13 +56,15 @@
   "terminal": {
     "alternate_scroll": "on",
     "option_as_meta": false,
-    "blinking": "on"
-    // "shell": {
-    //   "with_arguments": {
-    //     "program": "tmux",
-    //     "args": ["new", "-As", "zed"]
-    //   }
-    // }
+    "blinking": "on",
+    "font_size": 11,
+    "font_family": "Iosevka Nerd Font Mono"
+    //"shell": {
+    //  "with_arguments": {
+    //    "program": "tmux",
+    //    "args": ["new", "-As", "zed"]
+    //  }
+    //}
   },
 
   // Turn off telemetry
@@ -72,8 +75,8 @@
   // Local AI with Ollama, refer https://zed.dev/docs/assistant-panel#using-ollama-on-macos
   "assistant": {
     "default_model": {
-      "provider": "zed.dev",
-      "model": "claude-3-5-sonnet-20240620"
+      "provider": "google",
+      "model": "gemini-2.0-flash-thinking-exp"
     },
     "version": "2",
     "provider": null

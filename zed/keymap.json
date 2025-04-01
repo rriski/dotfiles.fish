@@ -2,8 +2,15 @@
   {
     "context": "Editor && vim_mode == insert",
     "bindings": {
-      "j j": ["vim::SwitchMode", "Normal"],
-      "j k": ["vim::SwitchMode", "Normal"]
+      "j j": "vim::SwitchToNormalMode",
+      "j k": "vim::SwitchToNormalMode"
+    }
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "space f f": "command_palette::Toggle",
+      "cmd-shift-p": "command_palette::Toggle"
     }
   },
   // Below is from https://github.com/jellydn/zed-101-setup
@@ -12,12 +19,12 @@
     "bindings": {
       // put key-bindings here if you want them to work in normal & visual mode
       // Git
-      "space g h d": "editor::ToggleHunkDiff",
+      "space g h d": "editor::ToggleSelectedDiffHunks",
       "space g h r": "editor::RevertSelectedHunks",
 
       // Toggle inlay hints
       "space t i": "editor::ToggleInlayHints",
-
+      //
       // Toggle soft wrap
       "space u w": "editor::ToggleSoftWrap",
 
@@ -42,10 +49,10 @@
       // put key-bindings here if you want them to work only in normal mode
       // Window movement bindings
       // Ctrl jklk to move between panes
-      "ctrl-h": ["workspace::ActivatePaneInDirection", "Left"],
-      "ctrl-l": ["workspace::ActivatePaneInDirection", "Right"],
-      "ctrl-k": ["workspace::ActivatePaneInDirection", "Up"],
-      "ctrl-j": ["workspace::ActivatePaneInDirection", "Down"],
+      "ctrl-h": "workspace::ActivatePaneLeft",
+      "ctrl-l": "workspace::ActivatePaneRight",
+      "ctrl-k": "workspace::ActivatePaneUp",
+      "ctrl-j": "workspace::ActivatePaneDown",
 
       // +LSP
       "space c a": "editor::ToggleCodeActions",
@@ -165,10 +172,10 @@
   {
     "context": "Dock",
     "bindings": {
-      "ctrl-w h": ["workspace::ActivatePaneInDirection", "Left"],
-      "ctrl-w l": ["workspace::ActivatePaneInDirection", "Right"],
-      "ctrl-w k": ["workspace::ActivatePaneInDirection", "Up"],
-      "ctrl-w j": ["workspace::ActivatePaneInDirection", "Down"]
+      "ctrl-w h": "workspace::ActivatePaneLeft",
+      "ctrl-w l": "workspace::ActivatePaneRight",
+      "ctrl-w k": "workspace::ActivatePaneUp",
+      "ctrl-w j": "workspace::ActivatePaneDown"
     }
   }
   // Subword motion is not working really nice with `ciw`, disable for now
