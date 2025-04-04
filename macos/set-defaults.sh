@@ -233,6 +233,10 @@ defaults write com.apple.screencapture disable-shadow -bool true
 echo "  › Set default name for screen captures"
 defaults write com.apple.screencapture name "Capture"
 
+echo "  › Set default location for screen captures"
+mkdir -p "$HOME/Documents/Screenshots"
+defaults write com.apple.screencapture location "$HOME/Documents/Screenshots"
+
 echo "  › Don't include date in screen captures"
 defaults write com.apple.screencapture include-date -bool false
 
