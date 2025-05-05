@@ -1,6 +1,5 @@
 # tap
 tap 'koekeishiya/formulae'
-tap 'homebrew/cask-versions'
 tap 'FelixKratz/formulae'
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -83,7 +82,6 @@ brew 'restic'
 # rust based cli tools
 brew 'dust' # du replacement
 brew 'dua-cli'
-brew 'dog'
 brew 'just'
 brew 'procs' # ps replacement
 
@@ -119,7 +117,7 @@ cask 'kitty'
 cask 'ghostty'
 
 # disk space analysis
-cask 'czkawka'
+cask 'czkawka_cli'
 
 # editor
 cask 'visual-studio-code'
@@ -133,7 +131,7 @@ cask 'ukelele'
 
 # browsers
 cask 'google-chrome'
-cask 'firefox-developer-edition'
+cask 'firefox@developer-edition'
 
 # comms
 cask 'slack'
