@@ -20,6 +20,7 @@ brew 'skhd'
 # shell
 brew 'fish'
 brew 'starship'
+brew 'atuin'
 
 # multiplexer
 brew 'tmux'
