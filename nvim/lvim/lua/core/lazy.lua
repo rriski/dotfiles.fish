@@ -62,7 +62,7 @@ lazy_pack.load = function()
     require("lazy").setup(repos, {
         install = {
             missing = true,
-            colorscheme = vim.g.vscode and {""} or { "lvim", "habamax" },
+            colorscheme = { "lvim", "habamax" },
         },
         ui = {
             size = {
